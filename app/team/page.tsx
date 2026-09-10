@@ -38,6 +38,16 @@ function GitHubIcon({ className = "w-4 h-4" }: { className?: string }) {
   );
 }
 
+const tagColorClasses: Record<string, string> = {
+  TECHNICAL: "bg-cyan-500/10 border-cyan-500/30 text-cyan-400",
+  CREATIVE: "bg-purple-500/10 border-purple-500/30 text-purple-400",
+  MANAGEMENT: "bg-amber-500/10 border-amber-500/30 text-amber-400",
+  MEDIA: "bg-rose-500/10 border-rose-500/30 text-rose-400",
+  COMMUNICATIONS: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400",
+  "EXECUTIVE ROLE": "bg-blue-500/10 border-blue-500/30 text-blue-400",
+  LEADERSHIP: "bg-cyan-500/10 border-cyan-500/30 text-cyan-400",
+};
+
 export default function TeamPage() {
   const { founder, executive, core, domains } = teamData;
 
@@ -309,7 +319,7 @@ export default function TeamPage() {
                       />
                     </div>
 
-                    <span className="px-2 py-0.5 rounded text-[9px] font-mono font-semibold bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 uppercase tracking-wide">
+                    <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-semibold uppercase tracking-wide border ${tagColorClasses[member.tag] || "bg-cyan-500/10 border-cyan-500/30 text-cyan-400"}`}>
                       {member.tag}
                     </span>
 
