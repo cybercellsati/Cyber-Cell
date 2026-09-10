@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cyber-bg: #07090e;
+  --color-cyber-bg-alt: #0b0e14;
+  --color-cyber-card: #0d111a;
+  --color-cyber-card-hover: #121824;
+  --color-cyber-border: rgba(255, 255, 255, 0.08);
+  --color-cyber-cyan: #38bdf8;
+  --color-cyber-cyan-muted: #0284c7;
+  --color-cyber-slate: #94a3b8;
+  --color-cyber-muted: #64748b;
+  --color-cyber-surface: #10141d;
+}
+
+:root {
+  --background: #07090e;
+  --foreground: #f8fafc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: dark;
+}
+
+body {
+  background-color: #07090e;
+  color: #f8fafc;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(56, 189, 248, 0.2);
+  color: #ffffff;
+}
+
+/* Custom understated scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #07090e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Subtle, fine technical grid */
+.cyber-grid {
+  background-size: 48px 48px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+}
+
+/* Soft, minimal ambient light (no radioactive neon) */
+.ambient-glow {
+  background: radial-gradient(circle at 50% 15%, rgba(56, 189, 248, 0.035) 0%, transparent 60%);
+}
+
+/* Matte card surfaces */
+.matte-card {
+  background: #0d111a;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.matte-card:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: #111622;
+}
+
+/* Editorial headline gradient */
+.text-editorial-gradient {
+  background: linear-gradient(180deg, #ffffff 40%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-cyan-accent {
+  color: #38bdf8;
+}
