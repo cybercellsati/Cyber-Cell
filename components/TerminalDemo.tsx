@@ -90,7 +90,7 @@ export default function TerminalDemo() {
         newLines.push({
           type: "output",
           content:
-            "[LEADERSHIP & TEAM]:\n- Yash Harfode (Founder & Convenor)\n- Faculty Guidance: CSE Dept, SATI Vidisha\n- Executive & Domain Leads: Under Central Coding Club\nVisit /team for the complete organizational structure."
+            "[LEADERSHIP & TEAM]:\n- Yash Harfode (Founder & Convenor)\n- Faculty Advisor: Prof. Shivangi Jain (CSE Dept, SATI Vidisha)\n- Krishna Mishra (Co-Convenor)\n- Core Team: Anubhav Vishwkarma (Tech Head), Abhishek Mahore (Media Head), Arya Mishra (Design Head), Ansh Kushwaha (Management Head), Medhavi Sharma (Docs Head)\nVisit /team for the complete organizational structure."
         });
         break;
 

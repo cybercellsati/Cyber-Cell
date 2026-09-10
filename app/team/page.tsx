@@ -45,10 +45,11 @@ const tagColorClasses: Record<string, string> = {
   COMMUNICATIONS: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400",
   "EXECUTIVE ROLE": "bg-blue-500/10 border-blue-500/30 text-blue-400",
   LEADERSHIP: "bg-cyan-500/10 border-cyan-500/30 text-cyan-400",
+  "FACULTY ADVISOR": "bg-indigo-500/10 border-indigo-500/30 text-indigo-400",
 };
 
 export default function TeamPage() {
-  const { founder, executive, core } = teamData;
+  const { founder, faculty, executive, core } = teamData;
 
   return (
     <div className="min-h-screen bg-[#06080d] text-white selection:bg-cyan-500/30 selection:text-cyan-200">
@@ -208,6 +209,67 @@ export default function TeamPage() {
                   </a>
                 )}
               </div>
+            </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* Section: Faculty Advisory */}
+          {/* ========================================================================= */}
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 rounded-md bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                  <GraduationCap className="w-3.5 h-3.5" />
+                </div>
+                <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                  Faculty Advisory
+                </h2>
+                <div className="hidden sm:block w-12 h-[1px] bg-white/20" />
+              </div>
+              <p className="text-xs italic text-slate-400 font-serif">
+                &ldquo;Guiding technical integrity, ethics, and academic excellence.&rdquo;
+              </p>
+            </div>
+
+            {/* Faculty Advisor Card */}
+            <div className="p-6 sm:p-8 rounded-2xl bg-[#080d18] border border-white/10 hover:border-indigo-500/30 transition-all flex flex-col md:flex-row items-start md:items-center gap-6 lg:gap-8 shadow-xl relative overflow-hidden">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex flex-col items-center justify-center text-indigo-400 shrink-0 shadow-lg">
+                <GraduationCap className="w-10 h-10 sm:w-12 sm:h-12 text-indigo-400" />
+                <span className="text-[10px] font-mono font-bold mt-1 text-indigo-300">FACULTY</span>
+              </div>
+
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 uppercase tracking-wide">
+                    {faculty.tag}
+                  </span>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                  {faculty.name}
+                </h3>
+                <p className="text-xs sm:text-sm font-mono font-medium text-indigo-400">
+                  {faculty.role}
+                </p>
+                <p className="text-xs text-slate-400">
+                  {faculty.department}
+                </p>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed pt-1 max-w-2xl">
+                  {faculty.bio}
+                </p>
+              </div>
+
+              {/* Faculty Contact */}
+              {faculty.email && (
+                <div className="shrink-0 flex flex-col gap-2.5 pt-4 md:pt-0 border-t md:border-t-0 border-white/[0.08] w-full md:w-auto text-xs font-mono text-slate-300">
+                  <a
+                    href={`mailto:${faculty.email}`}
+                    className="flex items-center gap-2.5 hover:text-indigo-400 transition-colors"
+                  >
+                    <Mail className="w-4 h-4 text-indigo-400" />
+                    <span>{faculty.email}</span>
+                  </a>
+                </div>
+              )}
             </div>
           </div>
 

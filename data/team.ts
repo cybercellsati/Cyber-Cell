@@ -29,6 +29,14 @@ export const teamData = {
     linkedin: "https://linkedin.com/in/yashharfode",
     github: "https://github.com/yashharfode",
   },
+  faculty: {
+    name: "Prof. Shivangi Jain",
+    tag: "FACULTY ADVISOR",
+    role: "Faculty Advisor & Mentor",
+    department: "Department of Computer Science & Engineering, SATI Vidisha",
+    bio: "Official faculty advisor and mentor for Cyber Cell under the Central Coding Club at Samrat Ashok Technological Institute, Vidisha. Guiding student initiatives, institutional compliance, and academic excellence in cybersecurity.",
+    email: "shivangijain@satiengg.in",
+  },
   // In Executive Committee, ONLY Co-Convenor is placed per user specification
   executive: [
     {
@@ -126,6 +134,7 @@ export const teamData = {
 // Backwards compatibility export
 export const teamStructure = {
   founders: [teamData.founder],
+  faculty: [teamData.faculty],
   executive: teamData.executive,
   core: teamData.core,
   domains: teamData.domains,
