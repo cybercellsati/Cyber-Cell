@@ -1,198 +1,404 @@
 import React from "react";
+import Image from "next/image";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { teamStructure } from "@/data/team";
-import { Shield, Users, Award, Briefcase, GraduationCap, Sparkles } from "lucide-react";
-import Link from "next/link";
+import { teamData } from "@/data/team";
+import { 
+  GraduationCap, 
+  Users, 
+  Shield, 
+  ArrowRight, 
+  Sparkles, 
+  Layers, 
+  Terminal,
+  Mail,
+  ExternalLink
+} from "lucide-react";
 
 export const metadata = {
-  title: "Team & Leadership | Cyber Cell SATI",
-  description: "Leadership, founding advisory, faculty guidance, and student committee of Cyber Cell, SATI Vidisha."
+  title: "People Behind Cyber Cell | Team & Leadership - SATI Vidisha",
+  description: "Meet the student leaders, advisory, core operations team, and domain leads powering Cyber Cell at Samrat Ashok Technological Institute (SATI), Vidisha.",
 };
 
-export default function TeamPage() {
+// Social icon helpers
+function LinkedInIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
-    <div className="min-h-screen bg-[#07090e] text-white flex flex-col">
+    <svg className={`${className} fill-current`} viewBox="0 0 24 24">
+      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45c-.91 0-1.64.73-1.64 1.64s.73 1.64 1.64 1.64 1.64-.73 1.64-1.64-.73-1.64-1.64-1.64Z" />
+    </svg>
+  );
+}
+
+function GitHubIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={`${className} fill-current`} viewBox="0 0 24 24">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+    </svg>
+  );
+}
+
+export default function TeamPage() {
+  const { founder, executive, core, domains } = teamData;
+
+  return (
+    <div className="min-h-screen bg-[#06080d] text-white selection:bg-cyan-500/30 selection:text-cyan-200">
       <Navbar />
 
-      <main className="flex-1 pt-28 pb-20 px-4 sm:px-6 lg:px-8 cyber-grid">
-        <div className="max-w-5xl mx-auto space-y-16">
+      <main className="pt-28 pb-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
           
-          {/* Header */}
-          <div className="text-center max-w-2xl mx-auto">
-            <span className="text-xs font-mono font-medium tracking-widest text-[#38bdf8] uppercase block mb-2">
-              ORGANIZATIONAL LEADERSHIP
-            </span>
-            <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-              Leadership & Core Team
-            </h1>
-            <p className="text-sm sm:text-base text-slate-400 mt-3 leading-relaxed">
-              Operating under the guidance of our founding leadership, faculty mentors from the 
-              Computer Science Department, and the Central Coding Club at Samrat Ashok Technological Institute.
-            </p>
-          </div>
+          {/* ========================================================================= */}
+          {/* Hero Header Section */}
+          {/* ========================================================================= */}
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10 pt-4 pb-6">
+            <div className="max-w-2xl">
+              <span className="text-xs font-mono font-medium tracking-widest text-cyan-400 uppercase block mb-3">
+                OUR TEAM
+              </span>
+              <h1 className="text-4xl sm:text-6xl font-black text-white tracking-tight leading-none mb-4">
+                People Behind <br />
+                <span className="bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent">
+                  Cyber Cell
+                </span>
+              </h1>
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-xl mb-8">
+                A team of passionate learners, builders, and problem solvers working
+                together to make the digital world safer.
+              </p>
 
-          {/* 1. Founder & Advisory */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-2 border-b border-white/[0.08] pb-3">
-              <Sparkles className="w-4 h-4 text-[#38bdf8]" />
-              <h2 className="text-lg sm:text-xl font-bold text-white">Founder & Advisory</h2>
+              {/* 3 Core Value Badges */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-[#090d16] border border-white/[0.08]">
+                  <div className="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shrink-0">
+                    <GraduationCap className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white leading-tight">Learn</p>
+                    <p className="text-[11px] text-slate-400">Build Skills</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-[#090d16] border border-white/[0.08]">
+                  <div className="w-9 h-9 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+                    <Users className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white leading-tight">Collaborate</p>
+                    <p className="text-[11px] text-slate-400">Solve Real Problems</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-[#090d16] border border-white/[0.08]">
+                  <div className="w-9 h-9 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
+                    <Shield className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white leading-tight">Make an Impact</p>
+                    <p className="text-[11px] text-slate-400">A Safer Digital Tomorrow</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-6">
-              {teamStructure.founders.map((founder) => (
+            {/* Right Side Graphic: Hooded Cyber Shield */}
+            <div className="hidden lg:flex items-center justify-center p-6 rounded-2xl bg-[#080d18] border border-cyan-500/20 shadow-[0_0_50px_rgba(6,182,212,0.12)] shrink-0">
+              <div className="relative w-48 h-36">
+                <Image
+                  src="/images/team/hero-shield-badge.png"
+                  alt="Secure Learn Build Together"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* Section 1: Founder & Advisory */}
+          {/* ========================================================================= */}
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 rounded-md bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                  <Sparkles className="w-3.5 h-3.5" />
+                </div>
+                <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                  Founder & Advisory
+                </h2>
+                <div className="hidden sm:block w-12 h-[1px] bg-white/20" />
+              </div>
+              <p className="text-xs italic text-slate-400 font-serif">
+                &ldquo;A safer digital world starts with curious minds.&rdquo;
+              </p>
+            </div>
+
+            {/* Founder Card */}
+            <div className="p-6 sm:p-8 rounded-2xl bg-[#080d18] border border-white/10 hover:border-cyan-500/30 transition-all flex flex-col md:flex-row items-start md:items-center gap-6 lg:gap-8 shadow-xl relative overflow-hidden">
+              <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-2xl overflow-hidden shrink-0 border border-white/10 shadow-lg">
+                <Image
+                  src={founder.image}
+                  alt={founder.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+
+              <div className="flex-1 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 uppercase tracking-wide">
+                    {founder.tag}
+                  </span>
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                  {founder.name}
+                </h3>
+                <p className="text-xs sm:text-sm font-mono font-medium text-cyan-400">
+                  {founder.role}
+                </p>
+                <p className="text-xs text-slate-400">
+                  {founder.department}
+                </p>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed pt-1 max-w-2xl">
+                  {founder.bio}
+                </p>
+              </div>
+
+              {/* Founder Social Links */}
+              <div className="shrink-0 flex flex-col gap-2.5 pt-4 md:pt-0 border-t md:border-t-0 border-white/[0.08] w-full md:w-auto text-xs font-mono text-slate-300">
+                {founder.email && (
+                  <a
+                    href={`mailto:${founder.email}`}
+                    className="flex items-center gap-2.5 hover:text-cyan-400 transition-colors"
+                  >
+                    <Mail className="w-4 h-4 text-cyan-400" />
+                    <span>{founder.email}</span>
+                  </a>
+                )}
+                {founder.linkedin && (
+                  <a
+                    href={founder.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2.5 hover:text-cyan-400 transition-colors"
+                  >
+                    <LinkedInIcon className="w-4 h-4 text-cyan-400" />
+                    <span>linkedin.com/in/yashharfode</span>
+                  </a>
+                )}
+                {founder.github && (
+                  <a
+                    href={founder.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2.5 hover:text-cyan-400 transition-colors"
+                  >
+                    <GitHubIcon className="w-4 h-4 text-cyan-400" />
+                    <span>github.com/yashharfode</span>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* Section 2: Executive Committee */}
+          {/* NOTE: Per requirement, in Executive only Co-Convenor is placed */}
+          {/* ========================================================================= */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 border-b border-white/[0.08] pb-3">
+              <div className="w-6 h-6 rounded-md bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                <Users className="w-3.5 h-3.5" />
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                Executive Committee
+              </h2>
+              <div className="w-12 h-[1px] bg-white/20" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {executive.map((member) => (
                 <div
-                  key={founder.id}
-                  className="p-6 sm:p-8 rounded-xl bg-[#0d111a] border border-white/[0.1] hover:border-white/20 transition-all flex flex-col sm:flex-row items-start gap-6"
+                  key={member.id}
+                  className="p-5 sm:p-6 rounded-2xl bg-[#080d18] border border-white/10 hover:border-cyan-500/30 transition-all flex items-start gap-4 shadow-md"
                 >
-                  <div className="w-16 h-16 rounded-xl bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white shrink-0 font-mono font-bold text-xl">
-                    YH
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 border border-white/10">
+                    <Image
+                      src={member.image}
+                      alt={member.name}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
 
-                  <div className="space-y-2 flex-1">
-                    <div className="flex flex-wrap items-center gap-2.5">
-                      <span className="text-[10px] font-mono px-2.5 py-0.5 rounded bg-sky-500/10 border border-sky-500/30 text-sky-300 font-semibold uppercase">
-                        Leadership
-                      </span>
-                      <span className="text-xs font-mono text-slate-400">
-                        {founder.department}
-                      </span>
-                    </div>
-
-                    <h3 className="text-2xl font-bold text-white">
-                      {founder.name}
+                  <div className="flex-1 min-w-0">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 uppercase tracking-wide">
+                      {member.tag}
+                    </span>
+                    <h3 className="text-base font-bold text-white mt-1 truncate">
+                      {member.name}
                     </h3>
-
-                    <p className="text-sm text-[#38bdf8] font-mono font-medium">
-                      {founder.role}
+                    <p className="text-xs font-mono text-cyan-400 mb-1.5">
+                      {member.role}
+                    </p>
+                    <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-2">
+                      {member.bio}
                     </p>
 
-                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed pt-1">
-                      {founder.bio}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 2. Faculty Advisory */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-2 border-b border-white/[0.08] pb-3">
-              <GraduationCap className="w-4 h-4 text-slate-400" />
-              <h2 className="text-lg sm:text-xl font-bold text-white">Faculty Guidance</h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {teamStructure.faculty.map((member) => (
-                <div
-                  key={member.id}
-                  className="p-6 rounded-xl bg-[#0d111a] border border-white/[0.07] flex items-start gap-4"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-slate-300 shrink-0 font-mono font-bold text-sm">
-                    FA
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-slate-400 uppercase">
-                      Faculty Advisor
-                    </span>
-                    <h3 className="text-base font-bold text-white mt-1.5">{member.name}</h3>
-                    <p className="text-xs text-slate-300 font-mono">{member.role}</p>
-                    <p className="text-xs text-slate-400 mt-1">{member.department}</p>
-                    <p className="text-xs text-slate-400 mt-2.5 leading-relaxed">{member.bio}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 3. Executive Committee */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-2 border-b border-white/[0.08] pb-3">
-              <Award className="w-4 h-4 text-slate-400" />
-              <h2 className="text-lg sm:text-xl font-bold text-white">Executive Committee</h2>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-              {teamStructure.executive.map((member) => (
-                <div
-                  key={member.id}
-                  className="p-5 rounded-xl bg-[#0d111a] border border-white/[0.07] flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="w-10 h-10 rounded-lg bg-white/[0.03] border border-white/[0.06] flex items-center justify-center text-slate-300 font-mono font-bold text-xs mb-3">
-                      {member.role.substring(0, 2).toUpperCase()}
+                    <div className="flex items-center gap-3 mt-3 pt-2.5 border-t border-white/[0.06] text-slate-400">
+                      <a
+                        href={member.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-cyan-400 transition-colors"
+                        aria-label={`${member.name} LinkedIn`}
+                      >
+                        <LinkedInIcon className="w-3.5 h-3.5" />
+                      </a>
+                      <a
+                        href={member.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-cyan-400 transition-colors"
+                        aria-label={`${member.name} GitHub`}
+                      >
+                        <GitHubIcon className="w-3.5 h-3.5" />
+                      </a>
+                      <a
+                        href={`mailto:${member.email}`}
+                        className="hover:text-cyan-400 transition-colors"
+                        aria-label={`${member.name} Email`}
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                      </a>
                     </div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.03] border border-white/[0.06] text-slate-400 uppercase">
-                      Executive Role
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* Section 3: Core Operations Team (5 Members) */}
+          {/* ========================================================================= */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 border-b border-white/[0.08] pb-3">
+              <div className="w-6 h-6 rounded-md bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                <Terminal className="w-3.5 h-3.5" />
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                Core Operations Team
+              </h2>
+              <div className="w-12 h-[1px] bg-white/20" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {core.map((member) => (
+                <div
+                  key={member.id}
+                  className="p-4 rounded-2xl bg-[#080d18] border border-white/10 hover:border-cyan-500/30 transition-all flex flex-col justify-between shadow-md group"
+                >
+                  <div>
+                    <div className="relative w-full aspect-square rounded-xl overflow-hidden mb-3 border border-white/10">
+                      <Image
+                        src={member.image}
+                        alt={member.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+
+                    <span className="px-2 py-0.5 rounded text-[9px] font-mono font-semibold bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 uppercase tracking-wide">
+                      {member.tag}
                     </span>
-                    <h3 className="text-base font-bold text-white mt-1.5">{member.name}</h3>
-                    <p className="text-xs text-[#38bdf8] font-mono mb-2">{member.role}</p>
-                    <p className="text-xs text-slate-400 leading-relaxed">{member.bio}</p>
+
+                    <h3 className="text-sm font-bold text-white mt-1.5 leading-tight">
+                      {member.name}
+                    </h3>
+                    <p className="text-[11px] font-mono text-cyan-400 mt-0.5">
+                      {member.role}
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed line-clamp-3">
+                      {member.bio}
+                    </p>
                   </div>
 
-                  <div className="pt-4 mt-5 border-t border-white/[0.06] text-[10px] font-mono text-slate-500">
-                    SATI Central Coding Club
+                  <div className="flex items-center gap-3 mt-4 pt-3 border-t border-white/[0.06] text-slate-400">
+                    <a
+                      href={member.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-cyan-400 transition-colors"
+                      aria-label={`${member.name} LinkedIn`}
+                    >
+                      <LinkedInIcon className="w-3.5 h-3.5" />
+                    </a>
+                    <a
+                      href={member.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-cyan-400 transition-colors"
+                      aria-label={`${member.name} GitHub`}
+                    >
+                      <GitHubIcon className="w-3.5 h-3.5" />
+                    </a>
+                    <a
+                      href={`mailto:${member.email}`}
+                      className="hover:text-cyan-400 transition-colors"
+                      aria-label={`${member.name} Email`}
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                    </a>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* 4. Core Team */}
+          {/* ========================================================================= */}
+          {/* Section 4: Domain Technical Leads */}
+          {/* ========================================================================= */}
           <div className="space-y-6">
-            <div className="flex items-center gap-2 border-b border-white/[0.08] pb-3">
-              <Briefcase className="w-4 h-4 text-slate-400" />
-              <h2 className="text-lg sm:text-xl font-bold text-white">Core Operations Team</h2>
+            <div className="flex items-center gap-3 border-b border-white/[0.08] pb-3">
+              <div className="w-6 h-6 rounded-md bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                <Layers className="w-3.5 h-3.5" />
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                Domain Technical Leads
+              </h2>
+              <div className="w-12 h-[1px] bg-white/20" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-              {teamStructure.core.map((member) => (
-                <div
-                  key={member.id}
-                  className="p-4 rounded-xl bg-[#0d111a] border border-white/[0.07] flex items-center justify-between"
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {domains.map((domain) => (
+                <Link
+                  key={domain.id}
+                  href={domain.link}
+                  className="group p-5 rounded-xl bg-[#080d18] border border-white/10 hover:border-cyan-500/40 transition-all flex items-center justify-between"
                 >
                   <div>
-                    <h3 className="text-sm font-bold text-white">{member.name}</h3>
-                    <p className="text-xs text-slate-400 font-mono mt-0.5">{member.role}</p>
+                    <h3 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
+                      {domain.title}
+                    </h3>
+                    <p className="text-xs text-slate-400 font-mono mt-0.5">
+                      {domain.role}
+                    </p>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.03] border border-white/[0.06] text-slate-400">
-                    Core
-                  </span>
-                </div>
+                  <div className="w-8 h-8 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500 group-hover:text-black transition-colors shrink-0">
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
+                </Link>
               ))}
             </div>
           </div>
 
-          {/* 5. Domain Leads */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-2 border-b border-white/[0.08] pb-3">
-              <Users className="w-4 h-4 text-slate-400" />
-              <h2 className="text-lg sm:text-xl font-bold text-white">Domain Technical Leads</h2>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-              {teamStructure.domains.map((member) => (
-                <div
-                  key={member.id}
-                  className="p-4 rounded-xl bg-[#0d111a] border border-white/[0.07] flex items-center justify-between"
-                >
-                  <div>
-                    <h3 className="text-sm font-bold text-white">{member.name}</h3>
-                    <p className="text-xs text-slate-300 font-mono mt-0.5">{member.role}</p>
-                  </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/10 border border-sky-500/20 text-sky-400">
-                    Technical
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Recruitment CTA */}
-          <div className="p-6 sm:p-8 rounded-xl bg-[#0d111a] border border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-6">
+          {/* ========================================================================= */}
+          {/* Section 5: Bottom CTA Banner */}
+          {/* ========================================================================= */}
+          <div className="p-6 sm:p-8 rounded-2xl bg-[#080d18] border border-white/10 border-l-4 border-l-[#0ea5e9] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-xl">
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-white mb-1">
+              <h2 className="text-lg sm:text-xl font-bold text-white mb-1">
                 Want to contribute or lead a domain?
               </h2>
               <p className="text-xs sm:text-sm text-slate-400">
@@ -201,9 +407,10 @@ export default function TeamPage() {
             </div>
             <Link
               href="/join"
-              className="px-5 py-2.5 rounded-lg bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-medium text-xs sm:text-sm transition-colors shrink-0"
+              className="group inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-semibold text-xs sm:text-sm transition-all shadow-md shrink-0"
             >
-              Recruitment Process
+              <span>Apply as Member / Lead</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
 
