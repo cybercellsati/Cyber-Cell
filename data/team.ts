@@ -80,7 +80,7 @@ export const teamData = {
     },
     {
       id: "head-management",
-      name: "Ansh Kushwaha & Divyansh Chourey",
+      name: "Ansh Kushwaha",
       tag: "MANAGEMENT",
       role: "Management & Volunteers Head",
       bio: "Coordinates event execution, volunteer mobilization, workshop logistics, and member management.",
