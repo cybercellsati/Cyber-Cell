@@ -26,22 +26,6 @@ export interface UserProfile {
   lastLoginAt: Timestamp | ReturnType<typeof serverTimestamp>;
 }
 
-export interface ClubApplication {
-  id?: string;
-  userId?: string;
-  fullName: string;
-  email: string;
-  phone: string;
-  branch: string;
-  year: string;
-  scholarNumber: string;
-  interests: string[];
-  experienceLevel: "Beginner" | "Intermediate" | "Advanced";
-  motivation: string;
-  githubProfile: string;
-  status: "pending" | "approved" | "rejected";
-  submittedAt: Timestamp | ReturnType<typeof serverTimestamp>;
-}
 
 export interface EventRegistration {
   id?: string;
@@ -106,42 +90,6 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   return null;
 }
 
-/**
- * Submits a new club membership application
- */
-export async function submitClubApplication(
-  application: Omit<ClubApplication, "status" | "submittedAt">
-): Promise<string> {
-  if (!isFirebaseConfigured) {
-    throw new Error("Firebase is not configured. Please add NEXT_PUBLIC_FIREBASE_API_KEY to your .env.local file to submit applications.");
-  }
-  const applicationsRef = collection(db, "applications");
-  const docRef = await addDoc(applicationsRef, {
-    ...application,
-    status: "pending",
-    submittedAt: serverTimestamp(),
-  });
-  return docRef.id;
-}
-
-/**
- * Fetches all applications for a given user
- */
-export async function getUserApplications(userId: string): Promise<ClubApplication[]> {
-  if (!isFirebaseConfigured || !userId) return [];
-  try {
-    const q = query(
-      collection(db, "applications"),
-      where("userId", "==", userId),
-      orderBy("submittedAt", "desc")
-    );
-    const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() } as ClubApplication));
-  } catch (error) {
-    console.error("Error fetching user applications:", error);
-    return [];
-  }
-}
 
 /**
  * Registers an authenticated user for an event / hackathon

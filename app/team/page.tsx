@@ -196,14 +196,14 @@ export default function TeamPage() {
                 Want to contribute or lead a domain?
               </h2>
               <p className="text-xs sm:text-sm text-slate-400">
-                Core committee and domain lead positions are open to SATI students during recruitment drives.
+                Core committee and domain lead positions are inducted through offline recruitment drives at SATI Vidisha.
               </p>
             </div>
             <Link
               href="/join"
               className="px-5 py-2.5 rounded-lg bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-medium text-xs sm:text-sm transition-colors shrink-0"
             >
-              Apply as Member / Lead
+              Recruitment Process
             </Link>
           </div>
 

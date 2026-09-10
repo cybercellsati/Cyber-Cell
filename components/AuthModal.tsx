@@ -122,7 +122,7 @@ export default function AuthModal() {
           </h2>
           <p className="text-xs text-slate-400 mt-1">
             {mode === "signin"
-              ? "Access member resources, applications & registrations"
+              ? "Access member resources, event registrations & club portal"
               : "Join SATI's premier student cybersecurity community"}
           </p>
         </div>

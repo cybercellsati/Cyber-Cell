@@ -39,9 +39,7 @@ export default function Navbar() {
   const pathname = usePathname();
 
   const handleJoinClick = () => {
-    requireAuth(() => {
-      router.push("/join");
-    }, "Sign in required to Join the Club");
+    router.push("/join");
   };
 
 
@@ -173,10 +171,10 @@ export default function Navbar() {
                 </div>
 
                 <Link
-                  href="/join"
+                  href="/resources"
                   className="flex items-center justify-between px-3 py-2 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors"
                 >
-                  <span>My Application</span>
+                  <span>Resource Vault</span>
                   <ArrowRight className="w-3.5 h-3.5 text-slate-500" />
                 </Link>
 

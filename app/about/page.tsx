@@ -144,7 +144,7 @@ export default function AboutPage() {
               href="/join"
               className="px-5 py-2.5 rounded-lg bg-[#00e5ff] text-black font-semibold text-xs sm:text-sm hover:bg-[#22d3ee] transition-colors shrink-0"
             >
-              Apply to Join
+              Join the Club
             </Link>
           </div>
 
