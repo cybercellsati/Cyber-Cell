@@ -405,26 +405,7 @@ export default function TeamPage() {
             </div>
           </div>
 
-          {/* ========================================================================= */}
-          {/* Section 5: Bottom CTA Banner */}
-          {/* ========================================================================= */}
-          <div className="p-6 sm:p-8 rounded-2xl bg-[#080d18] border border-white/10 border-l-4 border-l-[#0ea5e9] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-xl">
-            <div>
-              <h2 className="text-lg sm:text-xl font-bold text-white mb-1">
-                Want to contribute or lead a domain?
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-400">
-                Core committee and domain lead positions are inducted through offline recruitment drives at SATI Vidisha.
-              </p>
-            </div>
-            <Link
-              href="/join"
-              className="group inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-semibold text-xs sm:text-sm transition-all shadow-md shrink-0"
-            >
-              <span>Apply as Member / Lead</span>
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          </div>
+
 
         </div>
       </main>
