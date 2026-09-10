@@ -125,7 +125,7 @@ export default function TeamPage() {
           </div>
 
           {/* ========================================================================= */}
-          {/* Section 1: Founder & Advisory */}
+          {/* Section 1: Founder & Convenor */}
           {/* ========================================================================= */}
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08] pb-3">
@@ -134,7 +134,7 @@ export default function TeamPage() {
                   <Sparkles className="w-3.5 h-3.5" />
                 </div>
                 <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-                  Founder & Advisory
+                  Founder & Convenor
                 </h2>
                 <div className="hidden sm:block w-12 h-[1px] bg-white/20" />
               </div>

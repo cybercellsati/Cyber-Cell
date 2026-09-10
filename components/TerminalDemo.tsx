@@ -90,7 +90,7 @@ export default function TerminalDemo() {
         newLines.push({
           type: "output",
           content:
-            "[LEADERSHIP & TEAM]:\n- Yash Harfode (Founder & Advisor)\n- Faculty Guidance: CSE Dept, SATI Vidisha\n- Executive & Domain Leads: Under Central Coding Club\nVisit /team for the complete organizational structure."
+            "[LEADERSHIP & TEAM]:\n- Yash Harfode (Founder & Convenor)\n- Faculty Guidance: CSE Dept, SATI Vidisha\n- Executive & Domain Leads: Under Central Coding Club\nVisit /team for the complete organizational structure."
         });
         break;
 

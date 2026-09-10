@@ -21,9 +21,9 @@ export const teamData = {
   founder: {
     name: "Yash Harfode",
     tag: "LEADERSHIP",
-    role: "Founder & Advisor",
+    role: "Founder & Convenor",
     department: "Samrat Ashok Technological Institute (SATI), Vidisha",
-    bio: "Founder and Advisor of Cyber Cell under the Central Coding Club at SATI Vidisha. Spearheaded the institution's cybersecurity initiative, establishing structured learning tracks in offensive security, network forensics, CTF training, and campus digital defense.",
+    bio: "Founder and Convenor of Cyber Cell under the Central Coding Club at SATI Vidisha. Spearheaded the institution's cybersecurity initiative, establishing structured learning tracks in offensive security, network forensics, CTF training, and campus digital defense.",
     image: "/images/team/yash-harfode.jpg",
     email: "yash@cybercell.in",
     linkedin: "https://linkedin.com/in/yashharfode",
