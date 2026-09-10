@@ -10,7 +10,6 @@ import {
   Shield, 
   ArrowRight, 
   Sparkles, 
-  Layers, 
   Terminal,
   Mail,
   ExternalLink
@@ -49,7 +48,7 @@ const tagColorClasses: Record<string, string> = {
 };
 
 export default function TeamPage() {
-  const { founder, executive, core, domains } = teamData;
+  const { founder, executive, core } = teamData;
 
   return (
     <div className="min-h-screen bg-[#06080d] text-white selection:bg-cyan-500/30 selection:text-cyan-200">
@@ -367,39 +366,42 @@ export default function TeamPage() {
           </div>
 
           {/* ========================================================================= */}
-          {/* Section 4: Domain Technical Leads */}
+          {/* Section 4: Members */}
           {/* ========================================================================= */}
           <div className="space-y-6">
             <div className="flex items-center gap-3 border-b border-white/[0.08] pb-3">
               <div className="w-6 h-6 rounded-md bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-                <Layers className="w-3.5 h-3.5" />
+                <Users className="w-3.5 h-3.5" />
               </div>
               <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-                Domain Technical Leads
+                Members
               </h2>
               <div className="w-12 h-[1px] bg-white/20" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {domains.map((domain) => (
-                <Link
-                  key={domain.id}
-                  href={domain.link}
-                  className="group p-5 rounded-xl bg-[#080d18] border border-white/10 hover:border-cyan-500/40 transition-all flex items-center justify-between"
-                >
-                  <div>
-                    <h3 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
-                      {domain.title}
-                    </h3>
-                    <p className="text-xs text-slate-400 font-mono mt-0.5">
-                      {domain.role}
-                    </p>
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500 group-hover:text-black transition-colors shrink-0">
-                    <ArrowRight className="w-4 h-4" />
-                  </div>
-                </Link>
-              ))}
+            <div className="p-8 sm:p-12 rounded-2xl bg-[#080d18] border border-white/10 hover:border-cyan-500/30 transition-all text-center relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-blue-500/5 to-purple-500/5 opacity-50 group-hover:opacity-100 transition-opacity" />
+              <div className="relative z-10 max-w-md mx-auto space-y-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+                  <span>COMING SOON</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                  Club Members & Inductees
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                  Official member profiles, working squads, and student contributors will be published here after the completion of our on-campus offline induction drive.
+                </p>
+                <div className="pt-2">
+                  <Link
+                    href="/join"
+                    className="inline-flex items-center gap-2 text-xs font-mono text-cyan-400 hover:text-cyan-300 transition-colors"
+                  >
+                    <span>Read Offline Recruitment Details</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
 
