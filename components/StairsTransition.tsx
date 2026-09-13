@@ -101,18 +101,48 @@ export default function StairsTransition() {
         phase === "covering" ? "pointer-events-auto cursor-wait" : "pointer-events-none"
       }`}
     >
-      {/* 6 Vertical Stair Columns */}
+      {/* 6 Vertical Stair Columns with High-Contrast Cyber Blue & Cyan Palette */}
       <div className="absolute inset-0 flex w-full h-full">
-        {Array.from({ length: TOTAL_STAIRS }).map((_, index) => {
+        {[
+          {
+            gradient: "from-[#00e5ff] via-[#0284c7] to-[#0a1e38]",
+            edge: "bg-cyan-200 shadow-[0_0_18px_#00e5ff,0_0_35px_#00e5ff]",
+            accent: "border-cyan-300/40",
+          },
+          {
+            gradient: "from-[#38bdf8] via-[#0369a1] to-[#0c2547]",
+            edge: "bg-sky-200 shadow-[0_0_18px_#38bdf8,0_0_35px_#0284c7]",
+            accent: "border-cyan-300/40",
+          },
+          {
+            gradient: "from-[#0284c7] via-[#1d4ed8] to-[#0f2c52]",
+            edge: "bg-blue-200 shadow-[0_0_18px_#0284c7,0_0_35px_#1d4ed8]",
+            accent: "border-cyan-300/40",
+          },
+          {
+            gradient: "from-[#2563eb] via-[#1e40af] to-[#0d2240]",
+            edge: "bg-blue-200 shadow-[0_0_18px_#2563eb,0_0_35px_#1e40af]",
+            accent: "border-cyan-300/40",
+          },
+          {
+            gradient: "from-[#0284c7] via-[#0369a1] to-[#0c2547]",
+            edge: "bg-sky-200 shadow-[0_0_18px_#38bdf8,0_0_35px_#0284c7]",
+            accent: "border-cyan-300/40",
+          },
+          {
+            gradient: "from-[#00e5ff] via-[#0284c7] to-[#0a1e38]",
+            edge: "bg-cyan-200 shadow-[0_0_18px_#00e5ff,0_0_35px_#00e5ff]",
+            accent: "border-cyan-300/40",
+          },
+        ].map((stair, index) => {
           // Stagger calculation: left-to-right cascade
-          const coverDelay = index * 0.04;
-          // Reveal stagger: reverse or left-to-right
-          const revealDelay = index * 0.04;
+          const coverDelay = index * 0.045;
+          const revealDelay = index * 0.045;
 
           return (
             <motion.div
               key={index}
-              className="relative h-full flex-1 bg-gradient-to-b from-[#060a12] via-[#09101f] to-[#05080e] border-r border-cyan-500/10 last:border-r-0"
+              className={`relative h-full flex-1 bg-gradient-to-b ${stair.gradient} border-r ${stair.accent} last:border-r-0 shadow-2xl`}
               initial={
                 phase === "covering"
                   ? { y: "-100%" }
@@ -124,17 +154,20 @@ export default function StairsTransition() {
                   : { y: "100%" }
               }
               transition={{
-                duration: 0.36,
+                duration: 0.38,
                 delay: phase === "covering" ? coverDelay : revealDelay,
                 ease: STAIR_EASE,
               }}
             >
+              {/* Beveled glass highlight across the column */}
+              <div className="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-black/20 pointer-events-none" />
+
               {/* Glowing Cyber Accent Line on the leading edge */}
               {phase === "covering" && (
-                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500 shadow-[0_0_12px_rgba(6,182,212,0.9)]" />
+                <div className={`absolute bottom-0 left-0 right-0 h-[3px] ${stair.edge}`} />
               )}
               {phase === "revealing" && (
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500 shadow-[0_0_12px_rgba(6,182,212,0.9)]" />
+                <div className={`absolute top-0 left-0 right-0 h-[3px] ${stair.edge}`} />
               )}
             </motion.div>
           );
