@@ -39,14 +39,29 @@ const tmpConfigPath = path.join(os.tmpdir(), "certificateConfig.json");
 const localConfigPath = path.join(process.cwd(), "data", "certificateConfig.json");
 
 /**
+ * Executes a promise with an aggressive timeout to prevent serverless function hangs
+ */
+function withTimeout<T>(promise: Promise<T>, ms = 2000): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`Operation timed out after ${ms}ms`)), ms)
+    ),
+  ]);
+}
+
+/**
  * Retrieves the current certificate configuration
- * Checks Firestore first, then /tmp, then bundled local file
+ * Checks Firestore with timeout, then /tmp, then bundled local file
  */
 export async function getStoredConfig(): Promise<CertificateConfigSettings> {
-  // 1. Check Cloud Firestore (Persistent across Vercel serverless functions)
+  // 1. Check Cloud Firestore (with 2s timeout)
   if (isFirebaseConfigured) {
     try {
-      const docSnap = await getDoc(doc(db, "system_settings", "certificate_config"));
+      const docSnap = await withTimeout(
+        getDoc(doc(db, "system_settings", "certificate_config")),
+        2000
+      );
       if (docSnap.exists()) {
         const data = docSnap.data() as Partial<CertificateConfigSettings>;
         return {
@@ -55,7 +70,7 @@ export async function getStoredConfig(): Promise<CertificateConfigSettings> {
         };
       }
     } catch (e) {
-      console.warn("[Firestore Config Read Warning]:", e);
+      console.warn("[Firestore Config Read Warning - using fast fallback]:", (e as Error).message);
     }
   }
 
@@ -80,7 +95,7 @@ export async function getStoredConfig(): Promise<CertificateConfigSettings> {
 
 /**
  * Saves certificate configuration
- * Persists to Firestore, /tmp, and safely attempts local disk write
+ * Persists to Firestore (with timeout), /tmp, and safely attempts local disk write
  */
 export async function saveStoredConfig(
   newConfig: Partial<CertificateConfigSettings>
@@ -92,12 +107,15 @@ export async function saveStoredConfig(
     updatedAt: new Date().toISOString(),
   };
 
-  // 1. Save to Cloud Firestore
+  // 1. Save to Cloud Firestore (with 2.5s timeout)
   if (isFirebaseConfigured) {
     try {
-      await setDoc(doc(db, "system_settings", "certificate_config"), merged, { merge: true });
+      await withTimeout(
+        setDoc(doc(db, "system_settings", "certificate_config"), merged, { merge: true }),
+        2500
+      );
     } catch (e) {
-      console.warn("[Firestore Config Write Warning]:", e);
+      console.warn("[Firestore Config Write Warning - persisted locally]:", (e as Error).message);
     }
   }
 

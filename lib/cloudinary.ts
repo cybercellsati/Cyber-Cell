@@ -1,24 +1,42 @@
 import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
 
+export function getCloudinaryCredentials() {
+  let cloudName = process.env.CLOUDINARY_CLOUD_NAME || "";
+  let apiKey = process.env.CLOUDINARY_API_KEY || "";
+  let apiSecret = process.env.CLOUDINARY_API_SECRET || "";
+
+  if (process.env.CLOUDINARY_URL && (!cloudName || !apiKey || !apiSecret)) {
+    try {
+      // Format: cloudinary://<api_key>:<api_secret>@<cloud_name>
+      const parsed = new URL(process.env.CLOUDINARY_URL);
+      apiKey = parsed.username || apiKey;
+      apiSecret = parsed.password || apiSecret;
+      cloudName = parsed.hostname || cloudName;
+    } catch (e) {
+      console.warn("Could not parse CLOUDINARY_URL:", e);
+    }
+  }
+
+  return { cloudName, apiKey, apiSecret };
+}
+
 // Initialize Cloudinary
-if (process.env.CLOUDINARY_URL) {
+const creds = getCloudinaryCredentials();
+if (creds.cloudName && creds.apiKey && creds.apiSecret) {
+  cloudinary.config({
+    cloud_name: creds.cloudName,
+    api_key: creds.apiKey,
+    api_secret: creds.apiSecret,
+    secure: true,
+  });
+} else if (process.env.CLOUDINARY_URL) {
   cloudinary.config({
     cloudinary_url: process.env.CLOUDINARY_URL,
-  });
-} else {
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-    secure: true,
   });
 }
 
 export const isCloudinaryConfigured = Boolean(
-  process.env.CLOUDINARY_URL ||
-  (process.env.CLOUDINARY_CLOUD_NAME &&
-   process.env.CLOUDINARY_API_KEY &&
-   process.env.CLOUDINARY_API_SECRET)
+  creds.cloudName && creds.apiKey && creds.apiSecret
 );
 
 export interface CloudinaryUploadOptions {
@@ -29,7 +47,18 @@ export interface CloudinaryUploadOptions {
 }
 
 /**
- * Uploads a base64 data URI or Buffer to Cloudinary
+ * Generates an upload signature for direct client-to-Cloudinary uploads
+ */
+export function generateUploadSignature(paramsToSign: Record<string, string | number>) {
+  const { apiSecret } = getCloudinaryCredentials();
+  if (!apiSecret) {
+    throw new Error("Cloudinary API Secret is not configured.");
+  }
+  return cloudinary.utils.api_sign_request(paramsToSign, apiSecret);
+}
+
+/**
+ * Uploads a base64 data URI or Buffer to Cloudinary (Server-side)
  */
 export async function uploadToCloudinary(
   fileContent: string | Buffer,

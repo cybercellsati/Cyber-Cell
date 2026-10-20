@@ -186,7 +186,7 @@ export default function CleanAdminCertificatesStudio() {
     setTimeout(() => setToastMessage(null), 5000);
   };
 
-  // Upload Canva Template (Auto-saves to Cloudinary)
+  // Upload Canva Template: Direct Client-to-Cloudinary (Super Fast, Bypasses Vercel 4.5MB Serverless Limit)
   const handleTemplateUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -194,7 +194,7 @@ export default function CleanAdminCertificatesStudio() {
     setTemplateFileName(file.name);
     setIsUploadingTemplate(true);
 
-    // Instant local preview
+    // 1. Instant local preview in canvas
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
@@ -203,25 +203,67 @@ export default function CleanAdminCertificatesStudio() {
     };
     reader.readAsDataURL(file);
 
-    // Upload to Cloudinary
     try {
-      const formData = new FormData();
-      formData.append("template", file);
-
-      const res = await fetch("/api/admin/certificates/upload-template", {
+      // 2. Request upload signature from server
+      const signRes = await fetch("/api/admin/cloudinary/sign", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          folder: "cybercell/templates",
+          public_id: "certificate-template",
+          overwrite: true,
+        }),
       });
 
-      const data = await res.json();
-      if (data.success) {
-        if (data.templateUrl) setTemplateUrl(data.templateUrl);
-        showToast("✓ Template successfully uploaded to Cloudinary CDN!");
-      } else {
-        alert("Upload error: " + (data.error || "Failed to upload"));
+      const signData = await signRes.json();
+      if (!signRes.ok || !signData.success) {
+        throw new Error(
+          signData.error ||
+          "Cloudinary credentials missing in Vercel. Please add CLOUDINARY_URL in Vercel Settings > Environment Variables."
+        );
       }
-    } catch {
-      alert("Network error while uploading template.");
+
+      // 3. Direct client-to-Cloudinary upload (Lightning fast, handles 5-20MB Canva files with ease!)
+      const cldFormData = new FormData();
+      cldFormData.append("file", file);
+      cldFormData.append("api_key", signData.apiKey);
+      cldFormData.append("timestamp", String(signData.timestamp));
+      cldFormData.append("signature", signData.signature);
+      cldFormData.append("folder", signData.folder);
+      cldFormData.append("public_id", "certificate-template");
+      cldFormData.append("overwrite", "true");
+
+      const uploadRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${signData.cloudName}/image/upload`,
+        {
+          method: "POST",
+          body: cldFormData,
+        }
+      );
+
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok || !uploadData.secure_url) {
+        throw new Error(uploadData.error?.message || "Cloudinary direct upload failed.");
+      }
+
+      const finalUrl = uploadData.secure_url;
+      setTemplateUrl(finalUrl);
+
+      // 4. Save template URL into configuration
+      await fetch("/api/admin/certificates/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          templateUrl: finalUrl,
+          templateFileName: file.name,
+          cloudinaryPublicId: uploadData.public_id,
+        }),
+      });
+
+      showToast("✓ Template successfully uploaded to Cloudinary CDN!");
+    } catch (err) {
+      console.error("Template upload error:", err);
+      alert("Upload error: " + (err as Error).message);
     } finally {
       setIsUploadingTemplate(false);
     }
