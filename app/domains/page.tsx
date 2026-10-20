@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, X, Shield, Terminal, CheckCircle2, BookOpen, Wrench, ExternalLink, Sparkles } from "lucide-react";
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion, useScroll, useSpring, Variants } from "framer-motion";
 
 interface DomainItem {
   index: string;
@@ -138,6 +138,61 @@ const domainsData: DomainItem[] = [
   },
 ];
 
+// Motion Variants for Sequential One-by-One Reveal
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+const rowContainerVariants: Variants = {
+  hidden: { opacity: 0, y: 55 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.75,
+      ease: EASE,
+      staggerChildren: 0.12,
+    },
+  },
+};
+
+const numberVariants: Variants = {
+  hidden: { opacity: 0, x: -35, scale: 0.88 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    transition: { duration: 0.6, ease: EASE },
+  },
+};
+
+const contentVariants: Variants = {
+  hidden: { opacity: 0, y: 25 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.65, ease: EASE },
+  },
+};
+
+const imageVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.92, x: 25 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    x: 0,
+    transition: { duration: 0.75, ease: EASE },
+  },
+};
+
+const buttonVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.75, rotate: -25 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    rotate: 0,
+    transition: { duration: 0.55, ease: EASE },
+  },
+};
+
 export default function DomainsPage() {
   const [selectedDomain, setSelectedDomain] = useState<DomainItem | null>(null);
 
@@ -175,20 +230,22 @@ export default function DomainsPage() {
 
   return (
     <div className="min-h-screen bg-[#030303] text-white flex flex-col font-sans selection:bg-amber-400/20 selection:text-amber-300">
-      {/* Top Reading Progress Bar */}
+      
+      {/* Amber Scroll Progress Line: Positioned right below the fixed navbar so it is always 100% visible */}
       <motion.div
         style={{ scaleX }}
-        className="fixed top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300 origin-left z-50 shadow-[0_0_12px_rgba(245,158,11,0.8)] pointer-events-none"
+        className="fixed top-[64px] sm:top-[72px] left-0 right-0 h-[2.5px] bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300 origin-left z-40 shadow-[0_0_12px_rgba(245,158,11,0.9)] pointer-events-none"
       />
 
       <Navbar />
 
-      <main className="flex-1 pt-24 sm:pt-28 pb-20 overflow-hidden">
+      {/* Main Container with generous top clearance so nothing hides behind navbar */}
+      <main className="flex-1 pt-32 sm:pt-36 lg:pt-40 pb-20 overflow-hidden">
         
         {/* ========================================================
             HERO SECTION: "EXPLORE THE DOMAINS" + CINEMATIC VISUAL
            ======================================================== */}
-        <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-4 pb-14 sm:pb-20">
+        <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pb-14 sm:pb-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center justify-between">
             
             {/* Left Column: Eyebrow, Giant Two-Tone Title, Story, CTA */}
@@ -199,9 +256,9 @@ export default function DomainsPage() {
               className="lg:col-span-7 space-y-6"
             >
               
-              {/* Eyebrow: — OUR DOMAINS */}
+              {/* Eyebrow: — OUR DOMAINS (Fully visible below navbar) */}
               <div className="flex items-center gap-2">
-                <span className="w-5 h-[2px] bg-amber-400 inline-block" />
+                <span className="w-5 h-[2px] bg-amber-400 inline-block shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
                 <span className="text-[11px] font-mono tracking-[0.24em] text-amber-400 uppercase font-semibold">
                   OUR DOMAINS
                 </span>
@@ -275,7 +332,7 @@ export default function DomainsPage() {
 
                 {/* Floating Micro-Text (Bottom-Right) */}
                 <div className="absolute bottom-4 right-4 hidden sm:flex items-center gap-2 bg-black/60 backdrop-blur-md px-2.5 py-1.5 rounded border border-white/10 select-none">
-                  <span className="w-1 h-6 bg-amber-400 inline-block rounded-full" />
+                  <span className="w-1 h-6 bg-amber-400 inline-block rounded-full shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
                   <div className="flex flex-col text-[8px] font-mono tracking-widest text-slate-400 uppercase leading-tight text-left">
                     <span>A SAFER</span>
                     <span>DIGITAL</span>
@@ -292,18 +349,19 @@ export default function DomainsPage() {
 
 
         {/* ========================================================
-            THE 6 DOMAINS: EDITORIAL HORIZONTAL ROWS (WITH SCROLL ANIMATION)
+            THE 6 DOMAINS: EDITORIAL HORIZONTAL ROWS
+            Each domain card animates in ONE BY ONE as you scroll down
            ======================================================== */}
         <section id="domain-list" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-4">
           
           <div className="border-t border-white/[0.08]">
-            {domainsData.map((item, idx) => (
+            {domainsData.map((item) => (
               <motion.div
                 key={item.index}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-70px" }}
-                transition={{ duration: 0.65, delay: idx * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.35 }}
+                variants={rowContainerVariants}
                 onClick={() => setSelectedDomain(item)}
                 className="group relative py-8 sm:py-10 border-b border-white/[0.08] hover:border-amber-400/40 transition-colors duration-300 cursor-pointer"
               >
@@ -311,10 +369,7 @@ export default function DomainsPage() {
                   
                   {/* Column 1: Number (lg:col-span-2) */}
                   <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
+                    variants={numberVariants}
                     className="lg:col-span-2 flex items-baseline lg:flex-col justify-between lg:justify-start gap-1"
                   >
                     <span className="text-[11px] font-mono tracking-widest text-slate-500 uppercase">
@@ -326,7 +381,10 @@ export default function DomainsPage() {
                   </motion.div>
 
                   {/* Column 2: Title, Description, Tags (lg:col-span-5) */}
-                  <div className="lg:col-span-5 space-y-3">
+                  <motion.div
+                    variants={contentVariants}
+                    className="lg:col-span-5 space-y-3"
+                  >
                     <h2 className="text-xl sm:text-2xl font-bold text-white group-hover:text-amber-300 transition-colors duration-200">
                       {item.title}
                     </h2>
@@ -346,15 +404,12 @@ export default function DomainsPage() {
                         </span>
                       ))}
                     </div>
-                  </div>
+                  </motion.div>
 
                   {/* Column 3: Widescreen Thumbnail (lg:col-span-4) */}
                   <div className="lg:col-span-4">
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.94 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                      variants={imageVariants}
                       className="relative w-full aspect-[16/9] rounded-lg overflow-hidden border border-white/10 bg-black/60 shadow-xl group-hover:border-amber-400/30 transition-all duration-300"
                     >
                       <Image
@@ -371,7 +426,8 @@ export default function DomainsPage() {
                   {/* Column 4: Arrow Circle Button (lg:col-span-1) */}
                   <div className="lg:col-span-1 flex justify-start lg:justify-end">
                     <motion.div
-                      whileHover={{ scale: 1.08 }}
+                      variants={buttonVariants}
+                      whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                       className="w-11 h-11 rounded-full border border-white/15 group-hover:border-amber-400 bg-white/[0.02] group-hover:bg-amber-400 text-white group-hover:text-slate-950 flex items-center justify-center transition-all duration-200 shadow-sm"
                     >
