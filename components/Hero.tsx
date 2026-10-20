@@ -26,22 +26,22 @@ export default function Hero() {
   }, [isIntroOpen]);
 
   return (
-    <section className="relative w-full min-h-screen flex flex-col justify-between pt-10 sm:pt-14 lg:pt-16 pb-8 overflow-hidden bg-[#030303] text-white select-none">
+    <section className="relative w-full min-h-screen flex flex-col justify-between pt-[43px] sm:pt-[59px] lg:pt-[67px] pb-8 overflow-hidden bg-[#030303] text-white select-none">
       
       {/* 1. Ambient Background Effects & Amber Halo */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {/* Subtle orange radial core glow */}
-        <div className="absolute top-[32%] sm:top-[30%] lg:top-[28%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[580px] h-[580px] rounded-full bg-amber-500/[0.04] blur-[140px]" />
+        <div className="absolute top-[32%] sm:top-[30%] lg:top-[28%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[580px] h-[580px] rounded-full bg-amber-500/[0.04] blur-[140px] translate-y-[3px]" />
         
         {/* Fine amber halo ring centered behind head */}
-        <div className="absolute top-[32%] sm:top-[30%] lg:top-[28%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[460px] sm:h-[460px] lg:w-[540px] lg:h-[540px] rounded-full border border-amber-500/25 shadow-[0_0_60px_rgba(245,158,11,0.06)]" />
+        <div className="absolute top-[32%] sm:top-[30%] lg:top-[28%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[460px] sm:h-[460px] lg:w-[540px] lg:h-[540px] rounded-full border border-amber-500/25 shadow-[0_0_60px_rgba(245,158,11,0.06)] translate-y-[3px]" />
 
         {/* Subtle top & bottom gradients */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black" />
       </div>
 
       {/* 2. Center Section: 3D Typography + 3D Cyborg Guardian */}
-      <div className="relative flex-1 flex items-center justify-center w-full min-h-[420px] sm:min-h-[500px] lg:min-h-[560px] my-auto">
+      <div className="relative flex-1 flex items-center justify-center w-full min-h-[420px] sm:min-h-[500px] lg:min-h-[560px] my-auto translate-y-[3px]">
         
         {/* Layer A (Behind Cyborg): Giant Typography */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none z-10 text-center px-4 -mt-16 sm:-mt-24 lg:-mt-28">
