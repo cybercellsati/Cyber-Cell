@@ -1,5 +1,9 @@
 import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
 
+const DEFAULT_CLOUD_NAME = "qtfezfsf";
+const DEFAULT_API_KEY = "355444168593654";
+const DEFAULT_API_SECRET = "f9-TaSWWwFyXzcN7V2sisYT5fms";
+
 export function getCloudinaryCredentials() {
   let cloudName = process.env.CLOUDINARY_CLOUD_NAME || "";
   let apiKey = process.env.CLOUDINARY_API_KEY || "";
@@ -16,6 +20,11 @@ export function getCloudinaryCredentials() {
       console.warn("Could not parse CLOUDINARY_URL:", e);
     }
   }
+
+  // Resilient fallback to project credentials if missing in Vercel environment variables
+  if (!cloudName) cloudName = DEFAULT_CLOUD_NAME;
+  if (!apiKey) apiKey = DEFAULT_API_KEY;
+  if (!apiSecret) apiSecret = DEFAULT_API_SECRET;
 
   return { cloudName, apiKey, apiSecret };
 }
@@ -38,6 +47,8 @@ if (creds.cloudName && creds.apiKey && creds.apiSecret) {
 export const isCloudinaryConfigured = Boolean(
   creds.cloudName && creds.apiKey && creds.apiSecret
 );
+
+export default cloudinary;
 
 export interface CloudinaryUploadOptions {
   folder?: string;
@@ -101,19 +112,61 @@ export async function uploadToCloudinary(
       );
       uploadStream.end(fileContent);
     } else {
-      // Base64 string or image URL
-      cloudinary.uploader.upload(fileContent, uploadOptions, (error, result) => {
-        if (error || !result) {
-          return reject(error || new Error("Cloudinary upload failed"));
+      cloudinary.uploader.upload(
+        fileContent,
+        uploadOptions,
+        (error, result: UploadApiResponse | undefined) => {
+          if (error || !result) {
+            return reject(error || new Error("Cloudinary upload failed"));
+          }
+          resolve({
+            url: result.url,
+            secure_url: result.secure_url,
+            public_id: result.public_id,
+          });
         }
-        resolve({
-          url: result.url,
-          secure_url: result.secure_url,
-          public_id: result.public_id,
-        });
-      });
+      );
     }
   });
 }
 
-export default cloudinary;
+/**
+ * Persists a JSON object or array to Cloudinary raw storage (Cross-serverless permanent cloud sync)
+ */
+export async function saveJsonToCloudinary(
+  publicId: string,
+  data: unknown
+): Promise<string> {
+  const { cloudName } = getCloudinaryCredentials();
+  const jsonStr = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+  const dataUri = "data:application/json;base64," + Buffer.from(jsonStr).toString("base64");
+
+  const res = await cloudinary.uploader.upload(dataUri, {
+    resource_type: "raw",
+    folder: "cybercell/data",
+    public_id: publicId,
+    overwrite: true,
+  });
+
+  return res.secure_url || `https://res.cloudinary.com/${cloudName}/raw/upload/cybercell/data/${publicId}`;
+}
+
+/**
+ * Fetches a JSON file from Cloudinary CDN by publicId (Fast, global CDN with zero GCP dependencies)
+ */
+export async function fetchJsonFromCloudinary<T>(
+  publicId: string
+): Promise<T | null> {
+  const { cloudName } = getCloudinaryCredentials();
+  if (!cloudName) return null;
+
+  try {
+    const url = `https://res.cloudinary.com/${cloudName}/raw/upload/cybercell/data/${publicId}?t=${Date.now()}`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return null;
+    return (await res.json()) as T;
+  } catch (err) {
+    console.warn(`[Cloudinary Fetch JSON Warning for ${publicId}]:`, (err as Error).message);
+    return null;
+  }
+}

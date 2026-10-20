@@ -5,6 +5,7 @@ import os from "os";
 import * as XLSX from "xlsx";
 import { CertificateRecord, batchSaveCertificateRecords, formatStudentName } from "@/lib/certificates";
 import { getTemplateById, getActiveTemplate, saveTemplateProfile } from "@/lib/certificateConfig";
+import { saveJsonToCloudinary, fetchJsonFromCloudinary } from "@/lib/cloudinary";
 
 const MAX_EXCEL_BYTES = 10 * 1024 * 1024; // 10 MB max
 const ALLOWED_EXTENSIONS = [".xlsx", ".xls", ".csv"];
@@ -394,6 +395,16 @@ export async function POST(req: NextRequest) {
       }
     } catch {}
 
+    // If local tmp is empty on a new serverless lambda, pull previous attendees from Cloudinary
+    if (allAttendees.length === 0) {
+      try {
+        const cloudExisting = await fetchJsonFromCloudinary<CertificateRecord[]>("attendees.json");
+        if (Array.isArray(cloudExisting) && cloudExisting.length > 0) {
+          allAttendees = cloudExisting;
+        }
+      } catch {}
+    }
+
     // Merge: update existing by certificate_id or append new
     const attendeeMap = new Map<string, CertificateRecord>();
     allAttendees.forEach((a) => attendeeMap.set(a.certificate_id, a));
@@ -424,7 +435,17 @@ export async function POST(req: NextRequest) {
       fs.writeFileSync(path.join(dataDir, "attendees.xlsx"), buffer);
     } catch {}
 
-    // 4. Update the template profile's attendeesCount
+    // 4. Save to Cloudinary for permanent cross-serverless cloud persistence
+    try {
+      await withTimeout(saveJsonToCloudinary("attendees.json", mergedAttendees), 4000);
+      if (templateProfile?.id) {
+        saveJsonToCloudinary(`attendees_${templateProfile.id}.json`, parsedRecords).catch(() => {});
+      }
+    } catch (cloudErr) {
+      console.warn("[Upload Excel Cloudinary Save Warning]:", cloudErr);
+    }
+
+    // 5. Update the template profile's attendeesCount
     if (templateProfile) {
       try {
         await saveTemplateProfile({
@@ -436,7 +457,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 5. Save records to Firestore (with safe timeout so serverless never hangs)
+    // 6. Save records to Firestore (with safe timeout so serverless never hangs)
     try {
       await withTimeout(batchSaveCertificateRecords(parsedRecords), 2500);
     } catch (saveErr) {

@@ -3,6 +3,7 @@ import path from "path";
 import os from "os";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db, isFirebaseConfigured } from "./firebase";
+import { saveJsonToCloudinary, fetchJsonFromCloudinary } from "./cloudinary";
 
 export interface CertificateConfigSettings {
   templateUrl: string;
@@ -139,7 +140,20 @@ export async function getAllTemplates(): Promise<CertificateTemplateProfile[]> {
     }
   } catch {}
 
-  // 4. Default: build from legacy config if available
+  // 4. Try Cloudinary Persistent Cloud JSON
+  try {
+    const cloudTemplates = await fetchJsonFromCloudinary<CertificateTemplateProfile[]>("certificate_templates.json");
+    if (Array.isArray(cloudTemplates) && cloudTemplates.length > 0) {
+      try {
+        fs.writeFileSync(tmpTemplatesPath, JSON.stringify(cloudTemplates, null, 2), "utf-8");
+      } catch {}
+      return cloudTemplates;
+    }
+  } catch (err) {
+    console.warn("[Cloudinary Template Fetch Warning]:", err);
+  }
+
+  // 5. Default: build from legacy config if available
   const legacy = await getStoredConfig();
   const initialProfile: CertificateTemplateProfile = {
     ...defaultTemplateProfile,
@@ -197,6 +211,13 @@ async function persistTemplatesList(templates: CertificateTemplateProfile[]): Pr
     }
     fs.writeFileSync(localTemplatesPath, JSON.stringify(templates, null, 2), "utf-8");
   } catch {}
+
+  // 4. Save to Cloudinary for permanent cross-serverless persistence
+  try {
+    await saveJsonToCloudinary("certificate_templates.json", templates);
+  } catch (cloudErr) {
+    console.warn("[Templates Cloudinary Save Warning]:", cloudErr);
+  }
 }
 
 /**

@@ -87,6 +87,22 @@ export function formatStudentName(name: string): string {
 }
 
 /**
+ * Lightweight, zero-dependency CDN fetch for Cloudinary raw data
+ * Safe to execute in both browser and serverless environments
+ */
+async function fetchCloudinaryJson<T>(filename: string): Promise<T | null> {
+  try {
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "qtfezfsf";
+    const url = `https://res.cloudinary.com/${cloudName}/raw/upload/cybercell/data/${filename}?t=${Date.now()}`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) return null;
+    return (await res.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Checks whether a certificate's download window has expired
  */
 export function isCertificateExpired(cert: CertificateRecord): boolean {
@@ -264,6 +280,23 @@ export async function getCertificateById(certificateId: string): Promise<Certifi
       is_download_active: !isCertificateExpired(mockFound),
     };
   }
+
+  // Try Cloudinary CDN raw storage fallback
+  try {
+    const cloudAttendees = await fetchCloudinaryJson<CertificateRecord[]>("attendees.json");
+    if (Array.isArray(cloudAttendees) && cloudAttendees.length > 0) {
+      const match = cloudAttendees.find(
+        (c: CertificateRecord) => (c.certificate_id || "").toUpperCase() === cleanId
+      );
+      if (match) {
+        return {
+          ...match,
+          recipient_name: formatStudentName(match.recipient_name),
+          is_download_active: !isCertificateExpired(match),
+        };
+      }
+    }
+  } catch {}
 
   if (!isFirebaseConfigured) return null;
 
@@ -488,6 +521,59 @@ export async function searchCertificates(searchQuery: string): Promise<Certifica
 
   if (inMemoryMatches.length > 0) {
     return inMemoryMatches;
+  }
+
+  // 1. Try Cloudinary raw storage (Global persistent sync across all serverless lambdas)
+  try {
+    const cloudAttendees = await fetchCloudinaryJson<CertificateRecord[]>("attendees.json");
+    if (Array.isArray(cloudAttendees) && cloudAttendees.length > 0) {
+      cloudAttendees.forEach((c: CertificateRecord) => {
+        if (!mockCertificates.some((m) => m.certificate_id === c.certificate_id)) {
+          mockCertificates.push(c);
+        }
+      });
+
+      const cloudMatches = cloudAttendees
+        .filter((c: CertificateRecord) => {
+          const certId = (c.certificate_id || "").toUpperCase();
+          const certScholar = (c.scholar_number || "").toUpperCase();
+          const certName = formatStudentName(c.recipient_name || "").toUpperCase();
+          const rawName = (c.recipient_name || "").toUpperCase();
+          const certEvent = (c.event_name || "").toUpperCase();
+
+          if (
+            certId.includes(queryTerm) ||
+            certScholar.includes(queryTerm) ||
+            certName.includes(queryTerm) ||
+            rawName.includes(queryTerm) ||
+            certEvent.includes(queryTerm)
+          ) {
+            return true;
+          }
+
+          if (queryWords.length > 1) {
+            return queryWords.every(
+              (w) =>
+                certName.includes(w) ||
+                rawName.includes(w) ||
+                certScholar.includes(w) ||
+                certId.includes(w)
+            );
+          }
+          return false;
+        })
+        .map((c: CertificateRecord) => ({
+          ...c,
+          recipient_name: formatStudentName(c.recipient_name),
+          is_download_active: !isCertificateExpired(c),
+        }));
+
+      if (cloudMatches.length > 0) {
+        return cloudMatches;
+      }
+    }
+  } catch (cldErr) {
+    console.warn("[Cloudinary Search Fallback Warning]:", cldErr);
   }
 
   if (!isFirebaseConfigured) {
