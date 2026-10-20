@@ -1,5 +1,5 @@
 {
-  "templateUrl": "https://res.cloudinary.com/qtfezfsf/image/upload/v1792505645/cybercell/templates/certificate-template.png",
+  "templateUrl": "",
   "fontFamily": "'Cinzel', serif",
   "fontSize": 76,
   "fontWeight": "bold",
@@ -12,7 +12,7 @@
   "showCertificateId": false,
   "eventName": "National Cyber Defense Wargame 2026",
   "issueDate": "2026-10-19",
-  "updatedAt": "2026-10-20T14:14:05.394Z",
-  "templateFileName": "certificate-template.png",
-  "cloudinaryPublicId": "cybercell/templates/certificate-template"
+  "updatedAt": "2026-10-20T14:35:10.126Z",
+  "templateFileName": "",
+  "cloudinaryPublicId": ""
 }

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -354,24 +354,6 @@ function VerifyContent() {
                 "Search"
               )}
             </button>
-          </div>
-
-          {/* Quick Demo Search Chips */}
-          <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-[11px] font-mono text-slate-500">
-            <span>Try searching:</span>
-            {["0108CS221045", "0108CS221001", "Yash Harfode", "Aarav Sharma"].map((chip) => (
-              <button
-                key={chip}
-                type="button"
-                onClick={() => {
-                  setSearchTerm(chip);
-                  executeVerification(chip);
-                }}
-                className="px-2 py-0.5 rounded-md bg-white/[0.04] hover:bg-white/[0.08] text-slate-400 hover:text-cyan-300 transition-colors border border-white/[0.05]"
-              >
-                {chip}
-              </button>
-            ))}
           </div>
         </form>
 

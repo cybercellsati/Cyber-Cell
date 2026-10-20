@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { isCloudinaryConfigured, uploadToCloudinary } from "@/lib/cloudinary";
+import cloudinary, { isCloudinaryConfigured, uploadToCloudinary } from "@/lib/cloudinary";
 
 const MAX_SIZE_BYTES = 15 * 1024 * 1024; // 15MB max
 
@@ -52,8 +52,9 @@ export async function POST(req: NextRequest) {
     }
 
     let finalTemplateUrl = `/templates/certificate-template.png?v=${Date.now()}`;
+    let cloudinaryPublicId = "";
 
-    // 1. Upload to Cloudinary if configured
+    // 1. Upload / Replace in Cloudinary if configured
     if (isCloudinaryConfigured) {
       try {
         const uploadRes = await uploadToCloudinary(buffer, {
@@ -63,6 +64,7 @@ export async function POST(req: NextRequest) {
           resource_type: "image",
         });
         finalTemplateUrl = uploadRes.secure_url;
+        cloudinaryPublicId = uploadRes.public_id;
       } catch (cloudErr) {
         console.warn("[Cloudinary Upload Warning]: Could not upload to Cloudinary, falling back to local storage:", cloudErr);
       }
@@ -89,6 +91,9 @@ export async function POST(req: NextRequest) {
 
     config.templateUrl = finalTemplateUrl;
     config.templateFileName = file.name;
+    if (cloudinaryPublicId) {
+      config.cloudinaryPublicId = cloudinaryPublicId;
+    }
     config.updatedAt = new Date().toISOString();
 
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2), "utf-8");
@@ -107,6 +112,60 @@ export async function POST(req: NextRequest) {
     console.error("[Template Upload Error]:", error);
     return NextResponse.json(
       { success: false, error: (error as Error).message || "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE() {
+  try {
+    const configPath = path.join(process.cwd(), "data", "certificateConfig.json");
+    let config: Record<string, unknown> = {};
+    if (fs.existsSync(configPath)) {
+      try {
+        config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+      } catch (e) {
+        console.warn("Could not parse config:", e);
+      }
+    }
+
+    const publicId = (config.cloudinaryPublicId as string) || "cybercell/templates/certificate-template";
+
+    // 1. Delete from Cloudinary if configured
+    if (isCloudinaryConfigured && publicId) {
+      try {
+        await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
+      } catch (cloudErr) {
+        console.warn("[Cloudinary Delete Warning]:", cloudErr);
+      }
+    }
+
+    // 2. Delete local template file if exists
+    const localTemplatePath = path.join(process.cwd(), "public", "templates", "certificate-template.png");
+    if (fs.existsSync(localTemplatePath)) {
+      try {
+        fs.unlinkSync(localTemplatePath);
+      } catch (localErr) {
+        console.warn("[Local File Delete Warning]:", localErr);
+      }
+    }
+
+    // 3. Clear template from config
+    config.templateUrl = "";
+    config.templateFileName = "";
+    config.cloudinaryPublicId = "";
+    config.updatedAt = new Date().toISOString();
+
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2), "utf-8");
+
+    return NextResponse.json({
+      success: true,
+      message: "Template successfully deleted from Cloudinary storage and local server.",
+    });
+  } catch (error) {
+    console.error("[Template Delete Error]:", error);
+    return NextResponse.json(
+      { success: false, error: (error as Error).message || "Failed to delete template" },
       { status: 500 }
     );
   }

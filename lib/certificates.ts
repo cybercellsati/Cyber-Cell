@@ -1,4 +1,4 @@
-import {
+﻿import {
   collection,
   doc,
   setDoc,
@@ -32,38 +32,7 @@ export interface CertificateRecord {
 }
 
 // In-memory mock database for fallback testing when offline/dev
-let mockCertificates: CertificateRecord[] = [
-  {
-    id: "mock-1",
-    certificate_id: "CYB-2026-DEMO01",
-    scholar_number: "0108CS221045",
-    recipient_name: "Yash Harfode",
-    event_name: "National Cyber Defense Wargame 2026",
-    issue_date: "2026-10-15",
-    expiry_date: "2027-01-15",
-    image_url: "",
-
-    is_download_active: true,
-    role_or_rank: "Convenor & Lead Organizer",
-    issued_by: "Cyber Cell, SATI Vidisha",
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "mock-2",
-    certificate_id: "CYB-2025-ARCH02",
-    scholar_number: "0108CS211099",
-    recipient_name: "Rohit Verma",
-    event_name: "SATI Ethical Hacking & Red Teaming Bootcamp",
-    issue_date: "2025-02-10",
-    expiry_date: "2025-05-10", // Intentionally expired to test lifetime verification state
-    image_url: "",
-
-    is_download_active: false,
-    role_or_rank: "Participant",
-    issued_by: "Cyber Cell, SATI Vidisha",
-    created_at: "2025-02-10T00:00:00Z",
-  },
-];
+let mockCertificates: CertificateRecord[] = [];
 
 /**
  * Checks whether a certificate's download window has expired

@@ -66,7 +66,9 @@ export default function AdminCertificatesStudio() {
     "custom" | "cyber_midnight" | "gold_merit" | "monochrome_slate"
   >("custom");
   const [customImage, setCustomImage] = useState<HTMLImageElement | null>(null);
-  const [customImageName, setCustomImageName] = useState("Canva Template (public/templates/certificate-template.png)");
+  const [customImageName, setCustomImageName] = useState("Canva Template (Cloudinary CDN)");
+  const [templateUrl, setTemplateUrl] = useState<string>("");
+  const [isDeletingTemplate, setIsDeletingTemplate] = useState(false);
 
   // Typography Settings
   const [selectedFont, setSelectedFont] = useState<FontOption>(CERTIFICATE_FONTS[0]); // Default: Cinzel
@@ -201,7 +203,7 @@ export default function AdminCertificatesStudio() {
   // 4. Render Canvas Preview whenever settings change
   useEffect(() => {
     if (!previewCanvasRef.current) return;
-    const currentAttendee = attendees[previewIndex] || attendees[0];
+    const currentAttendee = attendees.length > 0 ? (attendees[previewIndex] || attendees[0]) : { name: "STUDENT FULL NAME", scholarNumber: "0108CS221001", certificateId: "CYB-2026-PREVIEW", role: "Participant" };
 
     const config: CertificateConfig = {
       mode: templateMode,
@@ -284,7 +286,9 @@ export default function AdminCertificatesStudio() {
 
       const data = await res.json();
       if (data.success) {
-        setUploadNotification("✓ Canva template permanently saved to server! Students can now verify & download it.");
+        if (data.templateUrl) setTemplateUrl(data.templateUrl);
+        if (data.fileName) setCustomImageName(data.fileName);
+        setUploadNotification("✓ Canva template permanently saved to Cloudinary CDN & server!");
         setTimeout(() => setUploadNotification(null), 6000);
       } else {
         alert("Template upload error: " + (data.error || "Failed to save file"));
@@ -294,6 +298,36 @@ export default function AdminCertificatesStudio() {
       alert("Network error while uploading template to server.");
     } finally {
       setIsUploadingTemplate(false);
+    }
+  };
+
+
+  // Handle Delete Canva Template (Deletes from Cloudinary & resets server)
+  const handleDeleteTemplate = async () => {
+    if (!confirm("Are you sure you want to delete this Canva template from Cloudinary storage?")) {
+      return;
+    }
+
+    setIsDeletingTemplate(true);
+    try {
+      const res = await fetch("/api/admin/certificates/upload-template", {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTemplateUrl("");
+        setCustomImage(null);
+        setCustomImageName("No Template Loaded");
+        setUploadNotification("✓ Canva template successfully deleted from Cloudinary storage.");
+        setTimeout(() => setUploadNotification(null), 5000);
+      } else {
+        alert("Delete template error: " + (data.error || "Failed to delete"));
+      }
+    } catch (err) {
+      console.error("Delete template error:", err);
+      alert("Network error while deleting template.");
+    } finally {
+      setIsDeletingTemplate(false);
     }
   };
 
