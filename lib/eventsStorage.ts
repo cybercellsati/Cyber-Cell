@@ -6,12 +6,23 @@ import { CyberEvent, upcomingEvents as staticUpcoming } from "@/data/events";
 
 const EVENTS_FILE = path.join(process.cwd(), "data", "events.json");
 
+// Tracks whether Firestore is reachable to avoid repeated slow timeouts
+let firestoreAvailable = true;
+
+function withTimeout<T>(promise: Promise<T>, ms: number = 1000): Promise<T> {
+  let timer: NodeJS.Timeout;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`Operation timed out after ${ms}ms`)), ms);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
+}
+
 function readLocalEvents(): CyberEvent[] {
   try {
     if (fs.existsSync(EVENTS_FILE)) {
       const raw = fs.readFileSync(EVENTS_FILE, "utf-8");
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
   } catch (err) {
     console.warn("[eventsStorage] Failed reading local data/events.json:", err);
@@ -30,35 +41,35 @@ function writeLocalEvents(events: CyberEvent[]): void {
 }
 
 /**
- * Fetch all events (Firestore prioritized with local JSON fallback)
+ * Fetch all events (Instant local JSON with fast non-blocking Firestore sync)
  */
 export async function getAllEvents(): Promise<CyberEvent[]> {
-  let firestoreEvents: CyberEvent[] = [];
-  let firestoreSuccess = false;
+  const local = readLocalEvents();
 
-  if (isFirebaseConfigured && db) {
+  if (isFirebaseConfigured && db && firestoreAvailable) {
     try {
       const colRef = collection(db, "events");
-      const snapshot = await getDocs(colRef);
+      const snapshot = await withTimeout(getDocs(colRef), 1000);
       if (!snapshot.empty) {
+        const firestoreEvents: CyberEvent[] = [];
         snapshot.forEach((docSnap) => {
           const data = docSnap.data() as CyberEvent;
           firestoreEvents.push({ ...data, id: docSnap.id });
         });
-        firestoreSuccess = true;
+        if (firestoreEvents.length > 0) {
+          writeLocalEvents(firestoreEvents);
+          return sortEvents(firestoreEvents);
+        }
       }
-    } catch (err) {
-      console.warn("[eventsStorage] Firestore getDocs error, using local fallback:", err);
+    } catch (err: any) {
+      const msg = err?.message || String(err);
+      if (msg.includes("PERMISSION_DENIED") || msg.includes("has not been used") || msg.includes("timed out")) {
+        firestoreAvailable = false;
+      }
+      console.warn("[eventsStorage] Firestore getDocs unavailable, using local storage:", msg);
     }
   }
 
-  if (firestoreSuccess && firestoreEvents.length > 0) {
-    // Sync to local JSON as backup
-    writeLocalEvents(firestoreEvents);
-    return sortEvents(firestoreEvents);
-  }
-
-  const local = readLocalEvents();
   return sortEvents(local);
 }
 
@@ -66,24 +77,31 @@ export async function getAllEvents(): Promise<CyberEvent[]> {
  * Fetch single event by ID
  */
 export async function getEventById(id: string): Promise<CyberEvent | null> {
-  if (isFirebaseConfigured && db) {
+  const all = readLocalEvents();
+  const found = all.find((e) => e.id === id);
+  if (found) return found;
+
+  if (isFirebaseConfigured && db && firestoreAvailable) {
     try {
       const docRef = doc(db, "events", id);
-      const snap = await getDoc(docRef);
+      const snap = await withTimeout(getDoc(docRef), 1000);
       if (snap.exists()) {
         return { ...(snap.data() as CyberEvent), id: snap.id };
       }
-    } catch (err) {
-      console.warn("[eventsStorage] Firestore getDoc error:", err);
+    } catch (err: any) {
+      const msg = err?.message || String(err);
+      if (msg.includes("PERMISSION_DENIED") || msg.includes("has not been used")) {
+        firestoreAvailable = false;
+      }
+      console.warn("[eventsStorage] Firestore getDoc error:", msg);
     }
   }
 
-  const all = readLocalEvents();
-  return all.find((e) => e.id === id) || null;
+  return null;
 }
 
 /**
- * Create or update an event
+ * Create or update an event (Immediately saves to local JSON without blocking, then syncs Firestore in background)
  */
 export async function saveEvent(eventData: Partial<CyberEvent>): Promise<CyberEvent> {
   const existingId = eventData.id;
@@ -120,17 +138,7 @@ export async function saveEvent(eventData: Partial<CyberEvent>): Promise<CyberEv
     updatedAt: now,
   };
 
-  // 1. Save to Firestore if available
-  if (isFirebaseConfigured && db) {
-    try {
-      const docRef = doc(db, "events", id);
-      await setDoc(docRef, fullEvent, { merge: true });
-    } catch (err) {
-      console.warn("[eventsStorage] Firestore setDoc error:", err);
-    }
-  }
-
-  // 2. Save to local JSON
+  // 1. Save to local JSON immediately (instant, guaranteed, never hangs)
   const current = readLocalEvents();
   const existingIdx = current.findIndex((e) => e.id === id);
   if (existingIdx >= 0) {
@@ -139,6 +147,18 @@ export async function saveEvent(eventData: Partial<CyberEvent>): Promise<CyberEv
     current.unshift(fullEvent);
   }
   writeLocalEvents(current);
+
+  // 2. Fire-and-forget sync to Firestore in background (non-blocking)
+  if (isFirebaseConfigured && db && firestoreAvailable) {
+    withTimeout(setDoc(doc(db, "events", id), fullEvent, { merge: true }), 1200)
+      .catch((err: any) => {
+        const msg = err?.message || String(err);
+        if (msg.includes("PERMISSION_DENIED") || msg.includes("has not been used") || msg.includes("timed out")) {
+          firestoreAvailable = false;
+        }
+        console.warn("[eventsStorage] Firestore setDoc background sync skipped:", msg);
+      });
+  }
 
   return fullEvent;
 }
@@ -149,23 +169,24 @@ export async function saveEvent(eventData: Partial<CyberEvent>): Promise<CyberEv
 export async function deleteEvent(id: string): Promise<boolean> {
   let success = false;
 
-  // 1. Delete from Firestore if available
-  if (isFirebaseConfigured && db) {
-    try {
-      const docRef = doc(db, "events", id);
-      await deleteDoc(docRef);
-      success = true;
-    } catch (err) {
-      console.warn("[eventsStorage] Firestore deleteDoc error:", err);
-    }
-  }
-
-  // 2. Delete from local JSON
+  // 1. Delete from local JSON immediately
   const current = readLocalEvents();
   const filtered = current.filter((e) => e.id !== id);
   if (filtered.length !== current.length) {
     writeLocalEvents(filtered);
     success = true;
+  }
+
+  // 2. Delete from Firestore in background (non-blocking)
+  if (isFirebaseConfigured && db && firestoreAvailable) {
+    withTimeout(deleteDoc(doc(db, "events", id)), 1200)
+      .catch((err: any) => {
+        const msg = err?.message || String(err);
+        if (msg.includes("PERMISSION_DENIED") || msg.includes("has not been used")) {
+          firestoreAvailable = false;
+        }
+        console.warn("[eventsStorage] Firestore deleteDoc background sync skipped:", msg);
+      });
   }
 
   return success;

@@ -193,6 +193,8 @@ export default function AdminEventsPage() {
 
     setIsUploading(true);
     setErrorMsg("");
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), 25000);
 
     try {
       const uploadFormData = new FormData();
@@ -201,6 +203,7 @@ export default function AdminEventsPage() {
       const res = await fetch("/api/admin/events/upload-image", {
         method: "POST",
         body: uploadFormData,
+        signal: abortController.signal,
       });
 
       const data = await res.json();
@@ -214,9 +217,14 @@ export default function AdminEventsPage() {
         images: updatedImages,
         image: prev.image && prev.image.trim() !== "" ? prev.image : updatedImages[0],
       }));
-    } catch (err) {
-      setErrorMsg((err as Error).message || "Error uploading image files.");
+    } catch (err: any) {
+      if (err.name === "AbortError") {
+        setErrorMsg("Image upload timed out. Please check image file sizes or add image URL manually.");
+      } else {
+        setErrorMsg((err as Error).message || "Error uploading image files.");
+      }
     } finally {
+      clearTimeout(timeoutId);
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
@@ -279,6 +287,8 @@ export default function AdminEventsPage() {
     }
 
     setIsSaving(true);
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), 12000);
 
     try {
       const parsedTags = tagInput
@@ -301,6 +311,7 @@ export default function AdminEventsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+        signal: abortController.signal,
       });
 
       const data = await res.json();
@@ -314,9 +325,14 @@ export default function AdminEventsPage() {
       setTimeout(() => {
         setIsModalOpen(false);
       }, 700);
-    } catch (err) {
-      setErrorMsg((err as Error).message || "An error occurred while saving the event.");
+    } catch (err: any) {
+      if (err.name === "AbortError") {
+        setErrorMsg("Request timed out. Please try again.");
+      } else {
+        setErrorMsg((err as Error).message || "An error occurred while saving the event.");
+      }
     } finally {
+      clearTimeout(timeoutId);
       setIsSaving(false);
     }
   };

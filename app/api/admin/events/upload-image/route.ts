@@ -29,19 +29,30 @@ function getExtension(buffer: Buffer): string {
   return "";
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number = 5000): Promise<T> {
+  let timer: NodeJS.Timeout;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`Upload timed out after ${ms}ms`)), ms);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
+}
+
 async function saveSingleBuffer(buffer: Buffer, ext: string): Promise<string> {
   // 1. Primary: Cloudinary if configured
   if (isCloudinaryConfigured) {
     try {
-      const uploadRes = await uploadToCloudinary(buffer, {
-        folder: "cybercell/events",
-        resource_type: "image",
-      });
+      const uploadRes = await withTimeout(
+        uploadToCloudinary(buffer, {
+          folder: "cybercell/events",
+          resource_type: "image",
+        }),
+        5000
+      );
       if (uploadRes && uploadRes.secure_url) {
         return uploadRes.secure_url;
       }
     } catch (cloudErr) {
-      console.warn("[Upload Image] Cloudinary failed, falling back to local storage:", cloudErr);
+      console.warn("[Upload Image] Cloudinary failed or timed out, falling back to local storage:", cloudErr);
     }
   }
 
