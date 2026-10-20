@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { allTeamMembers, TeamMember } from "@/data/team";
+import { coreTeamMembers, facultyAdvisor, TeamMember } from "@/data/team";
 import {
   ChevronLeft,
   ChevronRight,
@@ -14,6 +14,9 @@ import {
   ArrowUpRight,
   Sparkles,
   Info,
+  GraduationCap,
+  Building2,
+  ShieldCheck,
 } from "lucide-react";
 
 function LinkedInIcon({ className = "w-4 h-4" }: { className?: string }) {
@@ -96,6 +99,7 @@ function MemberDetailModal({
                 src={member.image}
                 alt={member.name}
                 fill
+                sizes="(max-width: 640px) 144px, 176px"
                 className="object-cover object-top"
                 onError={() => setImgErr(true)}
               />
@@ -172,9 +176,9 @@ function MemberDetailModal({
 }
 
 export default function RotatingTeamPage() {
-  const members = allTeamMembers;
+  const members = coreTeamMembers;
   const N = members.length;
-  const step = 360 / N; // 45 degrees per member
+  const step = 360 / N; // dynamic degrees per member
 
   // Rotation animation states
   const [currentAngle, setCurrentAngle] = useState(0);
@@ -194,6 +198,11 @@ export default function RotatingTeamPage() {
 
   // Image load error tracking
   const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
+  const [facultyImgErr, setFacultyImgErr] = useState(false);
+
+  // Carousel element ref for non-passive wheel handling
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const lastWheelTime = useRef(0);
 
   // Responsive window resize
   useEffect(() => {
@@ -246,14 +255,32 @@ export default function RotatingTeamPage() {
     [targetAngle, step, N]
   );
 
-  // Mouse wheel rotation (Clockwise when scrolling down!)
-  const handleWheel = (e: React.WheelEvent) => {
-    // Scrolling down (deltaY > 0) rotates clockwise (+step)
-    const delta = e.deltaY || e.deltaX;
-    if (Math.abs(delta) > 10) {
-      setTargetAngle((prev) => prev + (delta > 0 ? step : -step));
-    }
-  };
+  // Intercept scroll wheel over the cards carousel to prevent page scroll and rotate clockwise
+  useEffect(() => {
+    const el = carouselRef.current;
+    if (!el) return;
+
+    const handleNativeWheel = (e: WheelEvent) => {
+      // Prevent browser default window scrolling while hovering over cards
+      e.preventDefault();
+      e.stopPropagation();
+
+      const now = Date.now();
+      if (now - lastWheelTime.current < 110) return;
+
+      const delta = e.deltaY || e.deltaX;
+      if (Math.abs(delta) > 8) {
+        lastWheelTime.current = now;
+        // delta > 0 (scrolling down) rotates clockwise (+step)
+        setTargetAngle((prev) => prev + (delta > 0 ? step : -step));
+      }
+    };
+
+    el.addEventListener("wheel", handleNativeWheel, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", handleNativeWheel);
+    };
+  }, [step]);
 
   // Pointer Dragging (Mouse & Touch)
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -293,7 +320,7 @@ export default function RotatingTeamPage() {
     <div className="min-h-screen bg-[#07090e] text-white selection:bg-cyan-500/20 selection:text-cyan-300 flex flex-col font-sans overflow-x-hidden">
       <Navbar />
 
-      <main className="flex-1 flex flex-col items-center justify-between pt-28 pb-16 px-4 w-full select-none">
+      <main className="flex-1 flex flex-col items-center justify-between pt-28 pb-12 px-4 w-full select-none">
         {/* Top Header Badge (matching reference pill: EXTENDED GRAPHIC) */}
         <div className="text-center space-y-3 mb-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.04] border border-white/15 text-slate-300 text-[11px] font-mono tracking-widest uppercase shadow-sm">
@@ -305,13 +332,13 @@ export default function RotatingTeamPage() {
           </h1>
 
           <p className="text-xs sm:text-sm text-slate-400 font-normal max-w-md mx-auto">
-            Scroll or drag horizontally to rotate cards clockwise. Click on any card to view full profile and details.
+            Scroll or drag horizontally over the cards to rotate clockwise. Click on any card to view full profile and details.
           </p>
         </div>
 
         {/* 3D Cylindrical Rotating Cards Viewport */}
         <div
-          onWheel={handleWheel}
+          ref={carouselRef}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
@@ -482,8 +509,102 @@ export default function RotatingTeamPage() {
               </button>
             ))}
           </div>
+
+          {/* Quick link hint to faculty section */}
+          <div className="pt-4">
+            <a
+              href="#faculty-section"
+              className="inline-flex items-center gap-1.5 text-xs font-mono text-slate-500 hover:text-cyan-400 transition-colors"
+            >
+              <span>Faculty Advisor & Mentor</span>
+              <span>↓</span>
+            </a>
+          </div>
         </div>
       </main>
+
+      {/* Dedicated Faculty Advisor & Mentorship Section */}
+      <section
+        id="faculty-section"
+        className="w-full max-w-4xl px-4 py-16 mx-auto border-t border-white/[0.08]"
+      >
+        <div className="text-center space-y-2 mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono uppercase tracking-wider">
+            <GraduationCap className="w-3.5 h-3.5" />
+            <span>INSTITUTIONAL MENTORSHIP</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+            Faculty Advisor & Mentor
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
+            Guiding our club&apos;s academic rigor, research integrity, and student development under SATI Vidisha.
+          </p>
+        </div>
+
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#0c111d] to-[#070b13] border border-cyan-500/20 p-6 sm:p-8 shadow-2xl">
+          {/* Subtle backdrop glow */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 relative z-10">
+            {/* Photo / Portrait */}
+            <div className="relative w-36 h-48 sm:w-44 sm:h-56 rounded-2xl overflow-hidden shrink-0 bg-slate-900 border border-white/15 shadow-xl">
+              {!facultyImgErr && facultyAdvisor.image ? (
+                <Image
+                  src={facultyAdvisor.image}
+                  alt={facultyAdvisor.name}
+                  fill
+                  sizes="(max-width: 640px) 144px, 176px"
+                  className="object-cover object-top"
+                  onError={() => setFacultyImgErr(true)}
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center font-mono text-slate-500 bg-slate-900/90">
+                  <GraduationCap className="w-10 h-10 text-cyan-400/60 mb-2" />
+                  <span className="text-lg font-bold">SJ</span>
+                </div>
+              )}
+            </div>
+
+            {/* Information */}
+            <div className="flex-1 space-y-3.5 text-center sm:text-left">
+              <div>
+                <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-mono tracking-wide uppercase font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mb-2">
+                  {facultyAdvisor.role}
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  {facultyAdvisor.name}
+                </h3>
+                {facultyAdvisor.department && (
+                  <p className="text-xs sm:text-sm text-slate-400 font-mono mt-1 flex items-center justify-center sm:justify-start gap-1.5">
+                    <Building2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                    <span>{facultyAdvisor.department}</span>
+                  </p>
+                )}
+              </div>
+
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-xl">
+                {facultyAdvisor.bio}
+              </p>
+
+              <div className="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-3">
+                {facultyAdvisor.email && (
+                  <a
+                    href={`mailto:${facultyAdvisor.email}`}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs font-mono text-slate-200 hover:text-white transition-colors"
+                  >
+                    <Mail className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>{facultyAdvisor.email}</span>
+                  </a>
+                )}
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500/[0.06] border border-cyan-500/20 text-xs font-mono text-cyan-300">
+                  <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>SATI CSE Faculty</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Profile Details Modal */}
       {selectedMember && (
