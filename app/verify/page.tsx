@@ -384,28 +384,33 @@ function VerifyContent() {
               className="lg:col-span-6 flex flex-col justify-center space-y-6 sm:space-y-8 z-10"
             >
               
-              {/* Eyebrow: — CERTIFICATE */}
+              {/* Eyebrow: — OFFICIAL CREDENTIALS */}
               <div className="flex items-center gap-2.5">
                 <span className="w-6 h-[2px] bg-amber-400 inline-block shadow-[0_0_8px_rgba(251,191,36,0.9)]" />
                 <span className="text-[11px] font-mono tracking-[0.24em] text-amber-400 uppercase font-semibold">
-                  CERTIFICATE
+                  OFFICIAL CREDENTIALS
                 </span>
               </div>
 
-              {/* Giant Two-Line Headline: Verify / Certificate */}
-              <h1 className="text-5xl sm:text-7xl lg:text-[76px] xl:text-[90px] font-extrabold tracking-[-0.035em] leading-[0.92] select-none">
+              {/* Giant Two-Line Headline: Download & Verify / Certificate */}
+              <h1 className="text-4xl sm:text-6xl lg:text-[62px] xl:text-[74px] font-extrabold tracking-[-0.035em] leading-[0.95] select-none">
                 <span className="block text-white">
-                  Verify
+                  Download & Verify
                 </span>
                 <span className="block bg-gradient-to-b from-white via-slate-200 to-slate-400 bg-clip-text text-transparent drop-shadow-[0_4px_30px_rgba(255,255,255,0.12)]">
                   Certificate
                 </span>
               </h1>
 
+              {/* Clear Informative Subtitle */}
+              <p className="text-xs sm:text-sm text-slate-400 font-normal leading-relaxed max-w-lg -mt-2">
+                Instant institutional verification and official HD PNG certificate download. Search by your Scholar Number, Name, or Credential ID.
+              </p>
+
               {/* Sleek Pill Capsule Search Bar (Matching Reference) */}
               <form
                 onSubmit={handleSearchSubmit}
-                className="relative w-full max-w-lg sm:max-w-xl"
+                className="relative w-full max-w-lg sm:max-w-xl space-y-2.5"
               >
                 <div className="group relative flex items-center rounded-full bg-black/60 border border-white/15 hover:border-white/30 focus-within:border-amber-400/80 focus-within:ring-2 focus-within:ring-amber-400/20 backdrop-blur-xl px-4 sm:px-5 py-2 sm:py-2.5 transition-all duration-300 shadow-[0_12px_40px_rgba(0,0,0,0.85)]">
                   
@@ -418,7 +423,7 @@ function VerifyContent() {
                     required
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Enter scholar number, name or certificate ID..."
+                    placeholder="Enter scholar number, name, or certificate ID..."
                     className="w-full bg-transparent border-none outline-none text-xs sm:text-sm text-white placeholder:text-slate-500 font-sans tracking-wide pr-2"
                   />
 
@@ -427,7 +432,7 @@ function VerifyContent() {
                     type="submit"
                     disabled={loading}
                     className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white hover:bg-slate-200 text-slate-950 flex items-center justify-center shrink-0 transition-transform duration-200 shadow-md shadow-white/20 active:scale-95 disabled:opacity-50 group-hover:scale-105"
-                    title="Search certificate"
+                    title="Search and download certificate"
                   >
                     {loading ? (
                       <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
@@ -435,6 +440,19 @@ function VerifyContent() {
                       <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
                     )}
                   </button>
+                </div>
+
+                {/* Micro-Features Row */}
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] font-mono text-slate-400 px-3 select-none">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
+                    <span>Instant HD PNG Download</span>
+                  </div>
+                  <span className="text-slate-600 hidden sm:inline">•</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                    <span>SATI Official Institutional Record</span>
+                  </div>
                 </div>
               </form>
 
