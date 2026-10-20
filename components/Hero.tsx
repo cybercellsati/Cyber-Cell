@@ -40,25 +40,7 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black" />
       </div>
 
-      {/* 2. Top Micro-text Badges (Left & Right) */}
-      <div className="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex items-center justify-between pt-3 pointer-events-none">
-        {/* Top-Left Stack */}
-        <div className="hidden md:flex flex-col text-[10.5px] font-mono tracking-[0.22em] text-slate-500 uppercase leading-[1.8] select-none">
-          <span>STUDENTS</span>
-          <span>TECHNOLOGY</span>
-          <span>SECURITY</span>
-          <span className="text-slate-400">A BETTER TOMORROW</span>
-        </div>
 
-        {/* Top-Right Stack */}
-        <div className="hidden md:flex flex-col text-[10.5px] font-mono tracking-[0.22em] text-slate-500 uppercase leading-[1.8] select-none text-right">
-          <span>LEARN</span>
-          <span>PRACTICE</span>
-          <span>BUILD</span>
-          <span>COMPETE</span>
-          <span className="text-slate-400">SECURE</span>
-        </div>
-      </div>
 
       {/* 3. Center Section: 3D Typography + 3D Cyborg Guardian */}
       <div className="relative flex-1 flex items-center justify-center w-full min-h-[440px] sm:min-h-[520px] lg:min-h-[600px] my-auto">
