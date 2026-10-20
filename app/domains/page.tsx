@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, X, Shield, Terminal, CheckCircle2, BookOpen, Wrench, ExternalLink, Sparkles } from "lucide-react";
+import { motion, useScroll, useSpring } from "framer-motion";
 
 interface DomainItem {
   index: string;
@@ -140,6 +141,14 @@ const domainsData: DomainItem[] = [
 export default function DomainsPage() {
   const [selectedDomain, setSelectedDomain] = useState<DomainItem | null>(null);
 
+  // Global Scroll Progress Spring
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
+
   // Close modal on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -166,6 +175,12 @@ export default function DomainsPage() {
 
   return (
     <div className="min-h-screen bg-[#030303] text-white flex flex-col font-sans selection:bg-amber-400/20 selection:text-amber-300">
+      {/* Top Reading Progress Bar */}
+      <motion.div
+        style={{ scaleX }}
+        className="fixed top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300 origin-left z-50 shadow-[0_0_12px_rgba(245,158,11,0.8)] pointer-events-none"
+      />
+
       <Navbar />
 
       <main className="flex-1 pt-24 sm:pt-28 pb-20 overflow-hidden">
@@ -177,7 +192,12 @@ export default function DomainsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center justify-between">
             
             {/* Left Column: Eyebrow, Giant Two-Tone Title, Story, CTA */}
-            <div className="lg:col-span-7 space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:col-span-7 space-y-6"
+            >
               
               {/* Eyebrow: — OUR DOMAINS */}
               <div className="flex items-center gap-2">
@@ -221,10 +241,15 @@ export default function DomainsPage() {
                 </button>
               </div>
 
-            </div>
+            </motion.div>
 
             {/* Right Column: Cinematic Hacker Hallway Visual with Micro-text */}
-            <div className="lg:col-span-5 relative flex justify-center lg:justify-end items-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:col-span-5 relative flex justify-center lg:justify-end items-center"
+            >
               
               <div className="relative w-full max-w-md aspect-[614/572] rounded-xl overflow-hidden border border-white/15 bg-black/60 shadow-[0_25px_70px_rgba(0,0,0,0.95)] group">
                 <Image
@@ -260,35 +285,45 @@ export default function DomainsPage() {
 
               </div>
 
-            </div>
+            </motion.div>
 
           </div>
         </section>
 
 
         {/* ========================================================
-            THE 6 DOMAINS: EDITORIAL HORIZONTAL ROWS
+            THE 6 DOMAINS: EDITORIAL HORIZONTAL ROWS (WITH SCROLL ANIMATION)
            ======================================================== */}
         <section id="domain-list" className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-4">
           
           <div className="border-t border-white/[0.08]">
-            {domainsData.map((item) => (
-              <div
+            {domainsData.map((item, idx) => (
+              <motion.div
                 key={item.index}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-70px" }}
+                transition={{ duration: 0.65, delay: idx * 0.05, ease: [0.16, 1, 0.3, 1] }}
                 onClick={() => setSelectedDomain(item)}
                 className="group relative py-8 sm:py-10 border-b border-white/[0.08] hover:border-amber-400/40 transition-colors duration-300 cursor-pointer"
               >
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
                   
                   {/* Column 1: Number (lg:col-span-2) */}
-                  <div className="lg:col-span-2 flex items-baseline lg:flex-col justify-between lg:justify-start gap-1">
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="lg:col-span-2 flex items-baseline lg:flex-col justify-between lg:justify-start gap-1"
+                  >
                     <span className="text-[11px] font-mono tracking-widest text-slate-500 uppercase">
                       {item.index} / 06
                     </span>
                     <span className="text-5xl sm:text-6xl lg:text-7xl font-extrabold font-mono text-slate-700 group-hover:text-amber-400 transition-colors duration-300">
                       {item.index}
                     </span>
-                  </div>
+                  </motion.div>
 
                   {/* Column 2: Title, Description, Tags (lg:col-span-5) */}
                   <div className="lg:col-span-5 space-y-3">
@@ -315,7 +350,13 @@ export default function DomainsPage() {
 
                   {/* Column 3: Widescreen Thumbnail (lg:col-span-4) */}
                   <div className="lg:col-span-4">
-                    <div className="relative w-full aspect-[16/9] rounded-lg overflow-hidden border border-white/10 bg-black/60 shadow-xl group-hover:border-amber-400/30 transition-all duration-300">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.94 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                      className="relative w-full aspect-[16/9] rounded-lg overflow-hidden border border-white/10 bg-black/60 shadow-xl group-hover:border-amber-400/30 transition-all duration-300"
+                    >
                       <Image
                         src={item.image}
                         alt={item.title}
@@ -324,18 +365,22 @@ export default function DomainsPage() {
                         sizes="(max-width: 768px) 100vw, 380px"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                    </div>
+                    </motion.div>
                   </div>
 
                   {/* Column 4: Arrow Circle Button (lg:col-span-1) */}
                   <div className="lg:col-span-1 flex justify-start lg:justify-end">
-                    <div className="w-11 h-11 rounded-full border border-white/15 group-hover:border-amber-400 bg-white/[0.02] group-hover:bg-amber-400 text-white group-hover:text-slate-950 flex items-center justify-center transition-all duration-200 shadow-sm">
+                    <motion.div
+                      whileHover={{ scale: 1.08 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="w-11 h-11 rounded-full border border-white/15 group-hover:border-amber-400 bg-white/[0.02] group-hover:bg-amber-400 text-white group-hover:text-slate-950 flex items-center justify-center transition-all duration-200 shadow-sm"
+                    >
                       <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-                    </div>
+                    </motion.div>
                   </div>
 
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
@@ -350,7 +395,11 @@ export default function DomainsPage() {
             className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-xl animate-in fade-in duration-200"
             onClick={() => setSelectedDomain(null)}
           >
-            <div
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 15 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
               className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-[#090d16] border border-white/15 shadow-[0_25px_80px_rgba(0,0,0,0.95)]"
               onClick={(e) => e.stopPropagation()}
             >
@@ -487,7 +536,7 @@ export default function DomainsPage() {
                 </Link>
               </div>
 
-            </div>
+            </motion.div>
           </div>
         )}
 
