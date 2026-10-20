@@ -1,15 +1,36 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { upcomingEvents, CyberEvent } from "@/data/events";
+import Image from "next/image";
+import { upcomingEvents as fallbackEvents, CyberEvent } from "@/data/events";
 import { Calendar, Bell, ArrowRight, Shield, CheckCircle2 } from "lucide-react";
-
 import SpotlightCard from "./SpotlightCard";
 
 export default function UpcomingEvents() {
+  const [events, setEvents] = useState<CyberEvent[]>([]);
+  const [loading, setLoading] = useState(true);
   const [emailSubscribed, setEmailSubscribed] = useState(false);
   const [notifyEmail, setNotifyEmail] = useState("");
+
+  useEffect(() => {
+    async function loadEvents() {
+      try {
+        const res = await fetch("/api/events");
+        const data = await res.json();
+        if (data.success && Array.isArray(data.events)) {
+          setEvents((data.events as CyberEvent[]).filter((e: CyberEvent) => e.status !== "Completed"));
+        } else {
+          setEvents(fallbackEvents);
+        }
+      } catch {
+        setEvents(fallbackEvents);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadEvents();
+  }, []);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,30 +64,64 @@ export default function UpcomingEvents() {
         </div>
 
         {/* Content Area: Real events or Authentic Empty State */}
-        {upcomingEvents.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {upcomingEvents.map((evt: CyberEvent) => (
+        {!loading && events.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {events.slice(0, 3).map((evt: CyberEvent) => (
               <SpotlightCard
                 key={evt.id}
-                className="p-6 sm:p-7 flex flex-col justify-between h-full"
+                className="flex flex-col justify-between h-full overflow-hidden p-0 group"
               >
                 <div>
-                  <div className="flex items-center justify-between text-xs font-mono mb-3">
-                    <span className="text-[#38bdf8] font-medium">{evt.date}</span>
-                    <span className="px-2 py-0.5 rounded-full border border-white/10 bg-white/[0.04] text-slate-300 text-[10px]">
-                      {evt.mode}
-                    </span>
+                  {/* Event Poster if present */}
+                  {evt.image ? (
+                    <div className="relative w-full h-44 bg-slate-900 overflow-hidden border-b border-white/[0.08]">
+                      <Image
+                        src={evt.image}
+                        alt={evt.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        sizes="(max-width: 768px) 100vw, 400px"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+                      <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold bg-black/70 backdrop-blur-md border border-white/15 text-cyan-300">
+                          {evt.category}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                          {evt.status}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-6 pb-0 flex items-center justify-between text-xs font-mono mb-2">
+                      <span className="text-[#38bdf8] font-medium">{evt.category}</span>
+                      <span className="px-2 py-0.5 rounded-full border border-white/10 bg-white/[0.04] text-slate-300 text-[10px]">
+                        {evt.mode}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="p-6 space-y-2">
+                    <div className="flex items-center gap-2 text-xs font-mono text-cyan-400">
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>{evt.date}</span>
+                    </div>
+
+                    <h3 className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2">
+                      {evt.title}
+                    </h3>
+
+                    <p className="text-xs sm:text-sm text-slate-400 leading-relaxed line-clamp-3">
+                      {evt.description}
+                    </p>
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
-                    {evt.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-4">
-                    {evt.description}
-                  </p>
                 </div>
-                <div className="pt-4 border-t border-white/[0.06] flex items-center justify-between">
-                  <span className="text-xs text-slate-400 font-mono">{evt.venue}</span>
-                  {evt.registrationLink && (
+
+                <div className="p-6 pt-4 border-t border-white/[0.06] flex items-center justify-between">
+                  <span className="text-xs text-slate-400 font-mono truncate max-w-[160px]">
+                    {evt.venue}
+                  </span>
+                  {evt.registrationLink ? (
                     <a
                       href={evt.registrationLink}
                       target="_blank"
@@ -76,6 +131,13 @@ export default function UpcomingEvents() {
                       <span>Register Now</span>
                       <ArrowRight className="w-3 h-3" />
                     </a>
+                  ) : (
+                    <Link
+                      href="/events"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+                    >
+                      <span>Details &rarr;</span>
+                    </Link>
                   )}
                 </div>
               </SpotlightCard>
