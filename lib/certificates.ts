@@ -24,6 +24,14 @@ export interface CertificateRecord {
   issue_date: string; // "2026-10-19"
   expiry_date: string; // "2027-01-17" (Issue date + 60 or 90 days)
   image_url?: string; // Optional direct image url
+  template_id?: string; // ID of the specific Canva template/event profile
+  template_url?: string; // Cloudinary Canva template image URL for this event
+  template_font_family?: string;
+  template_font_size?: number;
+  template_font_weight?: string;
+  template_color?: string;
+  template_y_pos?: number;
+  template_text_transform?: "uppercase" | "capitalize" | "none";
   is_download_active: boolean; // True while within validity window, false after expiry
   role_or_rank?: string; // "Winner", "1st Runner Up", "Participant", "Lead Organizer"
   issued_by?: string; // "Cyber Cell, SATI Vidisha"

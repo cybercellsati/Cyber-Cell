@@ -8,12 +8,16 @@ import {
   Download,
   Calendar,
   CheckCircle2,
-  Clock,
   Copy,
   AlertTriangle,
   GraduationCap,
   Award,
   Sparkles,
+  ExternalLink,
+  X,
+  ArrowRight,
+  Eye,
+  FileCheck,
 } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
@@ -32,6 +36,14 @@ interface VerifiedCertificate {
   issue_date: string;
   expiry_date: string;
   image_url?: string;
+  template_id?: string;
+  template_url?: string;
+  template_font_family?: string;
+  template_font_size?: number;
+  template_font_weight?: string;
+  template_color?: string;
+  template_y_pos?: number;
+  template_text_transform?: "uppercase" | "capitalize" | "none";
   is_download_active: boolean;
   is_expired?: boolean;
   role_or_rank?: string;
@@ -54,43 +66,67 @@ interface SavedConfig {
 }
 
 /**
- * Individual Certificate Card rendering high-resolution canvas on-demand
+ * Dedicated Modal Viewer rendering the high-definition Certificate Canvas
+ * Displays upon clicking a student's name from the list
  */
-function CertificateCardItem({
+function CertificateModal({
   cert,
   globalConfig,
   copiedId,
   onCopyLink,
+  onClose,
 }: {
   cert: VerifiedCertificate;
   globalConfig: SavedConfig | null;
   copiedId: string | null;
   onCopyLink: (id: string) => void;
+  onClose: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [rendering, setRendering] = useState(true);
 
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  // Render high-definition canvas whenever selected certificate changes
   useEffect(() => {
     if (!canvasRef.current) return;
     setRendering(true);
 
+    const templateUrl = cert.template_url || globalConfig?.templateUrl || "";
+    const fontFamily = cert.template_font_family || globalConfig?.fontFamily || "'Cinzel', serif";
+    const fontSize = cert.template_font_size || globalConfig?.fontSize || 76;
+    const fontWeight = cert.template_font_weight || globalConfig?.fontWeight || "bold";
+    const color = cert.template_color || globalConfig?.color || "#d4af37";
+    const yPosition =
+      cert.template_y_pos !== undefined
+        ? cert.template_y_pos / 100
+        : (globalConfig?.yPositionPercent ?? 49.5) / 100;
+    const textTransform = cert.template_text_transform || globalConfig?.textTransform || "uppercase";
+
     const cfg: CertificateConfig = {
       mode: "name_only",
       templateType: "custom",
-      templateUrl: globalConfig?.templateUrl || "",
+      templateUrl,
       recipientName: cert.recipient_name,
       scholarNumber: cert.scholar_number,
       certificateId: cert.certificate_id,
       issueDate: cert.issue_date,
       roleOrRank: cert.role_or_rank || "Participant",
-      nameFontSize: globalConfig?.fontSize || 76,
-      nameFontFamily: globalConfig?.fontFamily || "'Cinzel', serif",
-      nameFontWeight: globalConfig?.fontWeight || "bold",
-      nameColor: globalConfig?.color || "#d4af37",
-      nameYPosition: (globalConfig?.yPositionPercent ?? 48.0) / 100,
+      nameFontSize: fontSize,
+      nameFontFamily: fontFamily,
+      nameFontWeight: fontWeight,
+      nameColor: color,
+      nameYPosition: yPosition,
       nameXPosition: (globalConfig?.xPositionPercent ?? 50.0) / 100,
       nameLetterSpacing: globalConfig?.letterSpacing ?? 2,
-      nameTextTransform: globalConfig?.textTransform || "uppercase",
+      nameTextTransform: textTransform,
       showQrCode: globalConfig?.showQrCode ?? false,
       showCertificateId: globalConfig?.showCertificateId ?? false,
     };
@@ -110,97 +146,81 @@ function CertificateCardItem({
   };
 
   return (
-    <SpotlightCard
-      key={cert.certificate_id}
-      className="p-6 sm:p-10 rounded-3xl border border-white/10 overflow-hidden"
-    >
-      {/* Status Header Badge */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 border-b border-white/[0.08]">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
-                Authentic & Verified Credential
-              </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
+      <div
+        className="relative w-full max-w-4xl bg-[#090d16] border border-cyan-500/30 rounded-3xl p-5 sm:p-8 shadow-2xl my-auto text-white"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Top Controls Bar */}
+        <div className="flex items-center justify-between pb-4 border-b border-white/10 gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+              <ShieldCheck className="w-4 h-4" />
             </div>
-            <span className="text-[11px] font-mono text-slate-400">
-              Official SATI Cyber Cell Institutional Record
-            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
+                  Verified Institutional Credential
+                </span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              </div>
+              <span className="text-[11px] font-mono text-slate-400">
+                SATI Vidisha Cyber Cell Official Record
+              </span>
+            </div>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="p-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-slate-300 hover:text-white transition-colors"
+            title="Close certificate viewer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Certificate Recipient Header */}
+        <div className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08]">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              {cert.recipient_name}
+            </h2>
+            <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-slate-400 mt-0.5">
+              {cert.scholar_number && (
+                <span>
+                  Scholar No: <strong className="text-cyan-300">{cert.scholar_number}</strong>
+                </span>
+              )}
+              <span>•</span>
+              <span>Event: <strong className="text-white">{cert.event_name}</strong></span>
+            </div>
+          </div>
+
+          <div className="text-left sm:text-right font-mono text-xs">
+            <span className="text-slate-500">Credential ID:</span>
+            <div className="font-bold text-cyan-300">{cert.certificate_id}</div>
           </div>
         </div>
 
-        <div className="text-left sm:text-right font-mono">
-          <div className="text-xs text-slate-400">Credential ID</div>
-          <div className="text-sm font-bold text-cyan-300">{cert.certificate_id}</div>
-        </div>
-      </div>
-
-      {/* Recipient & Event Details */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6 border-b border-white/[0.08]">
-        <div className="space-y-1">
-          <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
-            Conferred Upon
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            {cert.recipient_name}
-          </h2>
-          {cert.scholar_number && (
-            <p className="text-xs font-mono text-slate-400">
-              Scholar No: <span className="text-cyan-300 font-semibold">{cert.scholar_number}</span>
-            </p>
-          )}
-        </div>
-
-        <div className="space-y-1">
-          <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500">
-            Event / Recognition
-          </span>
-          <h3 className="text-base font-bold text-cyan-300">
-            {cert.event_name}
-          </h3>
-          <p className="text-xs font-mono text-slate-400">
-            Role / Rank: <span className="text-white font-medium">{cert.role_or_rank || "Participant"}</span>
-          </p>
-        </div>
-      </div>
-
-      {/* Issuance Details */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4 text-xs font-mono">
-        <div className="flex items-center gap-2 text-slate-300">
-          <Calendar className="w-4 h-4 text-cyan-400 shrink-0" />
-          <span>Issued: <strong className="text-white">{cert.issue_date}</strong></span>
-        </div>
-
-        <div className="flex items-center gap-2 text-slate-300">
-          <Award className="w-4 h-4 text-cyan-400 shrink-0" />
-          <span>Issuing Body: <strong className="text-white">{cert.issued_by || "Cyber Cell, SATI Vidisha"}</strong></span>
-        </div>
-      </div>
-
-      {/* Live High-Definition Certificate Canvas */}
-      <div className="my-6 space-y-4">
-        <div className="relative aspect-[297/210] w-full rounded-2xl overflow-hidden border border-white/10 bg-[#050810] shadow-2xl flex items-center justify-center">
+        {/* High-Definition Certificate Canvas Viewport */}
+        <div className="my-5 relative aspect-[297/210] w-full rounded-2xl overflow-hidden border border-white/10 bg-[#050810] shadow-2xl flex items-center justify-center">
           <canvas
             ref={canvasRef}
             className="w-full h-full object-contain"
           />
           {rendering && (
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center gap-2 text-xs font-mono text-cyan-300">
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center gap-2.5 text-xs font-mono text-cyan-300">
               <div className="w-4 h-4 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
               <span>Rendering HD Certificate...</span>
             </div>
           )}
         </div>
 
-        {/* Download & Share Actions */}
-        <div className="flex flex-col sm:flex-row items-center gap-3">
+        {/* Action Controls: Download & Share */}
+        <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
           <button
             onClick={handleDownload}
-            className="w-full sm:w-auto flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-cyan-600/20 active:scale-98"
+            className="w-full sm:w-auto flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-cyan-600/25 active:scale-98"
           >
             <Download className="w-4 h-4" />
             <span>⬇ Download Certificate (HD PNG)</span>
@@ -222,15 +242,22 @@ function CertificateCardItem({
               </>
             )}
           </button>
+
+          <button
+            onClick={onClose}
+            className="w-full sm:w-auto py-3.5 px-5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-400 hover:text-white font-mono text-xs transition-colors"
+          >
+            ← Back to List
+          </button>
+        </div>
+
+        {/* Institutional Verification Footer */}
+        <div className="mt-4 pt-3 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-slate-500 gap-2">
+          <span>Issuing Body: {cert.issued_by || "Cyber Cell, SATI Vidisha"}</span>
+          <span>Issued Date: {cert.issue_date}</span>
         </div>
       </div>
-
-      {/* Institutional Footer */}
-      <div className="pt-4 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-slate-500 gap-2">
-        <span>Authorized by: CSE Department, SATI Vidisha</span>
-        <span>Credential Status: Permanent Institutional Ledger</span>
-      </div>
-    </SpotlightCard>
+    </div>
   );
 }
 
@@ -245,6 +272,9 @@ function VerifyContent() {
   const [hasSearched, setHasSearched] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [globalConfig, setGlobalConfig] = useState<SavedConfig | null>(null);
+
+  // Active Certificate Modal State
+  const [selectedCert, setSelectedCert] = useState<VerifiedCertificate | null>(null);
 
   // Load saved certificate font & placement config
   useEffect(() => {
@@ -278,12 +308,18 @@ function VerifyContent() {
       const res = await fetch(url);
       const data = await res.json();
 
+      let certList: VerifiedCertificate[] = [];
       if (data.certificate) {
-        setResults([data.certificate]);
+        certList = [data.certificate];
       } else if (data.certificates && Array.isArray(data.certificates)) {
-        setResults(data.certificates);
-      } else {
-        setResults([]);
+        certList = data.certificates;
+      }
+
+      setResults(certList);
+
+      // If user navigated directly using an exact certificate ID, auto-open the certificate viewer
+      if (idParam && certList.length === 1 && certList[0].certificate_id.toUpperCase() === idParam.toUpperCase()) {
+        setSelectedCert(certList[0]);
       }
     } catch (err) {
       console.error("Verification query error:", err);
@@ -295,6 +331,7 @@ function VerifyContent() {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setSelectedCert(null);
     executeVerification(searchTerm);
   };
 
@@ -311,7 +348,7 @@ function VerifyContent() {
 
       <main className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24 w-full">
         {/* Header & Verification Badges */}
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-300 text-xs font-mono uppercase tracking-widest mb-4">
             <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
             <span>Official Credential Registry</span>
@@ -324,14 +361,14 @@ function VerifyContent() {
           <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
             Search by your <span className="text-white font-medium">Scholar Number</span>,{" "}
             <span className="text-white font-medium">Certificate ID</span>, or{" "}
-            <span className="text-white font-medium">Name</span> to verify and instantly download your official credentials.
+            <span className="text-white font-medium">Name</span>. Select your name from the verified list to view and download your certificate.
           </p>
         </div>
 
         {/* Search Bar */}
         <form
           onSubmit={handleSearchSubmit}
-          className="max-w-2xl mx-auto mb-12 relative"
+          className="max-w-2xl mx-auto mb-10 relative"
         >
           <div className="relative flex items-center">
             <Search className="w-5 h-5 text-slate-500 absolute left-4 pointer-events-none" />
@@ -357,7 +394,7 @@ function VerifyContent() {
           </div>
         </form>
 
-        {/* Results Area */}
+        {/* Loading State */}
         {loading && (
           <div className="py-16 text-center space-y-4">
             <div className="w-10 h-10 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto" />
@@ -367,6 +404,7 @@ function VerifyContent() {
           </div>
         )}
 
+        {/* Empty / Not Found State */}
         {!loading && hasSearched && results.length === 0 && (
           <div className="max-w-xl mx-auto p-8 rounded-3xl border border-white/10 bg-[#090d16] text-center space-y-4 shadow-xl">
             <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto">
@@ -379,18 +417,98 @@ function VerifyContent() {
           </div>
         )}
 
+        {/* Search Results: Clean List View (No heavy image upfront) */}
         {!loading && results.length > 0 && (
-          <div className="space-y-10">
-            {results.map((cert) => (
-              <CertificateCardItem
-                key={cert.certificate_id}
-                cert={cert}
-                globalConfig={globalConfig}
-                copiedId={copiedId}
-                onCopyLink={copyVerifyLink}
-              />
-            ))}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between px-2">
+              <div className="flex items-center gap-2">
+                <FileCheck className="w-4 h-4 text-cyan-400" />
+                <span className="text-xs font-mono uppercase tracking-wider text-slate-300">
+                  Found <strong className="text-cyan-300">{results.length}</strong> Verified Record{results.length > 1 ? "s" : ""}
+                </span>
+              </div>
+              <span className="text-[11px] font-mono text-slate-500">
+                Click on your name to view & download certificate
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              {results.map((cert) => (
+                <SpotlightCard
+                  key={cert.certificate_id}
+                  className="p-5 sm:p-6 rounded-2xl border border-white/10 hover:border-cyan-500/50 transition-all duration-200 cursor-pointer group bg-[#090d16]/80 hover:bg-[#0c1220]"
+                >
+                  <div
+                    onClick={() => setSelectedCert(cert)}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  >
+                    {/* Left: Recipient & Scholar Info */}
+                    <div className="flex items-start sm:items-center gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 shrink-0 group-hover:scale-105 transition-transform group-hover:border-cyan-400/50">
+                        <GraduationCap className="w-6 h-6" />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-cyan-300 transition-colors">
+                            {cert.recipient_name}
+                          </h3>
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-mono font-semibold text-emerald-400">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            Verified
+                          </span>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-slate-400">
+                          {cert.scholar_number && (
+                            <span>
+                              Scholar No: <strong className="text-cyan-400">{cert.scholar_number}</strong>
+                            </span>
+                          )}
+                          <span>•</span>
+                          <span className="text-slate-300">{cert.event_name}</span>
+                          <span>•</span>
+                          <span className="text-slate-400">{cert.role_or_rank || "Participant"}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Credential ID & Action Button */}
+                    <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-white/[0.06]">
+                      <div className="text-left sm:text-right font-mono text-xs">
+                        <div className="text-[10px] text-slate-500 uppercase tracking-wider">Credential ID</div>
+                        <div className="text-xs font-semibold text-slate-300">{cert.certificate_id}</div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedCert(cert);
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 group-hover:border-cyan-400 text-cyan-300 font-medium text-xs transition-all shadow-sm group-hover:shadow-cyan-500/20"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>View Certificate</span>
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                      </button>
+                    </div>
+                  </div>
+                </SpotlightCard>
+              ))}
+            </div>
           </div>
+        )}
+
+        {/* Modal: Rendered only when user clicks on a certificate row */}
+        {selectedCert && (
+          <CertificateModal
+            cert={selectedCert}
+            globalConfig={globalConfig}
+            copiedId={copiedId}
+            onCopyLink={copyVerifyLink}
+            onClose={() => setSelectedCert(null)}
+          />
         )}
       </main>
 

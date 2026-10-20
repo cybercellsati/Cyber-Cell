@@ -22,6 +22,12 @@ import {
   Users,
   ChevronDown,
   ChevronUp,
+  Plus,
+  Layers,
+  FolderOpen,
+  Calendar,
+  X,
+  FileText,
 } from "lucide-react";
 import {
   renderCertificateToCanvas,
@@ -29,6 +35,7 @@ import {
   CERTIFICATE_FONTS,
   FontOption,
 } from "@/lib/certificateRenderer";
+import { CertificateTemplateProfile } from "@/lib/certificateConfig";
 
 interface AttendeeRow {
   name: string;
@@ -49,7 +56,19 @@ const COLOR_SWATCHES = [
 export default function CleanAdminCertificatesStudio() {
   const router = useRouter();
 
-  // Template State
+  // Multi-Template Management State
+  const [templates, setTemplates] = useState<CertificateTemplateProfile[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const [activePortalTemplateId, setActivePortalTemplateId] = useState<string>("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newTemplateName, setNewTemplateName] = useState("");
+  const [newEventName, setNewEventName] = useState("");
+  const [newIssueDate, setNewIssueDate] = useState(new Date().toISOString().split("T")[0]);
+  const [isCreatingTemplate, setIsCreatingTemplate] = useState(false);
+
+  // Template Editing State
+  const [templateDisplayName, setTemplateDisplayName] = useState<string>("");
+  const [eventTitle, setEventTitle] = useState<string>("");
   const [templateUrl, setTemplateUrl] = useState<string>("");
   const [templateFileName, setTemplateFileName] = useState<string>("");
   const [customImage, setCustomImage] = useState<HTMLImageElement | null>(null);
@@ -86,60 +105,191 @@ export default function CleanAdminCertificatesStudio() {
       .catch(() => router.push("/admin/login"));
   }, [router]);
 
-  // 2. Load existing saved config from server
-  useEffect(() => {
-    async function loadConfig() {
-      try {
-        const res = await fetch("/api/admin/certificates/config");
-        const data = await res.json();
-        if (data.success && data.config) {
-          const cfg = data.config;
-          if (cfg.fontSize) setFontSize(cfg.fontSize);
-          if (cfg.color) setFontColor(cfg.color);
-          if (cfg.yPositionPercent) setNameYPos(cfg.yPositionPercent / 100);
-          if (cfg.textTransform) setTextTransform(cfg.textTransform);
-          if (cfg.fontWeight) setFontWeight(cfg.fontWeight);
+  // Helper: Apply a template profile to current studio state
+  const applyTemplateToStudio = (tmpl: CertificateTemplateProfile) => {
+    setSelectedTemplateId(tmpl.id);
+    setTemplateDisplayName(tmpl.name);
+    setEventTitle(tmpl.eventName || tmpl.name);
+    setTemplateUrl(tmpl.templateUrl || "");
+    setTemplateFileName(tmpl.templateFileName || "");
+    setFontSize(tmpl.fontSize || 76);
+    setFontWeight(tmpl.fontWeight || "bold");
+    setFontColor(tmpl.color || "#d4af37");
+    setNameYPos((tmpl.yPositionPercent ?? 49.5) / 100);
+    setTextTransform(tmpl.textTransform || "uppercase");
 
-          if (cfg.fontFamily) {
-            const match = CERTIFICATE_FONTS.find(
-              (f) => cfg.fontFamily.toLowerCase().includes(f.name.toLowerCase()) || f.family === cfg.fontFamily
-            );
-            if (match) setSelectedFont(match);
-          }
-
-          if (cfg.templateUrl) {
-            setTemplateUrl(cfg.templateUrl);
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            img.onload = () => setCustomImage(img);
-            img.src = cfg.templateUrl;
-          }
-          if (cfg.templateFileName) {
-            setTemplateFileName(cfg.templateFileName);
-          }
-        }
-
-        // Load attendees if already in Excel/Registry
-        const attRes = await fetch("/api/certificates/verify?query=0108");
-        const attData = await attRes.json();
-        if (attData.certificates && attData.certificates.length > 0) {
-          setAttendees(
-            attData.certificates.map((c: any) => ({
-              name: c.recipient_name,
-              scholarNumber: c.scholar_number,
-              certificateId: c.certificate_id,
-              role: c.role_or_rank || "Participant",
-            }))
-          );
-        }
-      } catch (err) {
-        console.warn("Could not load certificate config:", err);
-      }
+    if (tmpl.fontFamily) {
+      const match = CERTIFICATE_FONTS.find(
+        (f) =>
+          tmpl.fontFamily.toLowerCase().includes(f.name.toLowerCase()) ||
+          f.family === tmpl.fontFamily
+      );
+      if (match) setSelectedFont(match);
     }
-    loadConfig();
+
+    if (tmpl.templateUrl) {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => setCustomImage(img);
+      img.src = tmpl.templateUrl;
+    } else {
+      setCustomImage(null);
+    }
+  };
+
+  // 2. Load all saved templates from server
+  const loadTemplatesAndAttendees = async () => {
+    try {
+      const res = await fetch("/api/admin/certificates/templates");
+      const data = await res.json();
+
+      if (data.success && Array.isArray(data.templates) && data.templates.length > 0) {
+        setTemplates(data.templates);
+        setActivePortalTemplateId(data.activeTemplateId || data.templates[0].id);
+
+        // Find either currently selected or active template
+        const target =
+          data.templates.find((t: CertificateTemplateProfile) => t.id === selectedTemplateId) ||
+          data.templates.find((t: CertificateTemplateProfile) => t.id === data.activeTemplateId) ||
+          data.templates[0];
+
+        applyTemplateToStudio(target);
+      }
+
+      // Load attendees
+      const attRes = await fetch("/api/certificates/verify?query=0108");
+      const attData = await attRes.json();
+      if (attData.certificates && attData.certificates.length > 0) {
+        setAttendees(
+          attData.certificates.map((c: any) => ({
+            name: c.recipient_name,
+            scholarNumber: c.scholar_number,
+            certificateId: c.certificate_id,
+            role: c.role_or_rank || "Participant",
+          }))
+        );
+      }
+    } catch (err) {
+      console.warn("Could not load certificate templates:", err);
+    }
+  };
+
+  useEffect(() => {
+    loadTemplatesAndAttendees();
   }, []);
 
-  // 3. Render Canvas whenever settings change
+  // 3. Switch selected template profile
+  const handleSelectTemplate = (id: string) => {
+    const target = templates.find((t) => t.id === id);
+    if (target) {
+      applyTemplateToStudio(target);
+      showToast(`Switched to template: "${target.name}"`);
+    }
+  };
+
+  // 4. Set template as active for public verification
+  const handleSetActivePortalTemplate = async () => {
+    if (!selectedTemplateId) return;
+    try {
+      const res = await fetch("/api/admin/certificates/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "set_active",
+          id: selectedTemplateId,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setActivePortalTemplateId(selectedTemplateId);
+        showToast("✓ Template is now ACTIVE on the public /verify portal!");
+        if (data.templates) setTemplates(data.templates);
+      }
+    } catch {
+      alert("Failed to activate template.");
+    }
+  };
+
+  // 5. Create a new event template profile
+  const handleCreateNewTemplate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTemplateName.trim()) return;
+
+    setIsCreatingTemplate(true);
+    try {
+      const newId = `tmpl_${Date.now()}`;
+      const payload: Partial<CertificateTemplateProfile> = {
+        id: newId,
+        name: newTemplateName.trim(),
+        eventName: newEventName.trim() || newTemplateName.trim(),
+        issueDate: newIssueDate || new Date().toISOString().split("T")[0],
+        templateUrl: "",
+        templateFileName: "",
+        fontFamily: "'Cinzel', serif",
+        fontSize: 76,
+        fontWeight: "bold",
+        color: "#d4af37",
+        yPositionPercent: 49.5,
+        xPositionPercent: 50.0,
+        textTransform: "uppercase",
+        attendeesCount: 0,
+        isActive: false,
+      };
+
+      const res = await fetch("/api/admin/certificates/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (data.success && data.profile) {
+        setTemplates(data.templates || [...templates, data.profile]);
+        applyTemplateToStudio(data.profile);
+        setShowCreateModal(false);
+        setNewTemplateName("");
+        setNewEventName("");
+        showToast(`✓ New template "${data.profile.name}" created! Now upload its Canva template & Excel sheet.`);
+      } else {
+        alert("Failed to create template: " + (data.error || "Unknown error"));
+      }
+    } catch (err) {
+      alert("Network error creating template.");
+    } finally {
+      setIsCreatingTemplate(false);
+    }
+  };
+
+  // 6. Delete template profile
+  const handleDeleteTemplateProfile = async () => {
+    if (templates.length <= 1) {
+      alert("You cannot delete the only existing template.");
+      return;
+    }
+    if (!confirm(`Are you sure you want to delete template "${templateDisplayName}"?`)) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/admin/certificates/templates?id=${encodeURIComponent(selectedTemplateId)}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTemplates(data.templates);
+        setActivePortalTemplateId(data.activeTemplateId);
+        const remaining = data.templates[0];
+        if (remaining) applyTemplateToStudio(remaining);
+        showToast("✓ Template deleted successfully.");
+      } else {
+        alert("Delete error: " + data.error);
+      }
+    } catch {
+      alert("Network error while deleting template.");
+    }
+  };
+
+  // 7. Render Canvas whenever settings change
   useEffect(() => {
     if (!previewCanvasRef.current) return;
 
@@ -186,7 +336,7 @@ export default function CleanAdminCertificatesStudio() {
     setTimeout(() => setToastMessage(null), 5000);
   };
 
-  // Upload Canva Template: Direct Client-to-Cloudinary (Super Fast, Bypasses Vercel 4.5MB Serverless Limit)
+  // Upload Canva Template: Direct Client-to-Cloudinary
   const handleTemplateUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -204,13 +354,14 @@ export default function CleanAdminCertificatesStudio() {
     reader.readAsDataURL(file);
 
     try {
-      // 2. Request upload signature from server
+      // 2. Request upload signature from server with template-specific public ID
+      const safeTmplId = selectedTemplateId || `tmpl_${Date.now()}`;
       const signRes = await fetch("/api/admin/cloudinary/sign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           folder: "cybercell/templates",
-          public_id: "certificate-template",
+          public_id: `certificate-template-${safeTmplId}`,
           overwrite: true,
         }),
       });
@@ -219,18 +370,18 @@ export default function CleanAdminCertificatesStudio() {
       if (!signRes.ok || !signData.success) {
         throw new Error(
           signData.error ||
-          "Cloudinary credentials missing in Vercel. Please add CLOUDINARY_URL in Vercel Settings > Environment Variables."
+          "Cloudinary credentials missing. Please check CLOUDINARY_URL in environment variables."
         );
       }
 
-      // 3. Direct client-to-Cloudinary upload (Lightning fast, handles 5-20MB Canva files with ease!)
+      // 3. Direct client-to-Cloudinary upload
       const cldFormData = new FormData();
       cldFormData.append("file", file);
       cldFormData.append("api_key", signData.apiKey);
       cldFormData.append("timestamp", String(signData.timestamp));
       cldFormData.append("signature", signData.signature);
       cldFormData.append("folder", signData.folder);
-      cldFormData.append("public_id", "certificate-template");
+      cldFormData.append("public_id", `certificate-template-${safeTmplId}`);
       cldFormData.append("overwrite", "true");
 
       const uploadRes = await fetch(
@@ -249,18 +400,19 @@ export default function CleanAdminCertificatesStudio() {
       const finalUrl = uploadData.secure_url;
       setTemplateUrl(finalUrl);
 
-      // 4. Save template URL into configuration
-      await fetch("/api/admin/certificates/config", {
+      // 4. Save template URL into this specific template profile
+      await fetch("/api/admin/certificates/templates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: selectedTemplateId,
           templateUrl: finalUrl,
           templateFileName: file.name,
           cloudinaryPublicId: uploadData.public_id,
         }),
       });
 
-      showToast("✓ Template successfully uploaded to Cloudinary CDN!");
+      showToast(`✓ Canva template saved to Cloudinary for "${templateDisplayName}"!`);
     } catch (err) {
       console.error("Template upload error:", err);
       alert("Upload error: " + (err as Error).message);
@@ -271,7 +423,7 @@ export default function CleanAdminCertificatesStudio() {
 
   // Delete Canva Template from Cloudinary
   const handleDeleteTemplate = async () => {
-    if (!confirm("Are you sure you want to delete this template from Cloudinary storage?")) {
+    if (!confirm("Are you sure you want to remove this Canva image?")) {
       return;
     }
 
@@ -283,7 +435,19 @@ export default function CleanAdminCertificatesStudio() {
         setTemplateUrl("");
         setCustomImage(null);
         setTemplateFileName("");
-        showToast("✓ Template deleted from Cloudinary storage.");
+
+        // Also update template profile
+        await fetch("/api/admin/certificates/templates", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: selectedTemplateId,
+            templateUrl: "",
+            templateFileName: "",
+          }),
+        });
+
+        showToast("✓ Template image cleared.");
       } else {
         alert("Delete error: " + data.error);
       }
@@ -294,7 +458,7 @@ export default function CleanAdminCertificatesStudio() {
     }
   };
 
-  // Upload Attendees Excel File
+  // Upload Attendees Excel File for this specific template/event
   const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -303,6 +467,8 @@ export default function CleanAdminCertificatesStudio() {
     try {
       const formData = new FormData();
       formData.append("excel", file);
+      formData.append("templateId", selectedTemplateId);
+      formData.append("eventName", eventTitle || templateDisplayName);
 
       const res = await fetch("/api/admin/certificates/upload-excel", {
         method: "POST",
@@ -311,27 +477,17 @@ export default function CleanAdminCertificatesStudio() {
 
       const data = await res.json();
       if (data.success) {
-        showToast(`✓ Excel uploaded successfully! ${data.rowCount} attendees loaded.`);
+        showToast(`✓ Excel uploaded successfully! ${data.rowCount} attendees added to "${templateDisplayName}".`);
 
         if (data.attendees && Array.isArray(data.attendees) && data.attendees.length > 0) {
           setAttendees(data.attendees);
           setPreviewIndex(0);
-        } else {
-          // Fallback refresh
-          const refreshRes = await fetch("/api/certificates/verify?query=0108");
-          const refreshData = await refreshRes.json();
-          if (refreshData.certificates && refreshData.certificates.length > 0) {
-            setAttendees(
-              refreshData.certificates.map((c: any) => ({
-                name: c.recipient_name,
-                scholarNumber: c.scholar_number,
-                certificateId: c.certificate_id,
-                role: c.role_or_rank || "Participant",
-              }))
-            );
-            setPreviewIndex(0);
-          }
         }
+
+        // Refresh template list to update attendee count badges
+        const tmplRes = await fetch("/api/admin/certificates/templates");
+        const tmplData = await tmplRes.json();
+        if (tmplData.templates) setTemplates(tmplData.templates);
       } else {
         alert("Excel upload error: " + data.error);
       }
@@ -342,14 +498,19 @@ export default function CleanAdminCertificatesStudio() {
     }
   };
 
-  // Save Final Font Decision
+  // Save Final Template & Design Decision
   const handleSaveDesign = async () => {
     setIsSaving(true);
     try {
-      const res = await fetch("/api/admin/certificates/config", {
+      const res = await fetch("/api/admin/certificates/templates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: selectedTemplateId,
+          name: templateDisplayName.trim(),
+          eventName: eventTitle.trim(),
+          templateUrl,
+          templateFileName,
           fontFamily: selectedFont.family,
           fontSize,
           fontWeight,
@@ -363,7 +524,8 @@ export default function CleanAdminCertificatesStudio() {
       const data = await res.json();
       if (data.success) {
         setSaveSuccess(true);
-        showToast("✓ Certificate design saved! All students will receive this style.");
+        if (data.templates) setTemplates(data.templates);
+        showToast(`✓ Profile "${templateDisplayName}" saved successfully!`);
         setTimeout(() => setSaveSuccess(false), 4000);
       }
     } catch {
@@ -379,7 +541,7 @@ export default function CleanAdminCertificatesStudio() {
     const url = previewCanvasRef.current.toDataURL("image/png", 1.0);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "CyberCell-Certificate-Preview.png";
+    link.download = `CyberCell-${(templateDisplayName || "Certificate").replace(/\s+/g, "_")}-Preview.png`;
     link.click();
   };
 
@@ -408,11 +570,11 @@ export default function CleanAdminCertificatesStudio() {
               <h1 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
                 <span>Certificate Studio</span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
-                  Canva + Cloudinary
+                  Multi-Event Engine
                 </span>
               </h1>
               <p className="text-[11px] text-slate-400">
-                Upload Canva template, adjust name placement, and finalize
+                Design Canva templates and issue certificates per event
               </p>
             </div>
           </div>
@@ -439,7 +601,7 @@ export default function CleanAdminCertificatesStudio() {
       </header>
 
       {/* Main Studio Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1 space-y-6">
         {/* Floating Toast Notification */}
         {toastMessage && (
           <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-mono flex items-center gap-2.5 shadow-xl animate-fadeIn">
@@ -448,7 +610,72 @@ export default function CleanAdminCertificatesStudio() {
           </div>
         )}
 
-        {/* 2-Column Responsive Layout */}
+        {/* ========================================================================= */}
+        {/* EVENT & TEMPLATE SELECTOR BAR (MULTI-EVENT PRESETS)                       */}
+        {/* ========================================================================= */}
+        <div className="bg-[#0b101c] border border-white/10 rounded-2xl p-4 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-400">
+              <Layers className="w-4 h-4 text-cyan-400" />
+              <span>Event Template:</span>
+            </div>
+
+            {/* Template Dropdown */}
+            <select
+              value={selectedTemplateId}
+              onChange={(e) => handleSelectTemplate(e.target.value)}
+              className="px-3.5 py-2 rounded-xl bg-white/[0.06] border border-white/15 text-white text-xs font-medium focus:border-cyan-400 focus:outline-none transition-all cursor-pointer min-w-[220px]"
+            >
+              {templates.map((t) => (
+                <option key={t.id} value={t.id} className="bg-[#0b101c] text-white">
+                  {t.name} {t.id === activePortalTemplateId ? "★ (Active on Portal)" : ""}
+                </option>
+              ))}
+            </select>
+
+            {/* Active Status Badge */}
+            {selectedTemplateId === activePortalTemplateId ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-[11px] font-mono font-semibold text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Active on /verify Portal
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSetActivePortalTemplate}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-[11px] font-mono text-cyan-300 transition-colors"
+                title="Make this template the default for the public verification portal"
+              >
+                <span>Set as Active on Portal</span>
+              </button>
+            )}
+          </div>
+
+          {/* Action Buttons: New Template & Delete */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-bold text-xs transition-all shadow-md active:scale-95"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ Create Template for Next Event</span>
+            </button>
+
+            {templates.length > 1 && (
+              <button
+                type="button"
+                onClick={handleDeleteTemplateProfile}
+                className="p-2 rounded-xl bg-white/[0.04] hover:bg-rose-500/20 border border-white/10 hover:border-rose-500/30 text-slate-400 hover:text-rose-300 transition-colors"
+                title="Delete this template profile"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* 2-Column Responsive Studio Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* ========================================================================= */}
           {/* LEFT COLUMN: Large Live Canvas Preview                                    */}
@@ -460,7 +687,7 @@ export default function CleanAdminCertificatesStudio() {
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   <span className="text-xs font-mono font-semibold text-slate-300 uppercase tracking-wider">
-                    Live A4 Landscape Preview
+                    Live A4 Landscape Preview ({templateDisplayName || "Event Template"})
                   </span>
                 </div>
 
@@ -487,9 +714,9 @@ export default function CleanAdminCertificatesStudio() {
                       <Sparkles className="w-6 h-6" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-white">No Canva Template Uploaded</p>
+                      <p className="text-sm font-semibold text-white">No Canva Template Uploaded for this Event</p>
                       <p className="text-xs text-slate-400 mt-1 max-w-sm">
-                        Upload your Canva certificate below. It will automatically save to Cloudinary and display here.
+                        Upload your Canva certificate design below. It will save to Cloudinary and attach to &quot;{templateDisplayName}&quot;.
                       </p>
                     </div>
                   </div>
@@ -536,19 +763,19 @@ export default function CleanAdminCertificatesStudio() {
 
             {/* Quick Tip Pill */}
             <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-xs text-slate-400 flex items-center gap-3">
-              <span className="text-cyan-400 font-bold shrink-0">💡 Tip:</span>
+              <span className="text-cyan-400 font-bold shrink-0">💡 Event Tip:</span>
               <span>
-                Canva template par jaha student ke naam ki jagah khali hai, right side me <strong>Vertical Position (Y)</strong> slider se naam ko theek usi line par set karein.
+                Aap har event ke liye alag Canva template upload kar sakte hain. Student jab apna naam / scholar number /verify par search karega, use usi event ka certificate milega!
               </span>
             </div>
           </div>
 
           {/* ========================================================================= */}
-          {/* RIGHT COLUMN: 3 Simple Steps                                              */}
+          {/* RIGHT COLUMN: Event Info, Canva Template, Typography & Excel               */}
           {/* ========================================================================= */}
           <div className="lg:col-span-5 space-y-5">
             {/* ----------------------------------------------------------------------- */}
-            {/* STEP 1: Canva Template (Cloudinary)                                     */}
+            {/* STEP 1: Template & Event Identity                                       */}
             {/* ----------------------------------------------------------------------- */}
             <div className="bg-[#0b101c] border border-white/10 rounded-3xl p-5 space-y-3.5 shadow-xl">
               <div className="flex items-center justify-between">
@@ -556,7 +783,50 @@ export default function CleanAdminCertificatesStudio() {
                   <span className="w-6 h-6 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold flex items-center justify-center font-mono">
                     1
                   </span>
-                  <h3 className="text-sm font-bold text-white">Canva Template</h3>
+                  <h3 className="text-sm font-bold text-white">Event Details</h3>
+                </div>
+                <span className="text-[11px] font-mono text-slate-400">Template Profile</span>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-[11px] font-mono uppercase tracking-wider text-slate-400 block mb-1">
+                    Template Display Name
+                  </label>
+                  <input
+                    type="text"
+                    value={templateDisplayName}
+                    onChange={(e) => setTemplateDisplayName(e.target.value)}
+                    placeholder="e.g. National Cyber Defense 2026"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-medium focus:border-cyan-400 focus:outline-none transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-mono uppercase tracking-wider text-slate-400 block mb-1">
+                    Event Title (on Certificate Record)
+                  </label>
+                  <input
+                    type="text"
+                    value={eventTitle}
+                    onChange={(e) => setEventTitle(e.target.value)}
+                    placeholder="e.g. Workshop on Ethical Hacking 2026"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-medium focus:border-cyan-400 focus:outline-none transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* ----------------------------------------------------------------------- */}
+            {/* STEP 2: Canva Template (Cloudinary)                                     */}
+            {/* ----------------------------------------------------------------------- */}
+            <div className="bg-[#0b101c] border border-white/10 rounded-3xl p-5 space-y-3.5 shadow-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-6 h-6 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold flex items-center justify-center font-mono">
+                    2
+                  </span>
+                  <h3 className="text-sm font-bold text-white">Canva Template Image</h3>
                 </div>
 
                 {templateUrl ? (
@@ -575,7 +845,7 @@ export default function CleanAdminCertificatesStudio() {
               {templateUrl ? (
                 <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-3">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-400 truncate max-w-[200px]" title={templateFileName || "Active Canva Template"}>
+                    <span className="text-slate-400 truncate max-w-[200px]" title={templateFileName || "Canva Template"}>
                       📄 {templateFileName || "Canva Template"}
                     </span>
                     <a
@@ -607,7 +877,7 @@ export default function CleanAdminCertificatesStudio() {
                       onClick={handleDeleteTemplate}
                       disabled={isDeletingTemplate}
                       className="py-2 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
-                      title="Delete from Cloudinary"
+                      title="Clear image"
                     >
                       {isDeletingTemplate ? (
                         <div className="w-3.5 h-3.5 border-2 border-rose-400 border-t-transparent rounded-full animate-spin" />
@@ -637,17 +907,17 @@ export default function CleanAdminCertificatesStudio() {
             </div>
 
             {/* ----------------------------------------------------------------------- */}
-            {/* STEP 2: Name & Typography Customizer                                    */}
+            {/* STEP 3: Typography & Name Alignment                                     */}
             {/* ----------------------------------------------------------------------- */}
             <div className="bg-[#0b101c] border border-white/10 rounded-3xl p-5 space-y-4 shadow-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <span className="w-6 h-6 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold flex items-center justify-center font-mono">
-                    2
+                    3
                   </span>
                   <h3 className="text-sm font-bold text-white">Name Formatting</h3>
                 </div>
-                <span className="text-[11px] font-mono text-slate-400">Fixed for all students</span>
+                <span className="text-[11px] font-mono text-slate-400">Position & Style</span>
               </div>
 
               {/* 1. Font Family Dropdown */}
@@ -769,7 +1039,7 @@ export default function CleanAdminCertificatesStudio() {
                 </div>
               </div>
 
-              {/* Save Button */}
+              {/* Save Button for this template */}
               <button
                 type="button"
                 onClick={handleSaveDesign}
@@ -785,27 +1055,27 @@ export default function CleanAdminCertificatesStudio() {
                 ) : saveSuccess ? (
                   <>
                     <Check className="w-4 h-4" />
-                    <span>Design Finalized & Saved!</span>
+                    <span>Template Saved!</span>
                   </>
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
-                    <span>Save Certificate Design</span>
+                    <span>Save Template Profile</span>
                   </>
                 )}
               </button>
             </div>
 
             {/* ----------------------------------------------------------------------- */}
-            {/* STEP 3: Attendees Registry (Excel)                                      */}
+            {/* STEP 4: Attendees Registry (Excel) for this Event                       */}
             {/* ----------------------------------------------------------------------- */}
             <div className="bg-[#0b101c] border border-white/10 rounded-3xl p-5 space-y-3.5 shadow-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <span className="w-6 h-6 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold flex items-center justify-center font-mono">
-                    3
+                    4
                   </span>
-                  <h3 className="text-sm font-bold text-white">Attendees Data</h3>
+                  <h3 className="text-sm font-bold text-white">Event Attendees (Excel)</h3>
                 </div>
 
                 <span className="text-[11px] font-mono text-slate-300 bg-white/[0.05] border border-white/10 px-2.5 py-0.5 rounded-full">
@@ -814,7 +1084,7 @@ export default function CleanAdminCertificatesStudio() {
               </div>
 
               <p className="text-xs text-slate-400 leading-relaxed">
-                Attendees ki Excel file (.xlsx) upload karein jisme <strong>Scholar Number</strong> aur <strong>Name</strong> ho:
+                Upload attendees sheet for <strong>{templateDisplayName}</strong> (.xlsx or .csv):
               </p>
 
               <label className="flex items-center justify-center gap-2 p-3.5 rounded-2xl border border-dashed border-emerald-500/30 hover:border-emerald-400 bg-emerald-500/[0.02] hover:bg-emerald-500/[0.05] cursor-pointer transition-all text-center group">
@@ -867,6 +1137,92 @@ export default function CleanAdminCertificatesStudio() {
           </div>
         </div>
       </main>
+
+      {/* ========================================================================= */}
+      {/* MODAL: Create New Event Template Profile                                  */}
+      {/* ========================================================================= */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div
+            className="w-full max-w-md bg-[#090e1a] border border-cyan-500/30 rounded-3xl p-6 shadow-2xl text-white space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                  <Plus className="w-4 h-4" />
+                </div>
+                <h3 className="text-base font-bold text-white">Create New Event Template</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateNewTemplate} className="space-y-4">
+              <div>
+                <label className="text-xs font-mono uppercase tracking-wider text-slate-300 block mb-1.5">
+                  Template Name (Admin Reference)
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Web3 Security Workshop 2026"
+                  value={newTemplateName}
+                  onChange={(e) => setNewTemplateName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 text-white text-xs font-medium focus:border-cyan-400 focus:outline-none transition-all placeholder-slate-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-mono uppercase tracking-wider text-slate-300 block mb-1.5">
+                  Event Name (Printed on Verification)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. National Cyber Security Bootcamp 2026"
+                  value={newEventName}
+                  onChange={(e) => setNewEventName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 text-white text-xs font-medium focus:border-cyan-400 focus:outline-none transition-all placeholder-slate-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-mono uppercase tracking-wider text-slate-300 block mb-1.5">
+                  Issuance Date
+                </label>
+                <input
+                  type="date"
+                  value={newIssueDate}
+                  onChange={(e) => setNewIssueDate(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 text-white text-xs font-medium focus:border-cyan-400 focus:outline-none transition-all"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs font-mono text-slate-300 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreatingTemplate || !newTemplateName.trim()}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-bold text-xs transition-all disabled:opacity-50"
+                >
+                  {isCreatingTemplate ? "Creating..." : "Create & Start Designing"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

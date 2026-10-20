@@ -4,6 +4,7 @@ import path from "path";
 import os from "os";
 import * as XLSX from "xlsx";
 import { CertificateRecord, batchSaveCertificateRecords } from "@/lib/certificates";
+import { getTemplateById, getActiveTemplate, saveTemplateProfile } from "@/lib/certificateConfig";
 
 const MAX_EXCEL_BYTES = 10 * 1024 * 1024; // 10 MB max
 const ALLOWED_EXTENSIONS = [".xlsx", ".xls", ".csv"];
@@ -42,9 +43,12 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("excel") as File | null;
+    const reqTemplateId = (formData.get("templateId") as string) || "";
+    const reqEventName = (formData.get("eventName") as string) || "";
+
     if (!file) {
       return NextResponse.json(
-        { success: false, error: "No Excel file provided in request" },
+        { success: false, error: "No Excel file provided in request." },
         { status: 400 }
       );
     }
@@ -52,7 +56,7 @@ export async function POST(req: NextRequest) {
     const ext = path.extname(file.name).toLowerCase();
     if (!ALLOWED_EXTENSIONS.includes(ext)) {
       return NextResponse.json(
-        { success: false, error: "Invalid file extension. Only .xlsx, .xls, and .csv files are permitted." },
+        { success: false, error: "Invalid file type. Please upload a .xlsx, .xls, or .csv file." },
         { status: 400 }
       );
     }
@@ -62,6 +66,12 @@ export async function POST(req: NextRequest) {
         { success: false, error: "File exceeds 10 MB size limit." },
         { status: 400 }
       );
+    }
+
+    // Load active or targeted template profile for metadata tagging
+    let templateProfile = reqTemplateId ? await getTemplateById(reqTemplateId) : null;
+    if (!templateProfile) {
+      templateProfile = await getActiveTemplate();
     }
 
     const bytes = await file.arrayBuffer();
@@ -77,7 +87,7 @@ export async function POST(req: NextRequest) {
       }
     } catch {
       return NextResponse.json(
-        { success: false, error: "File corrupted or invalid spreadsheet structure." },
+        { success: false, error: "Failed to parse spreadsheet. File may be corrupted or password-protected." },
         { status: 400 }
       );
     }
@@ -132,6 +142,8 @@ export async function POST(req: NextRequest) {
       ).trim().toUpperCase();
 
       const eventName =
+        reqEventName ||
+        templateProfile?.eventName ||
         getRowValue(row, ["event", "event name", "workshop", "competition"]) ||
         "National Cyber Defense Wargame 2026";
 
@@ -140,6 +152,7 @@ export async function POST(req: NextRequest) {
         "Participant";
 
       const issueDate =
+        templateProfile?.issueDate ||
         getRowValue(row, ["issue date", "date", "issuance date"]) ||
         new Date().toISOString().split("T")[0];
 
@@ -152,6 +165,14 @@ export async function POST(req: NextRequest) {
         issue_date: issueDate,
         expiry_date: "2030-01-01",
         image_url: "",
+        template_id: templateProfile?.id,
+        template_url: templateProfile?.templateUrl || "",
+        template_font_family: templateProfile?.fontFamily,
+        template_font_size: templateProfile?.fontSize,
+        template_font_weight: templateProfile?.fontWeight,
+        template_color: templateProfile?.color,
+        template_y_pos: templateProfile?.yPositionPercent,
+        template_text_transform: templateProfile?.textTransform,
         is_download_active: true,
         role_or_rank: role,
         issued_by: "Cyber Cell, SATI Vidisha",
@@ -170,23 +191,61 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 1. Save to /tmp/attendees.json and /tmp/attendees.xlsx (Fastest in serverless)
+    // 1. Read existing attendees and merge so previous events' attendees are preserved!
+    let allAttendees: CertificateRecord[] = [];
+    const attendeesTmpPath = path.join(os.tmpdir(), "attendees.json");
     try {
-      fs.writeFileSync(path.join(os.tmpdir(), "attendees.json"), JSON.stringify(records, null, 2), "utf-8");
-      fs.writeFileSync(path.join(os.tmpdir(), "attendees.xlsx"), buffer);
+      if (fs.existsSync(/*turbopackIgnore: true*/ attendeesTmpPath)) {
+        const existing = JSON.parse(fs.readFileSync(/*turbopackIgnore: true*/ attendeesTmpPath, "utf-8"));
+        if (Array.isArray(existing)) {
+          allAttendees = existing;
+        }
+      }
     } catch {}
 
-    // 2. Safe local file write in dev mode
+    // Merge: update existing by certificate_id or append new
+    const attendeeMap = new Map<string, CertificateRecord>();
+    allAttendees.forEach((a) => attendeeMap.set(a.certificate_id, a));
+    records.forEach((r) => attendeeMap.set(r.certificate_id, r));
+    const mergedAttendees = Array.from(attendeeMap.values());
+
+    // 2. Save merged list to /tmp/attendees.json and template-specific cache
+    try {
+      fs.writeFileSync(attendeesTmpPath, JSON.stringify(mergedAttendees, null, 2), "utf-8");
+      fs.writeFileSync(path.join(os.tmpdir(), "attendees.xlsx"), buffer);
+
+      if (templateProfile?.id) {
+        fs.writeFileSync(
+          path.join(os.tmpdir(), `attendees_${templateProfile.id}.json`),
+          JSON.stringify(records, null, 2),
+          "utf-8"
+        );
+      }
+    } catch {}
+
+    // 3. Safe local repo disk write in dev mode
     try {
       const dataDir = path.join(process.cwd(), "data");
-      if (!fs.existsSync(dataDir)) {
+      if (!fs.existsSync(/*turbopackIgnore: true*/ dataDir)) {
         fs.mkdirSync(dataDir, { recursive: true });
       }
-      fs.writeFileSync(path.join(dataDir, "attendees.json"), JSON.stringify(records, null, 2), "utf-8");
+      fs.writeFileSync(path.join(dataDir, "attendees.json"), JSON.stringify(mergedAttendees, null, 2), "utf-8");
       fs.writeFileSync(path.join(dataDir, "attendees.xlsx"), buffer);
     } catch {}
 
-    // 3. Save records to Firestore (with safe timeout so serverless never hangs)
+    // 4. Update the template profile's attendeesCount
+    if (templateProfile) {
+      try {
+        await saveTemplateProfile({
+          id: templateProfile.id,
+          attendeesCount: records.length,
+        });
+      } catch (err) {
+        console.warn("[Update Template attendeesCount Warning]:", err);
+      }
+    }
+
+    // 5. Save records to Firestore (with safe timeout so serverless never hangs)
     try {
       await withTimeout(batchSaveCertificateRecords(records), 2500);
     } catch (saveErr) {
@@ -195,8 +254,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Successfully processed and loaded ${records.length} attendees!`,
+      message: `Successfully processed and loaded ${records.length} attendees for "${templateProfile?.name || 'Current Event'}"!`,
       rowCount: records.length,
+      templateId: templateProfile?.id,
       fileName: file.name,
       attendees: records.map((r) => ({
         name: r.recipient_name,
