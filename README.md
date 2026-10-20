@@ -367,6 +367,7 @@ Cyber-Cell/
 │   ├── certificates.ts          # Hybrid certificate database & Excel reader
 │   ├── firebase.ts              # Resilient Firebase client initialization
 │   ├── firestore.ts             # User profiles & offline-safe Firestore sync
+│   └── cloudinary.ts            # Cloudinary media storage & CDN client
 ├── middleware.ts                # Server-side route security & admin protection
 ├── public/
 │   ├── images/                  # Shield logos, badges & member avatars
@@ -439,6 +440,10 @@ npm run start
 | `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`| Cloud Storage Bucket | `cyber-cell-d0258.firebasestorage.app` |
 | `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`| FCM Sender ID | `100344904262` |
 | `NEXT_PUBLIC_FIREBASE_APP_ID` | Firebase Web App ID | `1:100344904262:web:...` |
+| `CLOUDINARY_URL` | Cloudinary Storage connection string | `cloudinary://<key>:<secret>@<cloud>` |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary Cloud Name | `qtfezfsf` |
+| `CLOUDINARY_API_KEY` | Cloudinary API Key | `355444168593654` |
+| `CLOUDINARY_API_SECRET` | Cloudinary API Secret | `your_api_secret` |
 
 ---
 

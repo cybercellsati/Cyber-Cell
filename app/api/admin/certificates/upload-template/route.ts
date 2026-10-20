@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { isCloudinaryConfigured, uploadToCloudinary } from "@/lib/cloudinary";
 
 const MAX_SIZE_BYTES = 15 * 1024 * 1024; // 15MB max
 
@@ -50,16 +51,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    let finalTemplateUrl = `/templates/certificate-template.png?v=${Date.now()}`;
+
+    // 1. Upload to Cloudinary if configured
+    if (isCloudinaryConfigured) {
+      try {
+        const uploadRes = await uploadToCloudinary(buffer, {
+          folder: "cybercell/templates",
+          public_id: "certificate-template",
+          overwrite: true,
+          resource_type: "image",
+        });
+        finalTemplateUrl = uploadRes.secure_url;
+      } catch (cloudErr) {
+        console.warn("[Cloudinary Upload Warning]: Could not upload to Cloudinary, falling back to local storage:", cloudErr);
+      }
+    }
+
+    // 2. Always persist local copy in public/templates/ as well
     const templatesDir = path.join(process.cwd(), "public", "templates");
     if (!fs.existsSync(templatesDir)) {
       fs.mkdirSync(templatesDir, { recursive: true });
     }
-
-    // Always save permanently to public/templates/certificate-template.png
     const targetPath = path.join(templatesDir, "certificate-template.png");
     fs.writeFileSync(targetPath, buffer);
 
-    // Update config with fresh cache-busting timestamp
+    // Update config with fresh URL
     const configPath = path.join(process.cwd(), "data", "certificateConfig.json");
     let config: Record<string, unknown> = {};
     if (fs.existsSync(configPath)) {
@@ -70,7 +87,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    config.templateUrl = `/templates/certificate-template.png?v=${Date.now()}`;
+    config.templateUrl = finalTemplateUrl;
     config.templateFileName = file.name;
     config.updatedAt = new Date().toISOString();
 
@@ -78,10 +95,13 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Canva template permanently saved to server (public/templates/certificate-template.png)",
+      message: isCloudinaryConfigured
+        ? "Canva template uploaded to Cloudinary CDN and saved to local server."
+        : "Canva template saved to local server (public/templates/certificate-template.png).",
       templateUrl: config.templateUrl,
       sizeBytes: buffer.length,
       fileName: file.name,
+      cloudinary: isCloudinaryConfigured,
     });
   } catch (error) {
     console.error("[Template Upload Error]:", error);
