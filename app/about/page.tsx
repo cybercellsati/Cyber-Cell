@@ -142,9 +142,9 @@ export default function AboutPage() {
             </div>
             <Link
               href="/join"
-              className="px-5 py-2.5 rounded-lg bg-[#00e5ff] text-black font-semibold text-xs sm:text-sm hover:bg-[#22d3ee] transition-colors shrink-0"
+              className="px-5 py-2.5 rounded-lg bg-white/10 hover:bg-white/15 text-white font-medium text-xs sm:text-sm transition-colors shrink-0"
             >
-              Join the Club
+              Recruitment Info (Closed)
             </Link>
           </div>
 

@@ -67,10 +67,10 @@ export default function ProjectsPage() {
 
               <Link
                 href="/join"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-[#00e5ff] text-black font-semibold text-xs sm:text-sm hover:bg-[#22d3ee] transition-colors"
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-white/10 text-white font-medium text-xs sm:text-sm hover:bg-white/15 border border-white/10 transition-colors"
               >
-                <Code className="w-4 h-4" />
-                <span>Join a Project Working Group</span>
+                <Code className="w-4 h-4 text-cyan-400" />
+                <span>Recruitment & Working Group Info (Closed)</span>
               </Link>
             </div>
           )}

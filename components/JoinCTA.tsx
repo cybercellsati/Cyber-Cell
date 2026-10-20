@@ -10,14 +10,15 @@ export default function JoinCTA() {
           
           {/* Left Text */}
           <div className="max-w-xl">
-            <span className="text-xs font-mono font-medium tracking-widest text-slate-400 uppercase block mb-2">
-              BE A PART OF THE CHANGE
+            <span className="text-xs font-mono font-medium tracking-widest text-amber-400 uppercase block mb-2 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
+              STATUS: RECRUITMENT CLOSED
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-2">
-              Join Cyber Cell
+              Inductions Currently Closed
             </h2>
             <p className="text-sm sm:text-base text-slate-400">
-              Bring your curiosity. Build your skills. Make an impact.
+              Formal recruitment for the current semester has concluded. Prepare for the next cycle with our curated resources.
             </p>
           </div>
 
@@ -25,10 +26,10 @@ export default function JoinCTA() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 shrink-0">
             <Link
               href="/join"
-              className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-lg border border-[#38bdf8]/60 bg-[#0ea5e9]/10 hover:bg-[#0ea5e9]/20 hover:border-[#38bdf8] text-white font-medium text-sm transition-colors"
+              className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-lg border border-white/15 bg-white/[0.05] hover:bg-white/[0.1] text-white font-medium text-sm transition-colors"
             >
-              <span>Join Now</span>
-              <ArrowRight className="w-4 h-4 text-[#38bdf8] transition-transform group-hover:translate-x-0.5" />
+              <span>View Induction Info</span>
+              <ArrowRight className="w-4 h-4 text-slate-400 transition-transform group-hover:translate-x-0.5" />
             </Link>
 
             <Link

@@ -126,7 +126,7 @@ export default function ProjectsSection() {
                 className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 hover:border-cyan-400/40 hover:bg-white/[0.08] text-slate-200 hover:text-white transition-all duration-200 shadow-sm"
               >
                 <Code className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Interested in building a project? Join Cyber Cell</span>
+                <span>Interested in building a project? Recruitment Info (Closed)</span>
               </Link>
             </SpotlightCard>
           </div>

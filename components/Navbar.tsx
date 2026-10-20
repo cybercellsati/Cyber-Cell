@@ -166,10 +166,10 @@ export default function Navbar() {
 
           <Link
             href="/join"
-            className="group relative inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-[13px] font-medium text-white rounded-lg bg-[#27446b] hover:bg-[#315383] border border-white/15 transition-all duration-200 shadow-sm active:scale-[0.98]"
+            className="group relative inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-[13px] font-medium text-slate-300 hover:text-white rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all duration-200 shadow-sm active:scale-[0.98]"
           >
-            <span>Join the Club</span>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-200 transition-transform duration-200 ease-out group-hover:translate-x-1" />
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+            <span>Recruitment Closed</span>
           </Link>
         </div>
 
@@ -270,10 +270,10 @@ export default function Navbar() {
             <Link
               href="/join"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-center gap-2 w-full py-2.5 text-center text-xs font-semibold text-white bg-[#27446b] hover:bg-[#315383] rounded-lg border border-white/15 transition-colors"
+              className="flex items-center justify-center gap-2 w-full py-2.5 text-center text-xs font-semibold text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] rounded-lg border border-white/10 transition-colors"
             >
-              <span>Join the Club</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              <span>Recruitment Closed</span>
             </Link>
           </div>
         </div>

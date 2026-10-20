@@ -45,10 +45,11 @@ export default function Hero() {
             <div className="flex flex-wrap items-center gap-4 mb-12">
               <Link
                 href="/join"
-                className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-lg bg-[#70b0fc] hover:bg-[#86bdfd] text-[#080d1a] font-semibold text-sm transition-all duration-200 shadow-sm active:scale-[0.98]"
+                className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-lg border border-white/15 bg-white/[0.05] hover:bg-white/[0.1] text-white font-medium text-sm transition-all duration-200 shadow-sm active:scale-[0.98]"
               >
-                <span>Join Us</span>
-                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+                <span className="w-2 h-2 rounded-full bg-amber-400" />
+                <span>Recruitment Closed</span>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 group-hover:translate-x-1" />
               </Link>
 
               <Link
