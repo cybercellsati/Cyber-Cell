@@ -37,8 +37,8 @@ export default function Hero() {
 
             {/* Supporting Copy matching SATI Vidisha context */}
             <p className="text-sm sm:text-base text-slate-300 font-normal leading-relaxed max-w-lg mb-9">
-              Cyber Cell is a student-driven cybersecurity initiative under the{" "}
-              <span className="text-white font-medium">Central Coding Club at Samrat Ashok Technological Institute, Vidisha</span>.
+              Cyber Cell is a student-driven cybersecurity initiative at{" "}
+              <span className="text-white font-medium">Samrat Ashok Technological Institute (SATI), Vidisha</span>.
             </p>
 
             {/* CTAs matching reference: Sky-Blue "Join Us ->" and Outline "Explore Events" */}

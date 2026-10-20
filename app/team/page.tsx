@@ -546,23 +546,17 @@ export default function RotatingTeamPage() {
           <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
 
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 relative z-10">
-            {/* Photo / Portrait */}
-            <div className="relative w-36 h-48 sm:w-44 sm:h-56 rounded-2xl overflow-hidden shrink-0 bg-slate-900 border border-white/15 shadow-xl">
-              {!facultyImgErr && facultyAdvisor.image ? (
-                <Image
-                  src={facultyAdvisor.image}
-                  alt={facultyAdvisor.name}
-                  fill
-                  sizes="(max-width: 640px) 144px, 176px"
-                  className="object-cover object-top"
-                  onError={() => setFacultyImgErr(true)}
-                />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center font-mono text-slate-500 bg-slate-900/90">
-                  <GraduationCap className="w-10 h-10 text-cyan-400/60 mb-2" />
-                  <span className="text-lg font-bold">SJ</span>
-                </div>
-              )}
+            {/* Academic Mentorship Emblem */}
+            <div className="relative w-36 h-48 sm:w-44 sm:h-56 rounded-2xl overflow-hidden shrink-0 bg-gradient-to-b from-[#0d1424] to-[#070b13] border border-cyan-500/30 flex flex-col items-center justify-center p-4 text-center shadow-xl">
+              <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/25 flex items-center justify-center mb-3 text-cyan-400 shadow-inner">
+                <GraduationCap className="w-9 h-9" />
+              </div>
+              <span className="font-mono text-xs text-cyan-400 font-semibold tracking-wider uppercase">
+                Faculty Mentor
+              </span>
+              <span className="font-mono text-[10px] text-slate-500 mt-1 uppercase">
+                SATI Vidisha
+              </span>
             </div>
 
             {/* Information */}

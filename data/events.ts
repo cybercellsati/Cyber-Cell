@@ -15,7 +15,7 @@ export interface CyberEvent {
 // In accordance with data integrity guidelines:
 // Unconfirmed or hypothetical events are omitted. Real club announcements will be appended here.
 export const upcomingEvents: CyberEvent[] = [
-  // Empty until officially scheduled and verified by Cyber Cell & SATI Central Coding Club
+  // Empty until officially scheduled and verified by Cyber Cell, SATI Vidisha
 ];
 
 export const pastEvents: CyberEvent[] = [

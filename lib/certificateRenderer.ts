@@ -399,7 +399,7 @@ function drawCyberMidnightTemplate(ctx: CanvasRenderingContext2D, width: number,
   ctx.textAlign = "center";
   ctx.font = `bold 22px "Geist Mono", monospace`;
   ctx.fillStyle = "#38bdf8";
-  ctx.fillText("CENTRAL CODING CLUB  •  SATI VIDISHA", width / 2, 130);
+  ctx.fillText("CYBER CELL  •  SATI VIDISHA", width / 2, 130);
 
   ctx.font = `bold 44px "Geist", "Segoe UI", sans-serif`;
   ctx.fillStyle = "#ffffff";

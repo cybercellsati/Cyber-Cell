@@ -1,22 +1,18 @@
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
+import { ArrowRight, ShieldCheck, Flag, Cpu, Layers } from "lucide-react";
 import SpotlightCard from "./SpotlightCard";
-import { ArrowRight, Terminal, Cpu, Flag, Layers, ShieldCheck, Users } from "lucide-react";
 
-const characteristics = [
+interface Characteristic {
+  title: string;
+  desc: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const characteristics: Characteristic[] = [
   {
-    title: "Student Driven",
-    desc: "Led and maintained by passionate undergraduate engineers at SATI.",
-    icon: Users
-  },
-  {
-    title: "Hands-on Learning",
-    desc: "Focus on practical labs, packet analysis, and live environments.",
-    icon: Terminal
-  },
-  {
-    title: "CTFs & Competitions",
+    title: "CTF Competitions",
     desc: "Training student teams for regional and national cyber wargames.",
     icon: Flag
   },
@@ -60,7 +56,7 @@ export default function AboutSection() {
             <SpotlightCard className="p-6 sm:p-8 flex flex-col justify-between h-full">
               <div>
                 <p className="text-sm text-slate-300 leading-relaxed mb-4">
-                  Cyber Cell is a student-driven initiative under the Coding Club, focused on cybersecurity 
+                  Cyber Cell is a student-driven initiative focused on cybersecurity 
                   education, hands-on learning and community building.
                 </p>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
@@ -137,7 +133,7 @@ export default function AboutSection() {
               </div>
 
               <div className="pt-4 mt-4 border-t border-white/[0.06] text-[11px] font-mono text-slate-500">
-                Truthful student data &bull; SATI Coding Club Wing
+                Official Student Body &bull; SATI Vidisha
               </div>
             </SpotlightCard>
           </div>

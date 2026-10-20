@@ -95,7 +95,7 @@ export default function UpcomingEvents() {
 
               <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed mb-6">
                 Stay tuned for upcoming cybersecurity workshops, competitions and sessions. 
-                Official dates will be published once finalized with the SATI Coding Club.
+                Official dates will be published once finalized by the Cyber Cell team.
               </p>
 
               {/* Notification alert / Signup box */}
@@ -126,7 +126,7 @@ export default function UpcomingEvents() {
 
               <div className="mt-6 pt-5 border-t border-white/[0.06] flex items-center justify-center gap-2 text-[11px] font-mono text-slate-500">
                 <Shield className="w-3 h-3 text-cyan-500/70" />
-                <span>Real data only &bull; Verified SATI Coding Club schedule</span>
+                <span>Real data only &bull; Verified SATI Cyber Cell schedule</span>
               </div>
             </SpotlightCard>
           </div>

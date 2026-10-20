@@ -18,7 +18,16 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Cyber Cell | Official Cybersecurity Club | SATI Vidisha",
-  description: "Official student cybersecurity body and ethical hacking community of Samrat Ashok Technological Institute (SATI), Vidisha.",
+  description:
+    "Official student cybersecurity body and ethical hacking community of Samrat Ashok Technological Institute (SATI), Vidisha.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -50,4 +59,3 @@ export default function RootLayout({
     </html>
   );
 }
-

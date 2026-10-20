@@ -13,7 +13,7 @@ export default function TerminalDemo() {
   const [history, setHistory] = useState<TerminalLine[]>([
     {
       type: "system",
-      content: "Cyber Cell SATI [Version 1.0.0-sati.lab]\n(c) 2025 Cyber Cell under Central Coding Club, SATI Vidisha.\nType 'help' to see available simulated commands."
+      content: "Cyber Cell SATI [Version 1.0.0-sati.lab]\n(c) 2026 Cyber Cell, SATI Vidisha.\nType 'help' to see available simulated commands."
     }
   ]);
   const [cmdHistory, setCmdHistory] = useState<string[]>([]);
@@ -66,7 +66,7 @@ export default function TerminalDemo() {
         newLines.push({
           type: "output",
           content:
-            "Cyber Cell is the official Cybersecurity Club under the Central Coding Club at Samrat Ashok Technological Institute (SATI), Vidisha. Focused on ethical security, practical hands-on labs, CTFs, and defensive engineering."
+            "Cyber Cell is the official Cybersecurity Club at Samrat Ashok Technological Institute (SATI), Vidisha. Focused on ethical security, practical hands-on labs, CTFs, and defensive engineering."
         });
         break;
 
@@ -82,7 +82,7 @@ export default function TerminalDemo() {
         newLines.push({
           type: "output",
           content:
-            "[EVENTS STATUS]: No events announced yet. Real dates will be published once officially finalized by SATI Central Coding Club."
+            "[EVENTS STATUS]: No events announced yet. Real dates will be published once officially finalized by SATI Cyber Cell."
         });
         break;
 

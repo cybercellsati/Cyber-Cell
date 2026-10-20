@@ -34,7 +34,7 @@ export default function EventsPage() {
             </h1>
             <p className="text-sm sm:text-base text-slate-400 mt-3 leading-relaxed">
               Official cybersecurity workshops, bootcamps, capture-the-flag wargames, 
-              and student meetups hosted under SATI Central Coding Club.
+              and student meetups hosted by Cyber Cell SATI.
             </p>
           </div>
 
@@ -99,7 +99,7 @@ export default function EventsPage() {
                 <h3 className="text-xl font-bold text-white mb-2">No events announced yet.</h3>
                 <p className="text-sm text-slate-400 leading-relaxed max-w-md mx-auto mb-8">
                   Stay tuned for upcoming cybersecurity workshops, competitions, and sessions. 
-                  Official dates will be posted as soon as they are approved by the SATI Central Coding Club.
+                  Official dates will be posted as soon as they are finalized by the Cyber Cell team.
                 </p>
 
                 {/* Notify Signup */}

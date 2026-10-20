@@ -28,8 +28,7 @@ export default function Footer() {
           <div className="flex flex-col items-start space-y-3">
             <CyberShieldLogo size="md" />
             <p className="text-slate-400 max-w-sm text-xs leading-relaxed">
-              Official Cybersecurity Club operating under the Central Coding Club at 
-              Samrat Ashok Technological Institute (SATI), Vidisha.
+              Official Cybersecurity Club at Samrat Ashok Technological Institute (SATI), Vidisha.
             </p>
             <div className="text-[11px] font-mono text-[#00e5ff]">
               Learn &rarr; Practice &rarr; Build &rarr; Compete &rarr; Secure

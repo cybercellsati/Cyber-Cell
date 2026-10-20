@@ -152,7 +152,7 @@ export default function AdminDashboardPage() {
                 </span>
               </div>
               <span className="text-[10px] text-slate-400 font-mono block">
-                Central Coding Club &bull; SATI Vidisha
+                Official Cybersecurity Body &bull; SATI Vidisha
               </span>
             </div>
           </div>

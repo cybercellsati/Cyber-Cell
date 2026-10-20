@@ -48,7 +48,7 @@ export default function ProjectsPage() {
               </h2>
 
               <p className="text-sm text-slate-400 max-w-md mx-auto leading-relaxed mb-8">
-                Check back soon. Student development groups under the Central Coding Club 
+                Check back soon. Student development groups at Cyber Cell SATI 
                 are working on vulnerability scanners, packet dissection tools, and challenge containers.
               </p>
 

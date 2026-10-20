@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -33,29 +34,32 @@ export default function CyberSplashScreen() {
       return;
     }
 
-    const DURATION = 900; // Snappy 900ms counter for a premium, non-tedious feel
+    // Session check so users only see it once per session
+    const seen = sessionStorage.getItem("cyber_cell_splash_seen");
+    if (seen === "true") {
+      setIsDismissed(true);
+      return;
+    }
+    sessionStorage.setItem("cyber_cell_splash_seen", "true");
 
-    const step = (timestamp: number) => {
+    // Exact duration: 1200ms
+    const totalDuration = 1200;
+
+    const animateProgress = (timestamp: number) => {
       if (!startTimeRef.current) startTimeRef.current = timestamp;
       const elapsed = timestamp - startTimeRef.current;
-      const linearRatio = Math.min(elapsed / DURATION, 1);
+      const rawProgress = Math.min(100, Math.floor((elapsed / totalDuration) * 100));
 
-      // Smooth custom ease-out
-      const easedRatio = 1 - Math.pow(1 - linearRatio, 2.2);
-      const current = Math.min(100, Math.round(easedRatio * 100));
+      setProgress(rawProgress);
 
-      setProgress(current);
-
-      if (linearRatio < 1) {
-        animationFrameRef.current = requestAnimationFrame(step);
+      if (rawProgress >= 100) {
+        triggerExit();
       } else {
-        setTimeout(() => {
-          triggerExit();
-        }, 140);
+        animationFrameRef.current = requestAnimationFrame(animateProgress);
       }
     };
 
-    animationFrameRef.current = requestAnimationFrame(step);
+    animationFrameRef.current = requestAnimationFrame(animateProgress);
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" || e.key === " ") {
@@ -70,9 +74,7 @@ export default function CyberSplashScreen() {
     };
   }, [pathname, triggerExit]);
 
-  if (isDismissed || pathname !== "/") {
-    return null;
-  }
+  if (isDismissed) return null;
 
   return (
     <AnimatePresence>
@@ -104,51 +106,31 @@ export default function CyberSplashScreen() {
 
             <div className="flex items-center gap-4">
               <span className="text-slate-500 text-[10px] tracking-widest hidden sm:inline">
-                CENTRAL CODING CLUB
+                SATI VIDISHA
               </span>
               <span className="text-slate-400 font-mono">EST. 2026</span>
             </div>
           </div>
 
           {/* ========================================================================= */}
-          {/* Center Composition: Minimalist Geometric Monogram & Editorial Typography */}
+          {/* Center Composition: Official Logo & Editorial Typography                 */}
           {/* ========================================================================= */}
           <div className="flex flex-col items-center justify-center text-center relative z-10 my-auto">
-            {/* Minimalist Architectural Shield Mark */}
+            {/* Official Logo Mark */}
             <motion.div
-              className="relative w-14 h-14 sm:w-16 sm:h-16 mb-8 flex items-center justify-center"
-              initial={{ opacity: 0, scale: 0.92 }}
+              className="relative w-16 h-16 sm:w-20 sm:h-20 mb-8 flex items-center justify-center"
+              initial={{ opacity: 0, scale: 0.88 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
             >
-              <svg
-                className="w-full h-full text-white/90"
-                viewBox="0 0 48 48"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                {/* Clean, hand-crafted geometric shield line */}
-                <motion.path
-                  d="M24 4L7 11V22C7 33.2 14.3 43.1 24 45.8C33.7 43.1 41 33.2 41 22V11L24 4Z"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 0.8, ease: [0.65, 0, 0.35, 1] }}
-                />
-                {/* Center Core Node */}
-                <motion.circle
-                  cx="24"
-                  cy="24"
-                  r="3.5"
-                  className="fill-[#38bdf8]"
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.35, duration: 0.3 }}
-                />
-              </svg>
+              <Image
+                src="/images/cyber-cell-logo.png"
+                alt="Cyber Cell Logo"
+                width={80}
+                height={80}
+                className="w-full h-full object-contain drop-shadow-[0_0_24px_rgba(56,189,248,0.3)]"
+                priority
+              />
             </motion.div>
 
             {/* Masked Title: CYBER CELL */}

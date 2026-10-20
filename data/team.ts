@@ -45,7 +45,7 @@ export const coConvenors: TeamMember[] = [
     category: "Co-Convenor",
     department: "Samrat Ashok Technological Institute, Vidisha",
     bio: "Assisting club leadership in strategic planning, event logistics, inter-college outreach, and team coordination.",
-    image: "/images/team/abhishek-mahore.jpg",
+    image: "/images/team/abhishek-mahore.png",
     email: "abhishek@cybercell.in",
     linkedin: "https://linkedin.com",
     github: "https://github.com",
@@ -110,7 +110,7 @@ export const facultyAdvisor: TeamMember = {
   category: "Faculty Advisor",
   department: "Department of Computer Science & Engineering, SATI Vidisha",
   bio: "Guiding institutional compliance, academic ethics, technical research, and student mentorship at SATI Vidisha.",
-  image: "/images/team/shivangi-jain.jpg",
+  image: "",
   email: "shivangijain@satiengg.in",
 };
 

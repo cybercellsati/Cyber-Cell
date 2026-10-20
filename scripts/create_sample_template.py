@@ -54,7 +54,7 @@ def generate_template():
 
     # Institute title
     draw.text((width // 2, 115), "SAMRAT ASHOK TECHNOLOGICAL INSTITUTE (SATI), VIDISHA", fill=(203, 213, 225, 255), font=font_sub, anchor="mm")
-    draw.text((width // 2, 145), "CENTRAL CODING CLUB • CYBER CELL", fill=cyan, font=font_small, anchor="mm")
+    draw.text((width // 2, 145), "CYBER CELL • SATI VIDISHA", fill=cyan, font=font_small, anchor="mm")
     
     # Main Title
     draw.text((width // 2, 220), "CERTIFICATE OF EXCELLENCE", fill=gold, font=font_large, anchor="mm")
@@ -75,7 +75,7 @@ def generate_template():
     # Left: Faculty
     draw.line([(280, 930), (520, 930)], fill=(148, 163, 184, 180), width=2)
     draw.text((400, 955), "FACULTY CONVENOR", fill=(241, 245, 249, 255), font=font_small, anchor="mm")
-    draw.text((400, 980), "Cyber Cell & Central Coding Club", fill=(100, 116, 139, 255), font=font_small, anchor="mm")
+    draw.text((400, 980), "Cyber Cell SATI Vidisha", fill=(100, 116, 139, 255), font=font_small, anchor="mm")
 
     # Center: Security Seal
     draw.ellipse([(width // 2 - 50, 880), (width // 2 + 50, 980)], outline=gold, width=2)

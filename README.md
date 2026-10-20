@@ -1,9 +1,9 @@
-﻿<div align="center">
+<div align="center">
 
   <img src="public/images/team/hero-shield-badge.png" alt="Cyber Cell SATI Vidisha Shield Logo" width="160" />
 
-  # 🛡️ CYBER CELL — SATI VIDISHA
-  ### Official Cybersecurity Club • Central Coding Club Wing
+  # ??? CYBER CELL � SATI VIDISHA
+  ### Official Cybersecurity Club � SATI Vidisha
   **Samrat Ashok Technological Institute (SATI), Vidisha (M.P.), India**
 
   <p align="center">
@@ -19,13 +19,13 @@
 
   <br />
 
-  [🌐 Explore Website](https://cyber-cell.vercel.app) • [🎓 Verify Certificate](https://cyber-cell.vercel.app/verify) • [🎛️ Admin Panel](https://cyber-cell.vercel.app/admin) • [👥 Meet the Team](https://cyber-cell.vercel.app/team) • [🎯 8 Security Domains](https://cyber-cell.vercel.app/domains) • [🗺️ 9-Stage Roadmap](https://cyber-cell.vercel.app#roadmap) • [📥 Join Offline](https://cyber-cell.vercel.app/join)
+  [?? Explore Website](https://cyber-cell.vercel.app) � [?? Verify Certificate](https://cyber-cell.vercel.app/verify) � [??? Admin Panel](https://cyber-cell.vercel.app/admin) � [?? Meet the Team](https://cyber-cell.vercel.app/team) � [?? 8 Security Domains](https://cyber-cell.vercel.app/domains) � [??? 9-Stage Roadmap](https://cyber-cell.vercel.app#roadmap) � [?? Join Offline](https://cyber-cell.vercel.app/join)
 
 </div>
 
 ---
 
-## 📌 Table of Contents
+## ?? Table of Contents
 
 - [Overview](#-overview)
 - [System Architecture & Capabilities](#-system-architecture--capabilities)
@@ -47,32 +47,32 @@
 
 ---
 
-## 🌐 Overview
+## ?? Overview
 
-**Cyber Cell** is the premier student cybersecurity body and ethical defense initiative operating under the **Central Coding Club** at **Samrat Ashok Technological Institute (SATI), Vidisha**.
+**Cyber Cell** is the premier student cybersecurity body and ethical defense initiative at \*\*Samrat Ashok Technological Institute (SATI), Vidisha\*\*.
 
 Our platform serves as both the club's official public gateway and an integrated institutional operations portal featuring:
 1. **Public Community Portal**: Syllabi across 8 security domains, live web terminal, event timelines, and student roadmap.
 2. **Admin Command Center (`/admin`)**: Operations telemetry, attendees registry, and certificate studio gateway.
 3. **Admin Certificate Studio (`/admin/certificates`)**: Custom Canva template generator, curated font engine, Excel parser, and on-demand issuance.
-4. **Public Verification & HD Download Portal (`/verify`)**: Zero-storage, instant high-resolution credential verification and 1920×1080 PNG download.
+4. **Public Verification & HD Download Portal (`/verify`)**: Zero-storage, instant high-resolution credential verification and 1920�1080 PNG download.
 
 ```
-       ┌────────────────────────────────────────────────────────┐
-       │          CENTRAL CODING CLUB — SATI VIDISHA            │
-       └──────────────────────────┬─────────────────────────────┘
-                                  │
-                                  ▼
-       ┌────────────────────────────────────────────────────────┐
-       │             CYBER CELL CORE INITIATIVE                 │
-       │                                                        │
-       │  [ Faculty Advisory ] ── Prof. Shivangi Jain (CSE)     │
-       │  [ Convenor & Founder ] ── Yash Harfode                │
-       │  [ Co-Convenor ] ── Krishna Mishra                     │
-       └──────────────────────────┬─────────────────────────────┘
-                                  │
-         ┌────────────────────────┼────────────────────────┐
-         ▼                        ▼                        ▼
+       +--------------------------------------------------------+
+       �          CYBER CELL � SATI VIDISHA            �
+       +--------------------------------------------------------+
+                                  �
+                                  ?
+       +--------------------------------------------------------+
+       �             CYBER CELL CORE INITIATIVE                 �
+       �                                                        �
+       �  [ Faculty Advisory ] -- Prof. Shivangi Jain (CSE)     �
+       �  [ Convenor & Founder ] -- Yash Harfode                �
+       �  [ Co-Convenor ] -- Krishna Mishra                     �
+       +--------------------------------------------------------+
+                                  �
+         +------------------------+------------------------+
+         ?                        ?                        ?
    [ Tech Ops ]           [ Media & Creative ]       [ Management ]
   Anubhav Vishwkarma       Abhishek Mahore            Ansh Kushwaha
   (Tech Team Head)         (Media Head)               (Management Head)
@@ -82,49 +82,49 @@ Our platform serves as both the club's official public gateway and an integrated
 
 ---
 
-## 🎓 Certificate Studio & Verification Engine
+## ?? Certificate Studio & Verification Engine
 
 The platform includes a **Zero-Storage On-Demand Canvas Certificate Architecture**, eliminating expensive cloud storage and bandwidth costs while guaranteeing lifetime permanent authenticity.
 
 ```
-                           ┌───────────────────────────┐
-                           │   Organizer / Admin       │
-                           │   (/admin/certificates)   │
-                           └─────────────┬─────────────┘
-                                         │
-                         ┌───────────────┴───────────────┐
-                         ▼                               ▼
+                           +---------------------------+
+                           �   Organizer / Admin       �
+                           �   (/admin/certificates)   �
+                           +---------------------------+
+                                         �
+                         +-------------------------------+
+                         ?                               ?
                  [ Canva Template ]              [ Excel Sheet ]
               5 MB PNG/JPG background         Names & Scholar Numbers
-                         │                               │
-                         └───────────────┬───────────────┘
-                                         │
-                                         ▼
-                     ┌───────────────────────────────────────┐
-                     │   Visual Typography & Font Studio     │
-                     │  Cinzel, Pinyon Script, Great Vibes   │
-                     │  Precision X/Y Position & Color Picker│
-                     └───────────────────┬───────────────────┘
-                                         │
-                                         ▼
-                     ┌───────────────────────────────────────┐
-                     │   Saved Configuration (Server)        │
-                     │   data/certificateConfig.json         │
-                     └───────────────────┬───────────────────┘
-                                         │
-                       ┌─────────────────┴─────────────────┐
-                       ▼                                   ▼
-          ┌─────────────────────────┐         ┌─────────────────────────┐
-          │  Public Search (/verify)│         │ Institutional Ledger    │
-          │  Enter Scholar No / Name│         │ Permanent Verification  │
-          └────────────┬────────────┘         └─────────────────────────┘
-                       │
-                       ▼
-          ┌─────────────────────────┐
-          │   HTML5 Canvas Render   │
-          │  0.1s On-Demand HD PNG  │
-          │ 1920x1080 Direct Export │
-          └─────────────────────────┘
+                         �                               �
+                         +-------------------------------+
+                                         �
+                                         ?
+                     +---------------------------------------+
+                     �   Visual Typography & Font Studio     �
+                     �  Cinzel, Pinyon Script, Great Vibes   �
+                     �  Precision X/Y Position & Color Picker�
+                     +---------------------------------------+
+                                         �
+                                         ?
+                     +---------------------------------------+
+                     �   Saved Configuration (Server)        �
+                     �   data/certificateConfig.json         �
+                     +---------------------------------------+
+                                         �
+                       +-----------------------------------+
+                       ?                                   ?
+          +-------------------------+         +-------------------------+
+          �  Public Search (/verify)�         � Institutional Ledger    �
+          �  Enter Scholar No / Name�         � Permanent Verification  �
+          +-------------------------+         +-------------------------+
+                       �
+                       ?
+          +-------------------------+
+          �   HTML5 Canvas Render   �
+          �  0.1s On-Demand HD PNG  �
+          � 1920x1080 Direct Export �
+          +-------------------------+
 ```
 
 ### Key Advantages:
@@ -136,7 +136,7 @@ The platform includes a **Zero-Storage On-Demand Canvas Certificate Architecture
 
 ---
 
-## 🔒 Enterprise Security & Route Protection
+## ?? Enterprise Security & Route Protection
 
 The website implements defense-in-depth security to ensure no unauthorized access or vulnerabilities:
 
@@ -151,51 +151,51 @@ The website implements defense-in-depth security to ensure no unauthorized acces
 
 ---
 
-## ✨ Key Features
+## ? Key Features
 
 | Feature | Description |
 | :--- | :--- |
-| **🎛️ Admin Command Center** | Dedicated `/admin` dashboard featuring real-time telemetry, loaded attendees count, active template status, and quick shortcuts. |
-| **🎓 Canva Certificate Studio** | Interactive `/admin/certificates` studio with live 16:9 canvas preview, font selector, position nudgers, and Excel parser. |
-| **🔍 Public Verification Portal** | Responsive `/verify` registry supporting searches by Scholar Number, Certificate ID, or Name with instant 1920×1080 HD download. |
-| **💻 Interactive Web CLI** | Built-in simulated educational Unix terminal supporting commands like `about`, `domains`, `roadmap`, `team`, `flag`, and `clear`. |
-| **🛡️ 8 Deep Security Domains** | Curated syllabi, tools, industry frameworks (OWASP, MITRE ATT&CK, NIST), and practical prerequisites. |
-| **🗺️ 9-Stage Student Roadmap** | Progressive path from Computer Fundamentals and Networking to Offensive CTFs and Career Specialization. |
-| **📚 Curated Resource Vault** | Verified learning links for PortSwigger Academy, TryHackMe, OverTheWire Bandit, Linux Journey, and MITRE. |
-| **🔐 Role-Based Auth (Firebase)** | Clean user authentication supporting member and student profiles with Firebase Auth. |
-| **👥 Institutional Team Directory** | Official roster featuring Faculty Advisory, Founder & Convenor, Executive Committee, and Core Department Heads. |
-| **📢 Offline Recruitment Guide** | Transparent multi-round on-campus induction process replacing online forms with physical evaluation. |
-| **⚡ Edge-Optimized Next.js 16** | Next.js App Router with Turbopack, Tailwind CSS 4, and instant page rendering. |
+| **??? Admin Command Center** | Dedicated `/admin` dashboard featuring real-time telemetry, loaded attendees count, active template status, and quick shortcuts. |
+| **?? Canva Certificate Studio** | Interactive `/admin/certificates` studio with live 16:9 canvas preview, font selector, position nudgers, and Excel parser. |
+| **?? Public Verification Portal** | Responsive `/verify` registry supporting searches by Scholar Number, Certificate ID, or Name with instant 1920�1080 HD download. |
+| **?? Interactive Web CLI** | Built-in simulated educational Unix terminal supporting commands like `about`, `domains`, `roadmap`, `team`, `flag`, and `clear`. |
+| **??? 8 Deep Security Domains** | Curated syllabi, tools, industry frameworks (OWASP, MITRE ATT&CK, NIST), and practical prerequisites. |
+| **??? 9-Stage Student Roadmap** | Progressive path from Computer Fundamentals and Networking to Offensive CTFs and Career Specialization. |
+| **?? Curated Resource Vault** | Verified learning links for PortSwigger Academy, TryHackMe, OverTheWire Bandit, Linux Journey, and MITRE. |
+| **?? Role-Based Auth (Firebase)** | Clean user authentication supporting member and student profiles with Firebase Auth. |
+| **?? Institutional Team Directory** | Official roster featuring Faculty Advisory, Founder & Convenor, Executive Committee, and Core Department Heads. |
+| **?? Offline Recruitment Guide** | Transparent multi-round on-campus induction process replacing online forms with physical evaluation. |
+| **? Edge-Optimized Next.js 16** | Next.js App Router with Turbopack, Tailwind CSS 4, and instant page rendering. |
 
 ---
 
-## 🎯 8 Security Focus Domains
+## ?? 8 Security Focus Domains
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                     CYBER CELL SECURITY DOMAINS                         │
-├──────────────────────────┬──────────────────────────┬───────────────────┤
-│ 01. Ethical Hacking      │ 02. Network Security     │ 03. Web Security  │
-│ Penetration testing,     │ Packet analysis, Wireshark,│ OWASP Top 10,   │
-│ vulnerability assessment,│ firewalls, IDS/IPS, VPNs │ XSS, SQLi, CSRF,  │
-│ privilege escalation     │ & network architecture   │ authentication    │
-├──────────────────────────┼──────────────────────────┼───────────────────┤
-│ 04. Malware Analysis     │ 05. Digital Forensics    │ 06. CTFs & Labs   │
-│ Static/dynamic triage,   │ Autopsy, Volatility, disk│ Jeopardy & Attack-│
-│ Ghidra, x64dbg, sandboxing│ image analysis, timeline│ Defense, crypto,  │
-│ & behavioral tracking    │ reconstruction           │ stego, pwn, web   │
-├──────────────────────────┴──────────────────────────┴───────────────────┤
-│ 07. Security Awareness & Campus Defense                                 │
-│ Anti-phishing drives, campus hygiene workshops & threat briefings       │
-├─────────────────────────────────────────────────────────────────────────┤
-│ 08. Career, Certifications & DevSecOps                                  │
-│ CEH, OSCP, CompTIA Security+, SecOps pipelines, compliance standards    │
-└─────────────────────────────────────────────────────────────────────────┘
++-------------------------------------------------------------------------+
+�                     CYBER CELL SECURITY DOMAINS                         �
++-------------------------------------------------------------------------�
+� 01. Ethical Hacking      � 02. Network Security     � 03. Web Security  �
+� Penetration testing,     � Packet analysis, Wireshark,� OWASP Top 10,   �
+� vulnerability assessment,� firewalls, IDS/IPS, VPNs � XSS, SQLi, CSRF,  �
+� privilege escalation     � & network architecture   � authentication    �
++--------------------------+--------------------------+-------------------�
+� 04. Malware Analysis     � 05. Digital Forensics    � 06. CTFs & Labs   �
+� Static/dynamic triage,   � Autopsy, Volatility, disk� Jeopardy & Attack-�
+� Ghidra, x64dbg, sandboxing� image analysis, timeline� Defense, crypto,  �
+� & behavioral tracking    � reconstruction           � stego, pwn, web   �
++-------------------------------------------------------------------------�
+� 07. Security Awareness & Campus Defense                                 �
+� Anti-phishing drives, campus hygiene workshops & threat briefings       �
++-------------------------------------------------------------------------�
+� 08. Career, Certifications & DevSecOps                                  �
+� CEH, OSCP, CompTIA Security+, SecOps pipelines, compliance standards    �
++-------------------------------------------------------------------------+
 ```
 
 ---
 
-## 💻 Interactive Web Terminal
+## ?? Interactive Web Terminal
 
 Visitors can interact with our simulated terminal directly on the homepage:
 
@@ -217,7 +217,7 @@ FLAG FOUND: CYBER{THINK_SECURE_BUILD_BETTER}
 
 ---
 
-## 🗺️ 9-Stage Student Learning Roadmap
+## ??? 9-Stage Student Learning Roadmap
 
 ```mermaid
 flowchart LR
@@ -249,57 +249,57 @@ flowchart LR
 
 ---
 
-## 👥 Leadership & Governance
+## ?? Leadership & Governance
 
 ### Faculty Advisory
-* **Prof. Shivangi Jain** — *Faculty Advisor & Mentor*
+* **Prof. Shivangi Jain** � *Faculty Advisor & Mentor*
   - Department of Computer Science & Engineering, SATI Vidisha
   - Institutional compliance, ethics, academic guidance, and student research mentorship
 
 ### Leadership & Executive Committee
-* **Yash Harfode** — *Founder & Convenor*
+* **Yash Harfode** � *Founder & Convenor*
   - Spearheads the club's strategy, technical curriculum, community, and training tracks
-* **Krishna Mishra** — *Co-Convenor*
+* **Krishna Mishra** � *Co-Convenor*
   - Club operations, cross-domain coordination, logistics, and student affairs
 
 ### Core Operations Heads
-* **Anubhav Vishwkarma** — *Tech Team Head* (Infrastructure, CTF platforms, developer resources)
-* **Abhishek Mahore** — *Media & Photography Head* (Media production, documentation, visual coverage)
-* **Arya Mishra** — *Graphic Designer Head* (Brand identity, UI/UX, promotional graphics)
-* **Ansh Kushwaha** — *Management & Volunteers Head* (Event coordination, venue, volunteer squads)
-* **Medhavi Sharma** — *Documentation & Anchoring Head* (Reports, stage anchoring, student liaison)
+* **Anubhav Vishwkarma** � *Tech Team Head* (Infrastructure, CTF platforms, developer resources)
+* **Abhishek Mahore** � *Media & Photography Head* (Media production, documentation, visual coverage)
+* **Arya Mishra** � *Graphic Designer Head* (Brand identity, UI/UX, promotional graphics)
+* **Ansh Kushwaha** � *Management & Volunteers Head* (Event coordination, venue, volunteer squads)
+* **Medhavi Sharma** � *Documentation & Anchoring Head* (Reports, stage anchoring, student liaison)
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## ??? Tech Stack & Architecture
 
 ```
-┌────────────────────────────────────────────────────────┐
-│                      FRONTEND LAYER                    │
-│   Next.js 16 (Turbopack) • React 19 • Tailwind CSS 4   │
-│   Lucide Icons • Geist & Google Certificate Fonts      │
-└──────────────────────────┬─────────────────────────────┘
-                           │
-                           ▼
-┌────────────────────────────────────────────────────────┐
-│               SECURITY & ROUTE GATEWAY                 │
-│   Next.js Middleware • HTTP-Only Cookie Sessions       │
-│   Role-Based Guards • Magic Byte File Upload Validator │
-└──────────────────────────┬─────────────────────────────┘
-                           │
-                           ▼
-┌────────────────────────────────────────────────────────┐
-│                   DATA & IDENTITY LAYER                │
-│   Local Excel Auto-Parser (xlsx) • Cloud Firestore     │
-│   Firebase Authentication • On-Demand Canvas Renderer  │
-└──────────────────────────┬─────────────────────────────┘
-                           │
-                           ▼
-┌────────────────────────────────────────────────────────┐
-│                   INFRASTRUCTURE LAYER                 │
-│   Vercel Edge Network • Zero-Storage On-Demand Engine  │
-│   Automatic CI/CD from GitHub Main Branch              │
-└────────────────────────────────────────────────────────┘
++--------------------------------------------------------+
+�                      FRONTEND LAYER                    �
+�   Next.js 16 (Turbopack) � React 19 � Tailwind CSS 4   �
+�   Lucide Icons � Geist & Google Certificate Fonts      �
++--------------------------------------------------------+
+                           �
+                           ?
++--------------------------------------------------------+
+�               SECURITY & ROUTE GATEWAY                 �
+�   Next.js Middleware � HTTP-Only Cookie Sessions       �
+�   Role-Based Guards � Magic Byte File Upload Validator �
++--------------------------------------------------------+
+                           �
+                           ?
++--------------------------------------------------------+
+�                   DATA & IDENTITY LAYER                �
+�   Local Excel Auto-Parser (xlsx) � Cloud Firestore     �
+�   Firebase Authentication � On-Demand Canvas Renderer  �
++--------------------------------------------------------+
+                           �
+                           ?
++--------------------------------------------------------+
+�                   INFRASTRUCTURE LAYER                 �
+�   Vercel Edge Network � Zero-Storage On-Demand Engine  �
+�   Automatic CI/CD from GitHub Main Branch              �
++--------------------------------------------------------+
 ```
 
 - **Frontend Core**: Next.js `16.3.4` (App Router) with React `19.2.8`
@@ -307,81 +307,81 @@ flowchart LR
 - **Design Language**: Cyber executive theme (`#06080d`), neon cyan accents (`#00e5ff`), gold certificates
 - **Authentication**: Master Admin Password (`.env.local`) + Firebase Auth
 - **Database**: Hybrid (Local `data/attendees.xlsx` + Cloud Firestore)
-- **Icons & Graphics**: Lucide React + HTML5 1920×1080 Canvas Engine
+- **Icons & Graphics**: Lucide React + HTML5 1920�1080 Canvas Engine
 - **Deployment**: Vercel Global Edge Network with continuous GitHub integration
 
 ---
 
-## 📂 Project Directory Structure
+## ?? Project Directory Structure
 
 ```text
 Cyber-Cell/
-├── app/
-│   ├── about/                   # About Cyber Cell & SATI Coding Club
-│   ├── admin/                   # Admin Command Center Dashboard
-│   │   ├── certificates/        # Canva Certificate Studio & Visual Generator
-│   │   ├── login/               # Master password authentication portal
-│   │   └── page.tsx             # Executive admin hub overview & telemetry
-│   ├── api/
-│   │   ├── admin/
-│   │   │   ├── auth/            # Cookie session login & logout endpoints
-│   │   │   ├── certificates/
-│   │   │   │   ├── config/      # Typography & placement settings API
-│   │   │   │   ├── issue/       # Batch issuance endpoint
-│   │   │   │   ├── upload-excel/# Validated attendees spreadsheet upload
-│   │   │   │   └── upload-template/ # Magic-byte validated Canva template upload
-│   │   ├── certificates/
-│   │   │   └── verify/          # Public verification & attendee query API
++-- app/
+�   +-- about/                   # About Cyber Cell SATI Vidisha
+�   +-- admin/                   # Admin Command Center Dashboard
+�   �   +-- certificates/        # Canva Certificate Studio & Visual Generator
+�   �   +-- login/               # Master password authentication portal
+�   �   +-- page.tsx             # Executive admin hub overview & telemetry
+�   +-- api/
+�   �   +-- admin/
+�   �   �   +-- auth/            # Cookie session login & logout endpoints
+�   �   �   +-- certificates/
+�   �   �   �   +-- config/      # Typography & placement settings API
+�   �   �   �   +-- issue/       # Batch issuance endpoint
+�   �   �   �   +-- upload-excel/# Validated attendees spreadsheet upload
+�   �   �   �   +-- upload-template/ # Magic-byte validated Canva template upload
+�   �   +-- certificates/
+�   �   �   +-- verify/          # Public verification & attendee query API
 
-│   ├── certificates/            # Permanent redirect alias to /verify
-│   ├── domains/                 # 8 Cybersecurity Focus Domain syllabi
-│   ├── events/                  # Official events, workshops & status
-│   ├── join/                    # Offline induction guide & recruitment process
-│   ├── projects/                # Open-source tools & defensive scripts
-│   ├── resources/               # Verified external security learning vault
-│   ├── team/                    # Leadership, Advisory & Core Operations roster
-│   ├── verify/                  # Public certificate search & HD download portal
-│   ├── not-found.tsx            # Custom cyber-themed 404 handler
-│   ├── layout.tsx               # Root layout with fonts, AuthProvider & modals
-│   ├── page.tsx                 # Landing hero, stats, interactive shell & roadmap
-│   └── globals.css              # Tailwind CSS 4 theme rules & animations
-├── components/
-│   ├── AuthModal.tsx            # Sign in / Register popup modal
-│   ├── CyberShieldLogo.tsx      # Vector SVG brand logo badge
-│   ├── CyberSplashScreen.tsx    # High-tech loading transition
-│   ├── Footer.tsx               # Site footer with disclaimer & links
-│   ├── Navbar.tsx               # Floating pill navigation with Certificate tab
-│   ├── SpotlightCard.tsx        # Interactive mouse spotlight cards
-│   ├── StairsTransition.tsx     # Smooth multi-step page transition
-│   └── TerminalDemo.tsx         # Interactive client-side simulated CLI
-├── context/
-│   └── AuthContext.tsx          # Firebase authentication context with offline fallback
-├── data/
-│   ├── attendees.xlsx           # Local attendees registry spreadsheet
-│   ├── certificateConfig.json   # Saved official font and coordinates configuration
-│   ├── domains.ts               # Domain datasets, syllabi & toolchains
-│   ├── resources.ts             # Curated resource links by category
-│   └── team.ts                  # Faculty advisor, leadership & core heads data
-├── lib/
-│   ├── certificateRenderer.ts   # 1920x1080 HTML5 Canvas certificate renderer
-│   ├── certificates.ts          # Hybrid certificate database & Excel reader
-│   ├── firebase.ts              # Resilient Firebase client initialization
-│   ├── firestore.ts             # User profiles & offline-safe Firestore sync
-│   └── cloudinary.ts            # Cloudinary media storage & CDN client
-├── middleware.ts                # Server-side route security & admin protection
-├── public/
-│   ├── images/                  # Shield logos, badges & member avatars
-│   └── templates/               # Permanent Canva certificate template storage
-├── .env.example                 # Environment configuration template
-├── vercel.json                  # Framework preset configuration (Next.js)
-├── next.config.ts               # Next.js configuration
-├── package.json                 # Node dependencies & build scripts
-└── tsconfig.json                # TypeScript compiler configuration
+�   +-- certificates/            # Permanent redirect alias to /verify
+�   +-- domains/                 # 8 Cybersecurity Focus Domain syllabi
+�   +-- events/                  # Official events, workshops & status
+�   +-- join/                    # Offline induction guide & recruitment process
+�   +-- projects/                # Open-source tools & defensive scripts
+�   +-- resources/               # Verified external security learning vault
+�   +-- team/                    # Leadership, Advisory & Core Operations roster
+�   +-- verify/                  # Public certificate search & HD download portal
+�   +-- not-found.tsx            # Custom cyber-themed 404 handler
+�   +-- layout.tsx               # Root layout with fonts, AuthProvider & modals
+�   +-- page.tsx                 # Landing hero, stats, interactive shell & roadmap
+�   +-- globals.css              # Tailwind CSS 4 theme rules & animations
++-- components/
+�   +-- AuthModal.tsx            # Sign in / Register popup modal
+�   +-- CyberShieldLogo.tsx      # Vector SVG brand logo badge
+�   +-- CyberSplashScreen.tsx    # High-tech loading transition
+�   +-- Footer.tsx               # Site footer with disclaimer & links
+�   +-- Navbar.tsx               # Floating pill navigation with Certificate tab
+�   +-- SpotlightCard.tsx        # Interactive mouse spotlight cards
+�   +-- StairsTransition.tsx     # Smooth multi-step page transition
+�   +-- TerminalDemo.tsx         # Interactive client-side simulated CLI
++-- context/
+�   +-- AuthContext.tsx          # Firebase authentication context with offline fallback
++-- data/
+�   +-- attendees.xlsx           # Local attendees registry spreadsheet
+�   +-- certificateConfig.json   # Saved official font and coordinates configuration
+�   +-- domains.ts               # Domain datasets, syllabi & toolchains
+�   +-- resources.ts             # Curated resource links by category
+�   +-- team.ts                  # Faculty advisor, leadership & core heads data
++-- lib/
+�   +-- certificateRenderer.ts   # 1920x1080 HTML5 Canvas certificate renderer
+�   +-- certificates.ts          # Hybrid certificate database & Excel reader
+�   +-- firebase.ts              # Resilient Firebase client initialization
+�   +-- firestore.ts             # User profiles & offline-safe Firestore sync
+�   +-- cloudinary.ts            # Cloudinary media storage & CDN client
++-- middleware.ts                # Server-side route security & admin protection
++-- public/
+�   +-- images/                  # Shield logos, badges & member avatars
+�   +-- templates/               # Permanent Canva certificate template storage
++-- .env.example                 # Environment configuration template
++-- vercel.json                  # Framework preset configuration (Next.js)
++-- next.config.ts               # Next.js configuration
++-- package.json                 # Node dependencies & build scripts
++-- tsconfig.json                # TypeScript compiler configuration
 ```
 
 ---
 
-## 🚀 Getting Started Locally
+## ?? Getting Started Locally
 
 ### Prerequisites
 - **Node.js**: `v20.x` or `v22.x`+
@@ -428,7 +428,7 @@ npm run start
 
 ---
 
-## 🔑 Environment Variables
+## ?? Environment Variables
 
 | Variable | Description | Default / Example |
 | :--- | :--- | :--- |
@@ -447,7 +447,7 @@ npm run start
 
 ---
 
-## ☁️ Production Deployment
+## ?? Production Deployment
 
 The project is configured for continuous zero-downtime deployment on **Vercel** / **Docker**:
 
@@ -457,21 +457,21 @@ The project is configured for continuous zero-downtime deployment on **Vercel** 
 
 ---
 
-## 📢 Recruitment & Membership
+## ?? Recruitment & Membership
 
 > [!NOTE]
 > Cyber Cell does **NOT** conduct online student intake forms. Inductions are held exclusively **offline on-campus at SATI Vidisha** to ensure fairness, technical passion, and personal evaluation.
 
 ### On-Campus Selection Rounds:
-1. **Round 1 — Aptitude & Cybersecurity Fundamentals**: Multiple choice + short technical scenario questions.
-2. **Round 2 — Practical Problem Solving**: Hands-on Linux/Networking or domain task (for technical applicants).
-3. **Round 3 — Personal Interview & Alignment**: Discussion with Faculty Advisory and Core Committee.
+1. **Round 1 � Aptitude & Cybersecurity Fundamentals**: Multiple choice + short technical scenario questions.
+2. **Round 2 � Practical Problem Solving**: Hands-on Linux/Networking or domain task (for technical applicants).
+3. **Round 3 � Personal Interview & Alignment**: Discussion with Faculty Advisory and Core Committee.
 
 For complete offline induction schedules and venue guidelines, visit [/join](https://cyber-cell.vercel.app/join).
 
 ---
 
-## 🤝 Contributing
+## ?? Contributing
 
 Contributions to open-source labs, syllabi, educational writeups, and CTF challenges are always welcome!
 
@@ -483,15 +483,15 @@ Contributions to open-source labs, syllabi, educational writeups, and CTF challe
 
 ---
 
-## 📜 License & Acknowledgements
+## ?? License & Acknowledgements
 
 This project is open-source under the [MIT License](LICENSE).
 
 - **Institution**: [Samrat Ashok Technological Institute (SATI), Vidisha](https://www.satiengg.in)
-- **Parent Body**: Central Coding Club, SATI Vidisha
+- **Institution**: Samrat Ashok Technological Institute (SATI), Vidisha
 - **Leadership**: Yash Harfode (Founder & Convenor), Prof. Shivangi Jain (Faculty Advisor), Krishna Mishra (Co-Convenor)
 
 <div align="center">
-  <sub>Built with ❤️ and security in mind by the Cyber Cell Technical Team at SATI Vidisha.</sub><br />
-  <b>© 2026 Cyber Cell. All rights reserved.</b>
+  <sub>Built with ?? and security in mind by the Cyber Cell Technical Team at SATI Vidisha.</sub><br />
+  <b>� 2026 Cyber Cell. All rights reserved.</b>
 </div>

@@ -7,7 +7,7 @@ import { Shield, ShieldAlert, BookOpen, Compass, CheckCircle2, ArrowRight } from
 
 export const metadata = {
   title: "About Cyber Cell | SATI Vidisha",
-  description: "Learn about the mission, charter, and ethical principles of Cyber Cell under the Central Coding Club at Samrat Ashok Technological Institute, Vidisha."
+  description: "Learn about the mission, charter, and ethical principles of Cyber Cell at Samrat Ashok Technological Institute, Vidisha."
 };
 
 export default function AboutPage() {
@@ -27,8 +27,7 @@ export default function AboutPage() {
               About Cyber Cell SATI
             </h1>
             <p className="text-sm sm:text-base text-slate-400 mt-3 leading-relaxed">
-              The official cybersecurity wing operating under the Central Coding Club at 
-              Samrat Ashok Technological Institute (SATI), Vidisha.
+              The official cybersecurity club at Samrat Ashok Technological Institute (SATI), Vidisha.
             </p>
           </div>
 
@@ -47,7 +46,7 @@ export default function AboutPage() {
                 DISCOVER &bull; DEFEND &bull; DEVELOP
               </span>
               <span className="text-xs font-mono text-slate-400 hidden sm:inline">
-                Est. Central Coding Club Wing
+                Official Student Body &bull; SATI Vidisha
               </span>
             </div>
           </div>
@@ -61,8 +60,8 @@ export default function AboutPage() {
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                 Founded to provide engineering students at SATI with a focused, hands-on environment 
-                for offensive and defensive computing, Cyber Cell operates under the leadership of the 
-                Central Coding Club.
+                for offensive and defensive computing, Cyber Cell operates as the official cybersecurity 
+                student community of Samrat Ashok Technological Institute (SATI), Vidisha.
               </p>
               <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                 While traditional computer science programs focus heavily on software engineering 

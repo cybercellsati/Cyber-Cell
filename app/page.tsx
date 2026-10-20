@@ -16,7 +16,7 @@ import Footer from "@/components/Footer";
 export const metadata = {
   title: "Cyber Cell — Cybersecurity Club | SATI Vidisha",
   description:
-    "Official Cybersecurity Club under the Central Coding Club at Samrat Ashok Technological Institute (SATI), Vidisha. Hands-on labs, ethical hacking, CTFs, network defense, and practical security education.",
+    "Official Cybersecurity Club at Samrat Ashok Technological Institute (SATI), Vidisha. Hands-on labs, ethical hacking, CTFs, network defense, and practical security education.",
 };
 
 export default function Home() {
@@ -49,16 +49,16 @@ export default function Home() {
       {/* 9. Resource Vault (Learn, Practice, Tools, Cheatsheets) */}
       <ResourceVault />
 
-      {/* 10. Interactive Cyber Terminal (Simulated educational CLI & flag hunt) */}
+      {/* 10. Interactive Simulated Terminal */}
       <TerminalDemo />
 
-      {/* 11. Our Belief ("A more secure world is a brighter world") */}
+      {/* 11. Core Beliefs Banner */}
       <EarthBelief />
 
-      {/* 12. Join Cyber Cell CTA */}
+      {/* 12. Bottom Call to Action */}
       <JoinCTA />
 
-      {/* 13. Institutional Footer */}
+      {/* 13. Comprehensive Dark Footer */}
       <Footer />
     </main>
   );
