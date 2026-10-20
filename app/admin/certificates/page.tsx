@@ -418,7 +418,7 @@ export default function CleanAdminCertificatesStudio() {
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   <span className="text-xs font-mono font-semibold text-slate-300 uppercase tracking-wider">
-                    Live 1920×1080 Preview
+                    Live A4 Landscape Preview
                   </span>
                 </div>
 
@@ -431,8 +431,8 @@ export default function CleanAdminCertificatesStudio() {
                 </button>
               </div>
 
-              {/* 16:9 Canvas Viewport */}
-              <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-white/10 bg-[#050811] flex items-center justify-center shadow-inner group">
+              {/* A4 Landscape Canvas Viewport */}
+              <div className="relative aspect-[297/210] w-full rounded-2xl overflow-hidden border border-white/10 bg-[#050811] flex items-center justify-center shadow-inner group">
                 <canvas
                   ref={previewCanvasRef}
                   className="w-full h-full object-contain"

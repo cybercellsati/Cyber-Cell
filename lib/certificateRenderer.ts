@@ -1,4 +1,4 @@
-import QRCode from "qrcode";
+﻿import QRCode from "qrcode";
 
 export interface FontOption {
   id: string;
@@ -168,9 +168,31 @@ export async function renderCertificateToCanvas(
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Could not get 2D canvas context");
 
-  // Standard high-definition landscape certificate resolution (1920x1080)
-  const width = 1920;
-  const height = 1080;
+  // 1. Resolve Background Image (either pre-loaded image or load from URL)
+  let backgroundImg: HTMLImageElement | null = null;
+  if (config.customTemplateImage) {
+    backgroundImg = config.customTemplateImage;
+  } else if (config.templateUrl) {
+    try {
+      backgroundImg = await loadImageAsync(config.templateUrl);
+    } catch {
+      backgroundImg = null;
+    }
+  }
+
+  // 2. Adapt Canvas Dimensions directly to image resolution (Default: A4 Landscape 2000x1414)
+  let width = 2000;
+  let height = 1414; // Standard A4 Landscape aspect ratio (297 / 210 = 1.4142)
+
+  if (backgroundImg) {
+    const natW = backgroundImg.naturalWidth || backgroundImg.width;
+    const natH = backgroundImg.naturalHeight || backgroundImg.height;
+    if (natW && natH && natW > 0 && natH > 0) {
+      width = natW;
+      height = natH;
+    }
+  }
+
   canvas.width = width;
   canvas.height = height;
 
@@ -180,16 +202,9 @@ export async function renderCertificateToCanvas(
   // Determine mode: "name_only" is used for Canva templates
   const isNameOnly = config.mode === "name_only" || config.templateType === "custom";
 
-  // 1. Draw Background / Template
-  if (config.customTemplateImage) {
-    ctx.drawImage(config.customTemplateImage, 0, 0, width, height);
-  } else if (config.templateUrl) {
-    try {
-      const img = await loadImageAsync(config.templateUrl);
-      ctx.drawImage(img, 0, 0, width, height);
-    } catch {
-      drawCyberMidnightTemplate(ctx, width, height);
-    }
+  // 3. Draw Background / Template
+  if (backgroundImg) {
+    ctx.drawImage(backgroundImg, 0, 0, width, height);
   } else if (config.templateType === "gold_merit") {
     drawGoldMeritTemplate(ctx, width, height);
   } else if (config.templateType === "monochrome_slate") {
@@ -197,7 +212,6 @@ export async function renderCertificateToCanvas(
   } else if (config.templateType === "cyber_midnight") {
     drawCyberMidnightTemplate(ctx, width, height);
   } else {
-    // Default custom template fallback: try to load /templates/certificate-template.png
     try {
       const img = await loadImageAsync("/templates/certificate-template.png");
       ctx.drawImage(img, 0, 0, width, height);
@@ -206,12 +220,16 @@ export async function renderCertificateToCanvas(
     }
   }
 
-  // 2. Draw Recipient Name (with chosen font and coordinates)
+  // 4. Draw Recipient Name (Proportionally scaled to canvas resolution)
+  const baseReferenceWidth = 2000; // Base reference for A4 landscape
+  const fontScale = width / baseReferenceWidth;
+  const nominalSize = config.nameFontSize || 76;
+  const fontSize = Math.max(20, Math.round(nominalSize * fontScale));
+
   const fontFamily = config.nameFontFamily || "'Cinzel', serif";
-  const fontSize = config.nameFontSize || 76;
   const fontWeight = config.nameFontWeight || "bold";
   const fontColor = config.nameColor || (isNameOnly ? "#d4af37" : "#ffffff");
-  const nameY = height * (config.nameYPosition ?? 0.485);
+  const nameY = height * (config.nameYPosition ?? 0.495);
   const nameX = width * (config.nameXPosition ?? 0.50);
 
   // Wait for font to be rendered smoothly

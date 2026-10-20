@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -183,7 +183,7 @@ function CertificateCardItem({
 
       {/* Live High-Definition Certificate Canvas */}
       <div className="my-6 space-y-4">
-        <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-white/10 bg-[#050810] shadow-2xl flex items-center justify-center">
+        <div className="relative aspect-[297/210] w-full rounded-2xl overflow-hidden border border-white/10 bg-[#050810] shadow-2xl flex items-center justify-center">
           <canvas
             ref={canvasRef}
             className="w-full h-full object-contain"
