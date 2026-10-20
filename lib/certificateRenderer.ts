@@ -128,14 +128,22 @@ async function ensureFontReady(fontFamily: string, fontSize: number = 72, fontWe
 }
 
 /**
- * Loads an image from a URL into an HTMLImageElement
+ * Loads an image from a URL into an HTMLImageElement with CORS and retry support
  */
 export function loadImageAsync(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => resolve(img);
-    img.onerror = (e) => reject(new Error(`Failed to load template image at ${url}: ${e}`));
+    img.onerror = () => {
+      // Retry once with cache-buster parameter in case of browser CORS cache collision
+      const retryImg = new Image();
+      retryImg.crossOrigin = "anonymous";
+      retryImg.onload = () => resolve(retryImg);
+      retryImg.onerror = (e) => reject(new Error(`Failed to load template image at ${url}: ${e}`));
+      const sep = url.includes("?") ? "&" : "?";
+      retryImg.src = `${url}${sep}cb=${Date.now()}`;
+    };
     img.src = url;
   });
 }

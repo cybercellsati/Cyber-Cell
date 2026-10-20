@@ -1,18 +1,19 @@
 {
-  "templateUrl": "",
+  "templateUrl": "https://res.cloudinary.com/qtfezfsf/image/upload/v1792513361/cybercell/templates/certificate-template-tmpl_default.png",
+  "templateFileName": "DONE (2).png",
+  "cloudinaryPublicId": "",
   "fontFamily": "'Cinzel', serif",
   "fontSize": 76,
   "fontWeight": "bold",
-  "color": "#d4af37",
-  "yPositionPercent": 49.5,
+  "color": "#000000",
+  "yPositionPercent": 53.5,
   "xPositionPercent": 50,
   "letterSpacing": 2,
   "textTransform": "uppercase",
   "showQrCode": false,
   "showCertificateId": false,
-  "eventName": "National Cyber Defense Wargame 2026",
+  "eventName": "Exploit Workshop 01 | 2026",
   "issueDate": "2026-10-19",
-  "updatedAt": "2026-10-20T14:35:10.126Z",
-  "templateFileName": "",
-  "cloudinaryPublicId": ""
+  "activeTemplateId": "tmpl_default",
+  "updatedAt": "2026-10-20T17:15:00.000Z"
 }

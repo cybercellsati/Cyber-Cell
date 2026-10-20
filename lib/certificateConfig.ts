@@ -120,11 +120,11 @@ export async function getAllTemplates(): Promise<CertificateTemplateProfile[]> {
     }
   }
 
-  // 2. Try /tmp
+  // 2. Try /tmp (only if it contains valid template URLs)
   try {
     if (fs.existsSync(/*turbopackIgnore: true*/ tmpTemplatesPath)) {
       const parsed = JSON.parse(fs.readFileSync(/*turbopackIgnore: true*/ tmpTemplatesPath, "utf-8"));
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed.some((t: CertificateTemplateProfile) => !!t.templateUrl)) {
         return parsed;
       }
     }
@@ -134,7 +134,7 @@ export async function getAllTemplates(): Promise<CertificateTemplateProfile[]> {
   try {
     if (fs.existsSync(/*turbopackIgnore: true*/ localTemplatesPath)) {
       const parsed = JSON.parse(fs.readFileSync(/*turbopackIgnore: true*/ localTemplatesPath, "utf-8"));
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed) && parsed.length > 0 && parsed.some((t: CertificateTemplateProfile) => !!t.templateUrl)) {
         return parsed;
       }
     }
@@ -386,7 +386,32 @@ export async function deleteTemplateProfile(id: string): Promise<boolean> {
  * Checks Firestore with timeout, then /tmp, then bundled local file
  */
 export async function getStoredConfig(): Promise<CertificateConfigSettings> {
-  // 1. Check Cloud Firestore (with 2s timeout)
+  // 1. Try to get active template profile first (which checks Cloudinary persistent storage)
+  try {
+    const activeTemplate = await getActiveTemplate();
+    if (activeTemplate && activeTemplate.templateUrl) {
+      return {
+        ...defaultCertificateConfig,
+        templateUrl: activeTemplate.templateUrl,
+        templateFileName: activeTemplate.templateFileName || "",
+        cloudinaryPublicId: activeTemplate.cloudinaryPublicId || "",
+        fontFamily: activeTemplate.fontFamily || defaultCertificateConfig.fontFamily,
+        fontSize: activeTemplate.fontSize || defaultCertificateConfig.fontSize,
+        fontWeight: activeTemplate.fontWeight || defaultCertificateConfig.fontWeight,
+        color: activeTemplate.color || defaultCertificateConfig.color,
+        yPositionPercent: activeTemplate.yPositionPercent ?? defaultCertificateConfig.yPositionPercent,
+        xPositionPercent: activeTemplate.xPositionPercent ?? defaultCertificateConfig.xPositionPercent,
+        textTransform: activeTemplate.textTransform || defaultCertificateConfig.textTransform,
+        eventName: activeTemplate.eventName || defaultCertificateConfig.eventName,
+        issueDate: activeTemplate.issueDate || defaultCertificateConfig.issueDate,
+        activeTemplateId: activeTemplate.id,
+      };
+    }
+  } catch (err) {
+    console.warn("[getStoredConfig active template warning]:", err);
+  }
+
+  // 2. Check Cloud Firestore (with 2s timeout)
   if (isFirebaseConfigured) {
     try {
       const docSnap = await withTimeout(
@@ -405,7 +430,7 @@ export async function getStoredConfig(): Promise<CertificateConfigSettings> {
     }
   }
 
-  // 2. Check /tmp (Writable in Vercel Serverless)
+  // 3. Check /tmp (Writable in Vercel Serverless)
   try {
     if (fs.existsSync(/*turbopackIgnore: true*/ tmpConfigPath)) {
       const parsed = JSON.parse(fs.readFileSync(/*turbopackIgnore: true*/ tmpConfigPath, "utf-8"));
@@ -413,7 +438,7 @@ export async function getStoredConfig(): Promise<CertificateConfigSettings> {
     }
   } catch {}
 
-  // 3. Check bundled local file
+  // 4. Check bundled local file
   try {
     if (fs.existsSync(/*turbopackIgnore: true*/ localConfigPath)) {
       const parsed = JSON.parse(fs.readFileSync(/*turbopackIgnore: true*/ localConfigPath, "utf-8"));

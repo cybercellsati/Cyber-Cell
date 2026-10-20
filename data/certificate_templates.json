@@ -1,0 +1,22 @@
+[
+  {
+    "id": "tmpl_default",
+    "name": "Exploit Workshop 01 | 2026",
+    "eventName": "Exploit Workshop 01 | 2026",
+    "issueDate": "2026-10-19",
+    "templateUrl": "https://res.cloudinary.com/qtfezfsf/image/upload/v1792513361/cybercell/templates/certificate-template-tmpl_default.png",
+    "templateFileName": "DONE (2).png",
+    "cloudinaryPublicId": "",
+    "fontFamily": "'Cinzel', serif",
+    "fontSize": 76,
+    "fontWeight": "bold",
+    "color": "#000000",
+    "yPositionPercent": 53.5,
+    "xPositionPercent": 50,
+    "textTransform": "uppercase",
+    "attendeesCount": 108,
+    "createdAt": "2026-10-20T17:00:03.266Z",
+    "updatedAt": "2026-10-20T17:21:54.359Z",
+    "isActive": true
+  }
+]
