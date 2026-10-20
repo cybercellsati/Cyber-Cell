@@ -3,20 +3,22 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { resourcesData, ResourceItem } from "@/data/resources";
-import { ExternalLink, BookOpen, Terminal, Wrench, FileText, ArrowRight } from "lucide-react";
+import { ExternalLink, BookOpen, Terminal, Wrench, FileText, ArrowRight, Users } from "lucide-react";
 
 const categories: Array<ResourceItem["category"]> = [
   "Learn",
   "Practice",
   "Tools",
-  "Cheatsheets"
+  "Cheatsheets",
+  "Community",
 ];
 
-const categoryIcons = {
+const categoryIcons: Record<ResourceItem["category"], React.ComponentType<{ className?: string }>> = {
   Learn: BookOpen,
   Practice: Terminal,
   Tools: Wrench,
-  Cheatsheets: FileText
+  Cheatsheets: FileText,
+  Community: Users,
 };
 
 export default function ResourceVault() {

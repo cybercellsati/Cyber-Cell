@@ -1,7 +1,7 @@
 export interface ResourceItem {
   id: string;
   title: string;
-  category: "Learn" | "Practice" | "Tools" | "Cheatsheets";
+  category: "Learn" | "Practice" | "Tools" | "Cheatsheets" | "Community";
   topic: string;
   description: string;
   url: string;
@@ -176,6 +176,55 @@ export const resourcesData: ResourceItem[] = [
     category: "Cheatsheets",
     description: "Best practices for commit signing with GPG, preventing accidental secret leakage (.gitignore, git-secrets), and branch hygiene.",
     url: "https://training.github.com/downloads/github-git-cheat-sheet.pdf",
+    type: "Community"
+  },
+
+  // --- COMMUNITY ---
+  {
+    id: "comm-cybercell-discord",
+    topic: "Campus Network",
+    title: "Cyber Cell SATI Discord & CTF Arena",
+    category: "Community",
+    description: "The official online clubhouse for SATI cybersecurity students. Team up for live weekend CTFs, ask questions, share tooling, and collaborate on projects.",
+    url: "https://discord.gg",
+    type: "Official",
+    badge: "Official SATI Hub"
+  },
+  {
+    id: "comm-owasp-global",
+    topic: "AppSec Global",
+    title: "OWASP Global Community & Chapter Network",
+    category: "Community",
+    description: "Connect with the world's leading open application security collective. Access local chapter meetups, vendor-neutral educational webinars, and project repos.",
+    url: "https://owasp.org/",
+    type: "Community",
+    badge: "Global Network"
+  },
+  {
+    id: "comm-netsec-reddit",
+    topic: "Threat Intel",
+    title: "r/netsec: Technical Information Security",
+    category: "Community",
+    description: "Peer-reviewed technical cybersecurity forum featuring real-time 0-day vulnerability analyses, whitepapers, exploits, and research publications.",
+    url: "https://www.reddit.com/r/netsec/",
+    type: "Community"
+  },
+  {
+    id: "comm-thn",
+    topic: "Cyber News",
+    title: "The Hacker News (THN)",
+    category: "Community",
+    description: "Trusted global cybersecurity news platform covering breaking digital threats, malware campaigns, ransomware intelligence, and software vulnerabilities.",
+    url: "https://thehackernews.com/",
+    type: "External"
+  },
+  {
+    id: "comm-defcon-groups",
+    topic: "Hacker Culture",
+    title: "DEF CON Groups (DCG)",
+    category: "Community",
+    description: "Grassroots local hacker communities spawned from DEF CON conferences, hosting lockpicking villages, hardware hacking demos, and security talks.",
+    url: "https://defcongroups.org/",
     type: "Community"
   }
 ];
