@@ -77,8 +77,21 @@ function MemberDetailModal({
 
         {/* Top bar with close button */}
         <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono uppercase tracking-wider">
-            <span>{member.category}</span>
+          <div
+            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono uppercase tracking-wider ${
+              member.category === "Convenor" || member.id === "convenor"
+                ? "bg-cyan-500/20 border border-cyan-400/50 text-cyan-200 font-bold shadow-[0_0_12px_rgba(6,182,212,0.25)]"
+                : "bg-cyan-500/10 border border-cyan-500/20 text-cyan-400"
+            }`}
+          >
+            {(member.category === "Convenor" || member.id === "convenor") && (
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+            )}
+            <span>
+              {member.category === "Convenor" || member.id === "convenor"
+                ? "Convenor & Founder"
+                : member.category}
+            </span>
           </div>
 
           <button
@@ -365,6 +378,7 @@ export default function RotatingTeamPage() {
               const zIndex = Math.round((Math.cos(rad) + 1) * 50);
 
               const isFront = Math.abs(relAngle) < 22.5;
+              const isConvenor = member.category === "Convenor" || member.id === "convenor";
 
               const initials = member.name
                 .split(" ")
@@ -392,14 +406,23 @@ export default function RotatingTeamPage() {
                     opacity,
                     pointerEvents: opacity < 0.2 ? "none" : "auto",
                   }}
-                  className={`absolute rounded-3xl overflow-hidden border transition-shadow duration-300 shadow-2xl bg-[#090d16] ${
-                    isFront
-                      ? "border-cyan-400/50 shadow-cyan-500/10 cursor-pointer ring-1 ring-cyan-400/30"
-                      : "border-white/15 hover:border-white/30 cursor-pointer"
+                  className={`absolute rounded-3xl overflow-hidden border transition-all duration-300 shadow-2xl ${
+                    isConvenor
+                      ? isFront
+                        ? "border-cyan-300/80 shadow-[0_0_35px_rgba(6,182,212,0.22)] ring-1 ring-cyan-300/50 bg-[#0a0f1d] cursor-pointer"
+                        : "border-cyan-500/40 hover:border-cyan-400/70 shadow-[0_0_20px_rgba(6,182,212,0.12)] bg-[#090d18] cursor-pointer"
+                      : isFront
+                        ? "border-cyan-400/50 shadow-cyan-500/10 ring-1 ring-cyan-400/30 bg-[#090d16] cursor-pointer"
+                        : "border-white/15 hover:border-white/30 bg-[#090d16] cursor-pointer"
                   }`}
                 >
                   {/* Portrait Photo Container */}
                   <div className="relative w-full h-full bg-[#050810]">
+                    {/* Subtle top edge accent bar for Convenor */}
+                    {isConvenor && (
+                      <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent z-20 pointer-events-none" />
+                    )}
+
                     {!imgErrors[member.id] && member.image ? (
                       <Image
                         src={member.image}
@@ -422,15 +445,34 @@ export default function RotatingTeamPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
 
                     {/* Card Top Category Pill */}
-                    <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold bg-black/60 backdrop-blur-md border border-white/15 text-cyan-300 shadow-sm">
-                        {member.category}
+                    <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold backdrop-blur-md shadow-sm transition-all ${
+                          isConvenor
+                            ? "bg-cyan-950/80 border border-cyan-400/60 text-cyan-200 shadow-cyan-500/20 inline-flex items-center gap-1.5"
+                            : "bg-black/60 border border-white/15 text-cyan-300"
+                        }`}
+                      >
+                        {isConvenor && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                        )}
+                        <span>{isConvenor ? "Convenor & Founder" : member.category}</span>
                       </span>
+
+                      {isConvenor && (
+                        <span className="px-2 py-0.5 rounded-md text-[9px] font-mono tracking-wider uppercase font-bold bg-cyan-500/20 border border-cyan-400/40 text-cyan-300">
+                          FOUNDER
+                        </span>
+                      )}
                     </div>
 
                     {/* Card Bottom: Member Name & Click Hint */}
                     <div className="absolute bottom-5 left-5 right-5 space-y-1">
-                      <p className="text-[11px] font-mono font-medium tracking-wide text-cyan-400 uppercase">
+                      <p
+                        className={`text-[11px] font-mono font-medium tracking-wide uppercase ${
+                          isConvenor ? "text-cyan-300 font-semibold" : "text-cyan-400"
+                        }`}
+                      >
                         {member.role}
                       </p>
 
@@ -495,19 +537,24 @@ export default function RotatingTeamPage() {
 
           {/* Member Quick-Jump Selector Pills */}
           <div className="flex flex-wrap items-center justify-center gap-1.5 pt-2">
-            {members.map((m, idx) => (
-              <button
-                key={m.id}
-                onClick={() => rotateToIndex(idx)}
-                className={`px-3 py-1 rounded-full text-[11px] font-mono transition-all ${
-                  idx === activeIndex
-                    ? "bg-cyan-500 text-black font-bold shadow-md shadow-cyan-500/20"
-                    : "bg-white/[0.04] hover:bg-white/[0.08] text-slate-400 hover:text-white border border-white/10"
-                }`}
-              >
-                {m.name.split(" ")[0]}
-              </button>
-            ))}
+            {members.map((m, idx) => {
+              const isCardConvenor = m.category === "Convenor" || m.id === "convenor";
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => rotateToIndex(idx)}
+                  className={`px-3 py-1 rounded-full text-[11px] font-mono transition-all ${
+                    idx === activeIndex
+                      ? "bg-cyan-500 text-black font-bold shadow-md shadow-cyan-500/20"
+                      : isCardConvenor
+                      ? "bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
+                      : "bg-white/[0.04] hover:bg-white/[0.08] text-slate-400 hover:text-white border border-white/10"
+                  }`}
+                >
+                  {m.name.split(" ")[0]} {isCardConvenor ? "★" : ""}
+                </button>
+              );
+            })}
           </div>
 
           {/* Quick link hint to faculty section */}
