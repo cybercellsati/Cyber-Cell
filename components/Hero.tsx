@@ -26,55 +26,53 @@ export default function Hero() {
   }, [isIntroOpen]);
 
   return (
-    <section className="relative w-full min-h-screen flex flex-col justify-between pt-20 sm:pt-24 pb-8 overflow-hidden bg-[#030303] text-white select-none">
+    <section className="relative w-full min-h-screen flex flex-col justify-between pt-10 sm:pt-14 lg:pt-16 pb-8 overflow-hidden bg-[#030303] text-white select-none">
       
       {/* 1. Ambient Background Effects & Amber Halo */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {/* Subtle orange radial core glow */}
-        <div className="absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[580px] h-[580px] rounded-full bg-amber-500/[0.04] blur-[140px]" />
+        <div className="absolute top-[32%] sm:top-[30%] lg:top-[28%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[580px] h-[580px] rounded-full bg-amber-500/[0.04] blur-[140px]" />
         
         {/* Fine amber halo ring centered behind head */}
-        <div className="absolute top-[38%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] lg:w-[580px] lg:h-[580px] rounded-full border border-amber-500/25 shadow-[0_0_60px_rgba(245,158,11,0.06)]" />
+        <div className="absolute top-[32%] sm:top-[30%] lg:top-[28%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] h-[340px] sm:w-[460px] sm:h-[460px] lg:w-[540px] lg:h-[540px] rounded-full border border-amber-500/25 shadow-[0_0_60px_rgba(245,158,11,0.06)]" />
 
         {/* Subtle top & bottom gradients */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black" />
       </div>
 
-
-
-      {/* 3. Center Section: 3D Typography + 3D Cyborg Guardian */}
-      <div className="relative flex-1 flex items-center justify-center w-full min-h-[440px] sm:min-h-[520px] lg:min-h-[600px] my-auto">
+      {/* 2. Center Section: 3D Typography + 3D Cyborg Guardian */}
+      <div className="relative flex-1 flex items-center justify-center w-full min-h-[420px] sm:min-h-[500px] lg:min-h-[560px] my-auto">
         
         {/* Layer A (Behind Cyborg): Giant Typography */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none z-10 text-center px-4 -mt-6 sm:-mt-10 lg:-mt-12">
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none z-10 text-center px-4 -mt-16 sm:-mt-24 lg:-mt-28">
           <h1 className="flex flex-col items-center w-full">
-            <span className="text-[54px] sm:text-[84px] md:text-[112px] lg:text-[142px] xl:text-[166px] font-extrabold tracking-[-0.04em] text-white/95 leading-[0.88] lowercase font-sans drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+            <span className="text-[58px] sm:text-[90px] md:text-[120px] lg:text-[148px] xl:text-[172px] font-extrabold tracking-[-0.04em] text-white/95 leading-[0.88] lowercase font-sans drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
               — the future —
             </span>
-            <span className="text-[46px] sm:text-[72px] md:text-[96px] lg:text-[124px] xl:text-[146px] font-extrabold tracking-[-0.04em] text-white/90 leading-[0.88] lowercase font-sans mt-0.5 sm:mt-1 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
+            <span className="text-[50px] sm:text-[76px] md:text-[104px] lg:text-[130px] xl:text-[152px] font-extrabold tracking-[-0.04em] text-white/90 leading-[0.88] lowercase font-sans mt-0.5 sm:mt-1 drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]">
               of thinking
             </span>
           </h1>
         </div>
 
-        {/* Layer B (In Front of Typography): Centered 3D Cyborg Guardian */}
-        <div className="relative z-20 w-full flex justify-center items-end pointer-events-none mt-4 sm:mt-8">
-          <div className="relative w-[320px] sm:w-[480px] md:w-[600px] lg:w-[740px] xl:w-[840px] aspect-[936/758] mx-auto">
+        {/* Layer B (In Front of Typography): Centered 3D Cyborg Guardian with Amber Edge Glow */}
+        <div className="relative z-20 w-full flex justify-center items-end pointer-events-none -mt-4 sm:-mt-8 lg:-mt-10">
+          <div className="relative w-[290px] sm:w-[420px] md:w-[540px] lg:w-[660px] xl:w-[740px] aspect-[1050/871] mx-auto animate-cyborg-glow">
             <Image
               src="/images/hero-cyborg-cutout.png"
               alt="Cyber Cell SATI Cyber Guardian"
               fill
               priority
-              className="object-contain object-bottom drop-shadow-[0_20px_60px_rgba(0,0,0,0.98)]"
-              sizes="(max-width: 768px) 100vw, 840px"
+              className="object-contain object-bottom drop-shadow-[0_20px_50px_rgba(0,0,0,0.95)]"
+              sizes="(max-width: 768px) 100vw, 740px"
             />
           </div>
         </div>
 
       </div>
 
-      {/* 4. Foreground Content Grid (Left Story/Actions & Right Stats/Avatar) */}
-      <div className="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-2 pb-6">
+      {/* 3. Foreground Content Grid (Left Story/Actions & Right Stats/Avatar) */}
+      <div className="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-1 pb-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end justify-between">
           
           {/* Left Column: Context, Tags, and CTAs */}
@@ -174,7 +172,7 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* 5. Bottom Partner / Community Section */}
+      {/* 4. Bottom Partner / Community Section */}
       <div className="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-4 border-t border-white/[0.05]">
         <div className="flex flex-col items-center gap-4">
           <span className="text-[10px] font-mono tracking-[0.28em] text-slate-500 uppercase select-none">
@@ -227,7 +225,7 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* 6. Interactive "Watch Intro" Video Modal */}
+      {/* 5. Interactive "Watch Intro" Video Modal */}
       {isIntroOpen && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-xl animate-in fade-in duration-200"
