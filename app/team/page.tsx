@@ -5,20 +5,16 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { coreTeamMembers, facultyAdvisor, TeamMember } from "@/data/team";
 import {
   ChevronLeft,
   ChevronRight,
-  X,
   Mail,
-  ArrowUpRight,
-  Sparkles,
-  Info,
   GraduationCap,
-  Building2,
-  ShieldCheck,
+  ArrowUpRight,
+  Volume2,
 } from "lucide-react";
 
+// Social SVG Icons
 function LinkedInIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
     <svg className={`${className} fill-current`} viewBox="0 0 24 24" aria-hidden="true">
@@ -35,201 +31,146 @@ function GitHubIcon({ className = "w-4 h-4" }: { className?: string }) {
   );
 }
 
-/**
- * Detailed Modal View when a card is clicked
- */
-function MemberDetailModal({
-  member,
-  onClose,
-}: {
-  member: TeamMember;
-  onClose: () => void;
-}) {
-  const [imgErr, setImgErr] = useState(false);
-
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [onClose]);
-
-  const initials = member.name
-    .split(" ")
-    .map((w) => w[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
-  return (
-    <div
-      onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-2xl bg-[#0b0f19] border border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl text-white overflow-hidden my-auto"
-      >
-        {/* Subtle accent glow */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
-
-        {/* Top bar with close button */}
-        <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
-          <div
-            className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono uppercase tracking-wider ${
-              member.category === "Convenor" || member.id === "convenor"
-                ? "bg-cyan-500/20 border border-cyan-400/50 text-cyan-200 font-bold shadow-[0_0_12px_rgba(6,182,212,0.25)]"
-                : "bg-cyan-500/10 border border-cyan-500/20 text-cyan-400"
-            }`}
-          >
-            {(member.category === "Convenor" || member.id === "convenor") && (
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-            )}
-            <span>
-              {member.category === "Convenor" || member.id === "convenor"
-                ? "Convenor & Founder"
-                : member.category}
-            </span>
-          </div>
-
-          <button
-            onClick={onClose}
-            className="p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.12] border border-white/10 text-slate-300 hover:text-white transition-colors"
-            title="Close details (Esc)"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Content: Photo & Details */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-          {/* Portrait Photo */}
-          <div className="relative w-36 h-48 sm:w-44 sm:h-56 rounded-2xl overflow-hidden shrink-0 bg-slate-900 border border-white/15 shadow-xl">
-            {!imgErr && member.image ? (
-              <Image
-                src={member.image}
-                alt={member.name}
-                fill
-                sizes="(max-width: 640px) 144px, 176px"
-                className="object-cover object-top"
-                onError={() => setImgErr(true)}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center font-mono text-2xl font-bold text-slate-500">
-                {initials}
-              </div>
-            )}
-          </div>
-
-          {/* Member Information */}
-          <div className="flex-1 space-y-3 text-center sm:text-left">
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                {member.name}
-              </h2>
-              <p className="text-sm font-mono text-cyan-400 font-medium mt-0.5">
-                {member.role}
-              </p>
-              {member.department && (
-                <p className="text-xs text-slate-400 mt-1">
-                  {member.department}
-                </p>
-              )}
-            </div>
-
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed pt-2 border-t border-white/[0.06]">
-              {member.bio}
-            </p>
-
-            {/* Social & Contact Actions */}
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5 pt-4">
-              {member.linkedin && (
-                <a
-                  href={member.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs font-mono text-slate-200 hover:text-white transition-colors"
-                >
-                  <LinkedInIcon className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>LinkedIn</span>
-                  <ArrowUpRight className="w-3 h-3 text-slate-500" />
-                </a>
-              )}
-
-              {member.github && (
-                <a
-                  href={member.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs font-mono text-slate-200 hover:text-white transition-colors"
-                >
-                  <GitHubIcon className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>GitHub</span>
-                  <ArrowUpRight className="w-3 h-3 text-slate-500" />
-                </a>
-              )}
-
-              {member.email && (
-                <a
-                  href={`mailto:${member.email}`}
-                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs font-mono text-slate-200 hover:text-white transition-colors"
-                >
-                  <Mail className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>{member.email}</span>
-                </a>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+interface TeamCarouselMember {
+  id: string;
+  name: string;
+  role: string;
+  categoryBadge: string;
+  isConvenor?: boolean;
+  department: string;
+  email: string;
+  image: string;
+  bio: string;
+  tags: string[];
+  quote: string;
+  linkedin: string;
+  github: string;
 }
 
-export default function RotatingTeamPage() {
-  const members = coreTeamMembers;
-  const N = members.length;
-  const step = 360 / N; // dynamic degrees per member
+// 6 Core Team Members arranged exactly matching the reference layout
+const teamCarouselMembers: TeamCarouselMember[] = [
+  {
+    id: "yash",
+    name: "YASH HARFODE",
+    role: "Convenor & Founder",
+    categoryBadge: "CONVENOR",
+    isConvenor: true,
+    department: "CSE, SATI Vidisha",
+    email: "yash@cybercell.in",
+    image: "/images/team/yash-harfode.png",
+    bio: "Leading Cyber Cell with a vision to build a strong cybersecurity culture on campus through learning, collaboration and real-world impact.",
+    tags: ["Leadership", "Community", "Events", "Strategy"],
+    quote: "Building a community where curiosity meets opportunity.",
+    linkedin: "https://linkedin.com/in/yashharfode",
+    github: "https://github.com/yashharfode",
+  },
+  {
+    id: "krishna",
+    name: "KRISHNA",
+    role: "Technical Lead",
+    categoryBadge: "TECHNICAL LEAD",
+    department: "CSE, SATI Vidisha",
+    email: "krishna@cybercell.in",
+    image: "/images/team/krishna-mishra.png",
+    bio: "Driving offensive security tracks, workshop hands-on architectures, and mentoring students in CTF wargames and red teaming.",
+    tags: ["Penetration Testing", "Workshops", "CTFs", "Red Teaming"],
+    quote: "Security is not a feature; it is a fundamental mindset.",
+    linkedin: "https://linkedin.com",
+    github: "https://github.com",
+  },
+  {
+    id: "anubhav",
+    name: "ANUBHAV",
+    role: "Operations Lead",
+    categoryBadge: "OPERATIONS LEAD",
+    department: "CSE, SATI Vidisha",
+    email: "anubhav@cybercell.in",
+    image: "/images/team/anubhav.png",
+    bio: "Leading technical infrastructure, CTF challenge design, offensive security tracks, and developer projects.",
+    tags: ["Reverse Engineering", "Linux Internals", "CTFs", "Tooling"],
+    quote: "Break it down to understand how to build it unbreakable.",
+    linkedin: "https://linkedin.com",
+    github: "https://github.com",
+  },
+  {
+    id: "abhishek",
+    name: "ABHISHEK",
+    role: "Co-Convenor",
+    categoryBadge: "CO-CONVENOR",
+    department: "CSE, SATI Vidisha",
+    email: "abhishek@cybercell.in",
+    image: "/images/team/abhishek-mahore.png",
+    bio: "Assisting club leadership in strategic planning, event logistics, inter-college outreach, and multimedia production.",
+    tags: ["Media Production", "Strategy", "Logistics", "Community"],
+    quote: "Documenting the journey inspires the next generation of defenders.",
+    linkedin: "https://linkedin.com",
+    github: "https://github.com",
+  },
+  {
+    id: "arya",
+    name: "ARYA MISHRA",
+    role: "Design & Public Relations",
+    categoryBadge: "DESIGN & PR",
+    department: "CSE, SATI Vidisha",
+    email: "arya@cybercell.in",
+    image: "/images/team/arya-mishra.jpg",
+    bio: "Directing brand aesthetics, visual design assets, UI/UX, official announcements, and stage presentations for campus events.",
+    tags: ["UI/UX Design", "Public Speaking", "Branding", "Creative"],
+    quote: "Visual clarity turns complex security concepts into accessible ideas.",
+    linkedin: "https://linkedin.com",
+    github: "https://github.com",
+  },
+  {
+    id: "ansh",
+    name: "ANSH KUSHWAHA",
+    role: "Club Secretary",
+    categoryBadge: "CLUB SECRETARY",
+    department: "CSE, SATI Vidisha",
+    email: "ansh@cybercell.in",
+    image: "/images/team/ansh-kushwaha.png",
+    bio: "Overseeing executive administration, member relations, official campus coordination, and cross-team workflows.",
+    tags: ["Operations", "Administration", "Planning", "Outreach"],
+    quote: "Great teams turn shared passion into lasting institutional impact.",
+    linkedin: "https://linkedin.com",
+    github: "https://github.com",
+  },
+];
 
-  // Rotation animation states
+export default function TeamPage() {
+  const members = teamCarouselMembers;
+  const N = members.length;
+  const step = 360 / N;
+
+  // Rotation angles for smooth lerp physics
   const [currentAngle, setCurrentAngle] = useState(0);
   const [targetAngle, setTargetAngle] = useState(0);
 
-  // Dragging state
+  // Drag state
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
-  const [dragAngleStart, setDragAngleStart] = useState(0);
+  const [dragStartAngle, setDragStartAngle] = useState(0);
 
-  // Responsive radius
-  const [radius, setRadius] = useState(380);
-  const [cardDim, setCardDim] = useState({ w: 280, h: 420 });
+  // Responsive dimensions
+  const [radius, setRadius] = useState(420);
+  const [cardDim, setCardDim] = useState({ w: 290, h: 430 });
 
-  // Selected Member for Detail View
-  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
-
-  // Image load error tracking
-  const [imgErrors, setImgErrors] = useState<Record<string, boolean>>({});
-  const [facultyImgErr, setFacultyImgErr] = useState(false);
-
-  // Carousel element ref for non-passive wheel handling
+  // Carousel ref
   const carouselRef = useRef<HTMLDivElement>(null);
   const lastWheelTime = useRef(0);
 
-  // Responsive window resize
+  // Responsive resize
   useEffect(() => {
     const handleResize = () => {
       const w = window.innerWidth;
       if (w < 640) {
         setRadius(240);
-        setCardDim({ w: 220, h: 330 });
+        setCardDim({ w: 210, h: 320 });
       } else if (w < 1024) {
-        setRadius(320);
+        setRadius(340);
         setCardDim({ w: 250, h: 380 });
       } else {
-        setRadius(400);
-        setCardDim({ w: 290, h: 440 });
+        setRadius(430);
+        setCardDim({ w: 290, h: 430 });
       }
     };
     handleResize();
@@ -237,14 +178,14 @@ export default function RotatingTeamPage() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Smooth lerp animation loop (smooth 60/120fps rotation)
+  // Smooth lerp animation loop (spring damping)
   useEffect(() => {
     let animId: number;
     const updateLoop = () => {
       setCurrentAngle((prev) => {
         const diff = targetAngle - prev;
-        if (Math.abs(diff) < 0.05) return targetAngle;
-        return prev + diff * 0.12; // Smooth damping coefficient
+        if (Math.abs(diff) < 0.02) return targetAngle;
+        return prev + diff * 0.11; // smooth damping
       });
       animId = requestAnimationFrame(updateLoop);
     };
@@ -252,11 +193,11 @@ export default function RotatingTeamPage() {
     return () => cancelAnimationFrame(animId);
   }, [targetAngle]);
 
-  // Current active index at front
+  // Current active index in front
   const activeIndex = ((Math.round(targetAngle / step) % N) + N) % N;
   const activeMember = members[activeIndex] || members[0];
 
-  // Rotate smoothly to specific card index
+  // Rotate smoothly to a specific index
   const rotateToIndex = useCallback(
     (targetIdx: number) => {
       const currentIdx = ((Math.round(targetAngle / step) % N) + N) % N;
@@ -268,51 +209,48 @@ export default function RotatingTeamPage() {
     [targetAngle, step, N]
   );
 
-  // Intercept scroll wheel over the cards carousel to prevent page scroll and rotate clockwise
+  // Trackpad / Wheel listener
   useEffect(() => {
     const el = carouselRef.current;
     if (!el) return;
 
-    const handleNativeWheel = (e: WheelEvent) => {
-      // Prevent browser default window scrolling while hovering over cards
+    const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       e.stopPropagation();
 
       const now = Date.now();
-      if (now - lastWheelTime.current < 110) return;
+      if (now - lastWheelTime.current < 120) return;
 
-      const delta = e.deltaY || e.deltaX;
+      const delta = e.deltaX !== 0 ? e.deltaX : e.deltaY;
       if (Math.abs(delta) > 8) {
         lastWheelTime.current = now;
-        // delta > 0 (scrolling down) rotates clockwise (+step)
         setTargetAngle((prev) => prev + (delta > 0 ? step : -step));
       }
     };
 
-    el.addEventListener("wheel", handleNativeWheel, { passive: false });
-    return () => {
-      el.removeEventListener("wheel", handleNativeWheel);
-    };
+    el.addEventListener("wheel", handleWheel, { passive: false });
+    return () => el.removeEventListener("wheel", handleWheel);
   }, [step]);
 
-  // Pointer Dragging (Mouse & Touch)
+  // Drag / Touch gestures
   const handlePointerDown = (e: React.PointerEvent) => {
     setIsDragging(true);
     setStartX(e.clientX);
-    setDragAngleStart(targetAngle);
+    setDragStartAngle(targetAngle);
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
     const deltaX = e.clientX - startX;
-    // 1px drag = ~0.35 degrees rotation
-    setTargetAngle(dragAngleStart - deltaX * 0.35);
+    setTargetAngle(dragStartAngle - deltaX * 0.32);
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (e: React.PointerEvent) => {
     if (!isDragging) return;
     setIsDragging(false);
-    // Snap to closest card
+    (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
+    // Snap to nearest card
     setTargetAngle((prev) => Math.round(prev / step) * step);
   };
 
@@ -330,74 +268,107 @@ export default function RotatingTeamPage() {
   }, [step]);
 
   return (
-    <div className="min-h-screen bg-[#07090e] text-white selection:bg-cyan-500/20 selection:text-cyan-300 flex flex-col font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-[#030509] text-white flex flex-col font-sans selection:bg-[#00e5ff]/25 selection:text-white overflow-x-hidden">
+      {/* Sticky / Fixed Navigation */}
       <Navbar />
 
-      <main className="flex-1 flex flex-col items-center justify-between pt-28 pb-12 px-4 w-full select-none">
-        {/* Top Header Badge (matching reference pill: EXTENDED GRAPHIC) */}
-        <div className="text-center space-y-3 mb-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.04] border border-white/15 text-slate-300 text-[11px] font-mono tracking-widest uppercase shadow-sm">
-            <span>CYBER CELL · CORE LEADERSHIP</span>
+      <main className="flex-1 flex flex-col items-center pt-24 sm:pt-28 pb-16 px-4 w-full select-none relative">
+        {/* Background Subtle Ambient */}
+        <div className="absolute top-10 inset-x-0 h-96 bg-[radial-gradient(ellipse_60%_40%_at_50%_20%,rgba(0,229,255,0.05),transparent)] pointer-events-none" />
+
+        {/* 1. HERO HEADER WITH 3D ROBOT HELMET & THE TEAM TITLE */}
+        <div className="relative w-full max-w-6xl mx-auto flex flex-col items-center text-center mb-8 sm:mb-12">
+          
+          {/* Centered 3D Helmet Asset */}
+          <div className="relative w-36 sm:w-44 h-28 sm:h-36 -mb-6 sm:-mb-8 pointer-events-none z-0">
+            <Image
+              src="/images/hero-cyborg-avatar.jpg"
+              alt="Cyber Cell Sentinel"
+              fill
+              className="object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]"
+              priority
+            />
+            {/* Subtle mask to blend bottom */}
+            <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#030509] to-transparent" />
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
-            Meet Our Team
-          </h1>
+          {/* HUD Tech Lines & Editorial Heading Row */}
+          <div className="relative w-full flex items-center justify-between px-4 sm:px-8 z-10">
+            {/* Left Tech HUD */}
+            <div className="hidden lg:flex flex-col text-[10px] font-mono tracking-[0.25em] text-slate-500 uppercase border-l-2 border-[#00e5ff]/40 pl-3.5 py-1 text-left space-y-1">
+              <span className="text-[#00e5ff] font-bold">CORE TEAM</span>
+              <span>PEOPLE</span>
+              <span>IDEAS</span>
+              <span>INITIATIVES</span>
+              <span>IMPACT</span>
+            </div>
 
-          <p className="text-xs sm:text-sm text-slate-400 font-normal max-w-md mx-auto">
-            Scroll or drag horizontally over the cards to rotate clockwise. Click on any card to view full profile and details.
+            {/* Giant Center Title: THE TEAM */}
+            <div className="flex-1 flex justify-center">
+              <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight text-white flex items-center justify-center gap-3 sm:gap-4 select-none">
+                <span
+                  className="font-extrabold"
+                  style={{
+                    WebkitTextStroke: "1.5px rgba(255,255,255,0.7)",
+                    color: "transparent",
+                  }}
+                >
+                  THE
+                </span>
+                <span className="text-[#00e5ff] text-3xl sm:text-4xl font-light opacity-80">
+                  ✦
+                </span>
+                <span className="text-white font-black tracking-tight">
+                  TEAM
+                </span>
+              </h1>
+            </div>
+
+            {/* Right Tech HUD */}
+            <div className="hidden lg:flex flex-col text-[10px] font-mono tracking-[0.25em] text-slate-500 uppercase border-r-2 border-[#00e5ff]/40 pr-3.5 py-1 text-right space-y-1">
+              <span className="text-[#00e5ff] font-bold">STUDENTS</span>
+              <span>BUILDING</span>
+              <span>A SECURE</span>
+              <span>TOMORROW</span>
+            </div>
+          </div>
+
+          {/* Subtitle */}
+          <p className="text-xs sm:text-sm text-slate-400 font-light max-w-xl mx-auto mt-4 px-4 leading-relaxed">
+            A team of passionate students driving Cyber Cell forward &mdash; through learning, collaboration and real impact.
           </p>
         </div>
 
-        {/* 3D Cylindrical Rotating Cards Viewport */}
+        {/* 2. 3D CYLINDRICAL CAROUSEL VIEWPORT */}
         <div
           ref={carouselRef}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
-          className="relative w-full max-w-5xl h-[460px] sm:h-[500px] flex items-center justify-center cursor-grab active:cursor-grabbing perspective-[1200px] overflow-hidden my-auto"
+          className="relative w-full max-w-6xl h-[400px] sm:h-[480px] lg:h-[520px] flex items-center justify-center cursor-grab active:cursor-grabbing perspective-[1200px] overflow-hidden my-auto"
         >
-          {/* Subtle Ambient Behind Carousel */}
-          <div className="absolute inset-0 bg-radial from-cyan-500/[0.03] to-transparent pointer-events-none" />
-
-          {/* Cards Arc Ring */}
+          {/* Center Cards 3D Space */}
           <div className="relative w-full h-full flex items-center justify-center">
             {members.map((member, i) => {
               const cardAngle = i * step;
-              // Angle relative to front facing point (0 deg = facing viewer)
-              const relAngle = ((cardAngle - currentAngle) % 360 + 540) % 360 - 180;
+              const relAngle = (((cardAngle - currentAngle) % 360) + 540) % 360 - 180;
               const rad = (relAngle * Math.PI) / 180;
 
-              // Parametric 3D Arc Positioning
+              // Parametric Cylindrical Transformation
               const x = Math.sin(rad) * radius;
               const z = (Math.cos(rad) - 1) * radius;
-              const rotateY = -relAngle * 0.75;
-              const scale = Math.max(0.68, 1 + (Math.cos(rad) - 1) * 0.32);
-              const opacity = Math.cos(rad) > -0.1 ? Math.max(0.2, (Math.cos(rad) + 0.3) / 1.3) : 0;
+              const rotateY = -relAngle * 0.72;
+              const scale = Math.max(0.72, 1 + (Math.cos(rad) - 1) * 0.28);
+              const opacity = Math.cos(rad) > -0.2 ? Math.max(0.25, (Math.cos(rad) + 0.3) / 1.3) : 0;
               const zIndex = Math.round((Math.cos(rad) + 1) * 50);
 
-              const isFront = Math.abs(relAngle) < 22.5;
-              const isConvenor = member.category === "Convenor" || member.id === "convenor";
-
-              const initials = member.name
-                .split(" ")
-                .map((w) => w[0])
-                .filter(Boolean)
-                .slice(0, 2)
-                .join("")
-                .toUpperCase();
+              const isFront = Math.abs(relAngle) < 22;
 
               return (
                 <div
                   key={member.id}
-                  onClick={() => {
-                    if (isFront) {
-                      setSelectedMember(member);
-                    } else {
-                      rotateToIndex(i);
-                    }
-                  }}
+                  onClick={() => rotateToIndex(i)}
                   style={{
                     width: `${cardDim.w}px`,
                     height: `${cardDim.h}px`,
@@ -406,84 +377,61 @@ export default function RotatingTeamPage() {
                     opacity,
                     pointerEvents: opacity < 0.2 ? "none" : "auto",
                   }}
-                  className={`absolute rounded-3xl overflow-hidden border transition-all duration-300 shadow-2xl ${
-                    isConvenor
-                      ? isFront
-                        ? "border-cyan-300/80 shadow-[0_0_35px_rgba(6,182,212,0.22)] ring-1 ring-cyan-300/50 bg-[#0a0f1d] cursor-pointer"
-                        : "border-cyan-500/40 hover:border-cyan-400/70 shadow-[0_0_20px_rgba(6,182,212,0.12)] bg-[#090d18] cursor-pointer"
-                      : isFront
-                        ? "border-cyan-400/50 shadow-cyan-500/10 ring-1 ring-cyan-400/30 bg-[#090d16] cursor-pointer"
-                        : "border-white/15 hover:border-white/30 bg-[#090d16] cursor-pointer"
+                  className={`absolute rounded-2xl sm:rounded-3xl overflow-hidden border transition-all duration-300 shadow-2xl ${
+                    isFront
+                      ? "border-[#00e5ff] shadow-[0_0_35px_rgba(0,229,255,0.3)] ring-1 ring-[#00e5ff]/50 bg-[#070b14] cursor-default"
+                      : "border-white/10 hover:border-white/25 bg-[#060910] cursor-pointer"
                   }`}
                 >
-                  {/* Portrait Photo Container */}
+                  {/* Photo Container */}
                   <div className="relative w-full h-full bg-[#050810]">
-                    {/* Subtle top edge accent bar for Convenor */}
-                    {isConvenor && (
-                      <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent z-20 pointer-events-none" />
-                    )}
+                    <Image
+                      src={member.image}
+                      alt={member.name}
+                      fill
+                      sizes="340px"
+                      className="object-cover object-top select-none pointer-events-none"
+                      priority={i < 3}
+                    />
 
-                    {!imgErrors[member.id] && member.image ? (
-                      <Image
-                        src={member.image}
-                        alt={member.name}
-                        fill
-                        sizes="320px"
-                        className="object-cover object-top select-none pointer-events-none"
-                        priority={i < 3}
-                        onError={() =>
-                          setImgErrors((prev) => ({ ...prev, [member.id]: true }))
-                        }
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center font-mono text-3xl font-bold text-slate-600 bg-slate-900">
-                        {initials}
-                      </div>
-                    )}
+                    {/* Gradient overlay for contrast */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/35 to-transparent pointer-events-none" />
 
-                    {/* Dark Gradient Vignette for Text Legibility */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
-
-                    {/* Card Top Category Pill */}
+                    {/* Card Top Pill Badge */}
                     <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
                       <span
                         className={`px-2.5 py-1 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold backdrop-blur-md shadow-sm transition-all ${
-                          isConvenor
-                            ? "bg-cyan-950/80 border border-cyan-400/60 text-cyan-200 shadow-cyan-500/20 inline-flex items-center gap-1.5"
-                            : "bg-black/60 border border-white/15 text-cyan-300"
+                          isFront
+                            ? "bg-[#00e5ff]/15 border border-[#00e5ff]/40 text-[#00e5ff]"
+                            : "bg-black/60 border border-white/15 text-slate-300"
                         }`}
                       >
-                        {isConvenor && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                        )}
-                        <span>{isConvenor ? "Convenor & Founder" : member.category}</span>
+                        {member.categoryBadge}
                       </span>
 
-                      {isConvenor && (
-                        <span className="px-2 py-0.5 rounded-md text-[9px] font-mono tracking-wider uppercase font-bold bg-cyan-500/20 border border-cyan-400/40 text-cyan-300">
-                          FOUNDER
+                      {/* Yellow Star for Convenor */}
+                      {member.isConvenor && isFront && (
+                        <span className="text-amber-400 text-sm drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]">
+                          ★
                         </span>
                       )}
                     </div>
 
-                    {/* Card Bottom: Member Name & Click Hint */}
-                    <div className="absolute bottom-5 left-5 right-5 space-y-1">
-                      <p
-                        className={`text-[11px] font-mono font-medium tracking-wide uppercase ${
-                          isConvenor ? "text-cyan-300 font-semibold" : "text-cyan-400"
-                        }`}
-                      >
-                        {member.role}
-                      </p>
+                    {/* Card Bottom: Member Name & Role */}
+                    <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between z-10">
+                      <div>
+                        <h3 className="text-lg sm:text-xl font-black text-white tracking-tight uppercase leading-tight">
+                          {member.name}
+                        </h3>
+                        <p className="text-xs font-mono text-slate-300 mt-0.5">
+                          {member.role}
+                        </p>
+                      </div>
 
-                      <h3 className="text-xl font-black text-white tracking-tight uppercase leading-snug">
-                        {member.name}
-                      </h3>
-
+                      {/* Diagonal Arrow Icon on Active Card */}
                       {isFront && (
-                        <div className="pt-2 flex items-center gap-1.5 text-[11px] font-mono text-slate-300">
-                          <span className="text-cyan-400">Click to view details</span>
-                          <span>→</span>
+                        <div className="w-6 h-6 rounded-full bg-[#00e5ff]/15 border border-[#00e5ff]/30 flex items-center justify-center text-[#00e5ff] shrink-0 ml-2">
+                          <ArrowUpRight className="w-3.5 h-3.5" />
                         </div>
                       )}
                     </div>
@@ -493,168 +441,246 @@ export default function RotatingTeamPage() {
             })}
           </div>
 
-          {/* Left / Right Chevron Controls */}
+          {/* Left Arrow Button */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               setTargetAngle((prev) => prev - step);
             }}
-            className="absolute left-2 sm:left-4 z-40 p-3 rounded-full bg-black/60 hover:bg-black/90 border border-white/15 hover:border-cyan-400/50 text-white backdrop-blur-md transition-all active:scale-95 shadow-lg"
+            className="absolute left-2 sm:left-6 z-40 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/15 hover:border-[#00e5ff]/60 text-white backdrop-blur-md flex items-center justify-center transition-all active:scale-95 shadow-lg group"
             aria-label="Previous Team Member"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-5 h-5 group-hover:text-[#00e5ff] transition-colors" />
           </button>
 
+          {/* Right Arrow Button */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               setTargetAngle((prev) => prev + step);
             }}
-            className="absolute right-2 sm:right-4 z-40 p-3 rounded-full bg-black/60 hover:bg-black/90 border border-white/15 hover:border-cyan-400/50 text-white backdrop-blur-md transition-all active:scale-95 shadow-lg"
-            aria-label="Next Team Member (Rotate Clockwise)"
+            className="absolute right-2 sm:right-6 z-40 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/15 hover:border-[#00e5ff]/60 text-white backdrop-blur-md flex items-center justify-center transition-all active:scale-95 shadow-lg group"
+            aria-label="Next Team Member"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-5 h-5 group-hover:text-[#00e5ff] transition-colors" />
           </button>
         </div>
 
-        {/* Bottom Focus Bar: Active Member Info & Quick Click Pills */}
-        <div className="w-full max-w-3xl text-center space-y-4 pt-4">
-          {/* Active Member Title (matching RECAP JUNIO style in reference) */}
-          <div
-            onClick={() => setSelectedMember(activeMember)}
-            className="inline-flex flex-col items-center cursor-pointer group"
-          >
-            <span className="text-[11px] font-mono text-cyan-400 uppercase tracking-widest">
-              {activeMember.role}
-            </span>
-            <span className="text-xl sm:text-2xl font-black text-white tracking-tight group-hover:text-cyan-300 transition-colors uppercase">
-              {activeMember.name}
-            </span>
-            <span className="text-xs font-mono text-slate-400 mt-0.5 group-hover:underline">
-              Tap for full bio & links ↗
-            </span>
-          </div>
-
-          {/* Member Quick-Jump Selector Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-1.5 pt-2">
-            {members.map((m, idx) => {
-              const isCardConvenor = m.category === "Convenor" || m.id === "convenor";
-              return (
-                <button
-                  key={m.id}
-                  onClick={() => rotateToIndex(idx)}
-                  className={`px-3 py-1 rounded-full text-[11px] font-mono transition-all ${
-                    idx === activeIndex
-                      ? "bg-cyan-500 text-black font-bold shadow-md shadow-cyan-500/20"
-                      : isCardConvenor
-                      ? "bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
-                      : "bg-white/[0.04] hover:bg-white/[0.08] text-slate-400 hover:text-white border border-white/10"
-                  }`}
-                >
-                  {m.name.split(" ")[0]} {isCardConvenor ? "★" : ""}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Quick link hint to faculty section */}
-          <div className="pt-4">
-            <a
-              href="#faculty-section"
-              className="inline-flex items-center gap-1.5 text-xs font-mono text-slate-500 hover:text-cyan-400 transition-colors"
+        {/* 3. ARC TRACK WITH DOTS & INTERACTION HINT */}
+        <div className="relative w-full max-w-md mx-auto flex flex-col items-center mt-2 mb-10">
+          {/* Subtle Curved Arc SVG Track */}
+          <div className="relative w-72 h-10 flex items-center justify-center">
+            <svg
+              viewBox="0 0 280 40"
+              fill="none"
+              className="w-full h-full stroke-white/15"
             >
-              <span>Faculty Advisor & Mentor</span>
-              <span>↓</span>
-            </a>
+              <path
+                d="M 20 30 Q 140 2 260 30"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+
+            {/* 5 Dots along the track */}
+            <div className="absolute inset-x-8 top-3 flex items-center justify-between px-2">
+              {[0, 1, 2, 3, 4].map((dotIdx) => {
+                const isCenter = dotIdx === 2;
+                return (
+                  <div
+                    key={dotIdx}
+                    className={`rounded-full transition-all duration-300 ${
+                      isCenter
+                        ? "w-2.5 h-2.5 bg-[#00e5ff] shadow-[0_0_12px_#00e5ff] scale-125"
+                        : "w-1.5 h-1.5 bg-white/30"
+                    }`}
+                  />
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Monospace interaction hint */}
+          <span className="text-[10px] font-mono tracking-[0.25em] text-slate-500 uppercase mt-1">
+            DRAG &bull; SCROLL &bull; EXPLORE
+          </span>
+        </div>
+
+        {/* 4. ACTIVE MEMBER DEEP-DIVE DETAIL PANEL (MATCHING REFERENCE) */}
+        <div className="w-full max-w-6xl mx-auto px-4 mb-16">
+          <div className="relative rounded-3xl border border-white/10 bg-[#060911]/85 backdrop-blur-md p-6 sm:p-8 lg:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden transition-all duration-500">
+            {/* Top Subtle Amber/Cyan Ambient Glow */}
+            <div className="absolute top-0 right-0 w-80 h-80 bg-[#00e5ff]/5 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+              
+              {/* Left Column: Member Overview & Tags */}
+              <div className="lg:col-span-5 space-y-4">
+                {/* Badge */}
+                <span className="inline-block px-3 py-1 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold bg-[#00e5ff]/15 text-[#00e5ff] border border-[#00e5ff]/30 shadow-sm">
+                  {activeMember.categoryBadge}
+                </span>
+
+                {/* Big Name */}
+                <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight uppercase leading-tight">
+                  {activeMember.name}
+                </h2>
+
+                {/* Subtitle / Role Line */}
+                <p className="text-xs sm:text-sm font-mono text-slate-400">
+                  {activeMember.role} &nbsp;|&nbsp; Cyber Cell, SATI Vidisha
+                </p>
+
+                {/* Bio */}
+                <p className="text-xs sm:text-sm text-slate-300 font-light leading-relaxed">
+                  {activeMember.bio}
+                </p>
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {activeMember.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-3 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs font-mono text-slate-300"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Middle Column: Contact Info & Handles */}
+              <div className="lg:col-span-3 space-y-3 lg:border-l lg:border-white/[0.08] lg:pl-8 py-2">
+                <a
+                  href={`mailto:${activeMember.email}`}
+                  className="flex items-center gap-2.5 text-xs font-mono text-slate-300 hover:text-[#00e5ff] transition-colors"
+                >
+                  <Mail className="w-4 h-4 text-[#00e5ff]" />
+                  <span>{activeMember.email}</span>
+                </a>
+
+                <div className="flex items-center gap-2.5 text-xs font-mono text-slate-300">
+                  <GraduationCap className="w-4 h-4 text-[#00e5ff]" />
+                  <span>{activeMember.department}</span>
+                </div>
+
+                <a
+                  href={activeMember.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 text-xs font-mono text-slate-300 hover:text-[#00e5ff] transition-colors"
+                >
+                  <LinkedInIcon className="w-4 h-4 text-[#00e5ff]" />
+                  <span>LinkedIn</span>
+                </a>
+
+                <a
+                  href={activeMember.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 text-xs font-mono text-slate-300 hover:text-[#00e5ff] transition-colors"
+                >
+                  <GitHubIcon className="w-4 h-4 text-[#00e5ff]" />
+                  <span>GitHub</span>
+                </a>
+              </div>
+
+              {/* Right Column: Quote Block */}
+              <div className="lg:col-span-4 p-6 sm:p-7 rounded-2xl bg-white/[0.02] border border-white/[0.06] flex flex-col justify-between min-h-[160px]">
+                <div>
+                  <span className="text-3xl font-serif text-[#00e5ff] leading-none block mb-2 opacity-90">
+                    &ldquo;
+                  </span>
+                  <p className="text-sm sm:text-base text-slate-200 font-medium leading-relaxed italic">
+                    {activeMember.quote}
+                  </p>
+                </div>
+                <div className="w-10 h-[2px] bg-[#00e5ff]/50 mt-4" />
+              </div>
+
+            </div>
           </div>
         </div>
+
+        {/* 5. FACULTY ADVISOR & MENTOR SECTION (EXACT REFERENCE LAYOUT) */}
+        <section className="w-full max-w-6xl mx-auto px-4 pt-8 pb-12 border-t border-white/[0.08]">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            {/* Left Column: Heading & Mission */}
+            <div className="lg:col-span-5 space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00e5ff]/10 border border-[#00e5ff]/20 text-[#00e5ff] text-xs font-mono uppercase tracking-wider font-semibold">
+                <Volume2 className="w-3.5 h-3.5" />
+                <span>INSTITUTIONAL MENTORSHIP</span>
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+                Faculty Advisor &amp; Mentor
+              </h2>
+
+              <p className="text-xs sm:text-sm text-slate-400 font-light leading-relaxed max-w-md">
+                Guiding our club&apos;s academic rigor, research integrity, and student development under SATI Vidisha.
+              </p>
+            </div>
+
+            {/* Right Column: Mentor Card */}
+            <div className="lg:col-span-7">
+              <div className="relative rounded-2xl border border-white/10 bg-[#070b14]/90 backdrop-blur-md p-5 sm:p-6 shadow-2xl overflow-hidden flex flex-col sm:flex-row items-center sm:items-start gap-5 group">
+                
+                {/* Photo */}
+                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shrink-0 border border-white/10 bg-black/40">
+                  <Image
+                    src="/images/team/shivangi-jain.jpg"
+                    alt="Prof. Shivangi Jain"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 text-center sm:text-left space-y-2">
+                  <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold bg-[#00e5ff]/10 text-[#00e5ff] border border-[#00e5ff]/20">
+                    FACULTY ADVISOR &amp; MENTOR
+                  </span>
+
+                  <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                    Prof. Shivangi Jain
+                  </h3>
+
+                  <p className="text-xs text-slate-400 font-mono">
+                    Department of Computer Science &amp; Engineering, SATI Vidisha
+                  </p>
+
+                  {/* Mentorship Tags */}
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 pt-2">
+                    {["Academic Guidance", "Research Support", "Student Mentorship"].map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2.5 py-0.5 rounded-md bg-white/[0.03] border border-white/[0.08] text-[10px] font-mono text-slate-300"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Arrow Button */}
+                <a
+                  href="mailto:shivangijain@satiengg.in"
+                  className="w-8 h-8 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center text-slate-400 group-hover:text-[#00e5ff] group-hover:border-[#00e5ff]/40 transition-colors shrink-0 self-start sm:self-center"
+                  title="Contact Faculty Advisor"
+                >
+                  <ArrowUpRight className="w-4 h-4" />
+                </a>
+
+              </div>
+            </div>
+
+          </div>
+        </section>
+
       </main>
 
-      {/* Dedicated Faculty Advisor & Mentorship Section */}
-      <section
-        id="faculty-section"
-        className="w-full max-w-4xl px-4 py-16 mx-auto border-t border-white/[0.08]"
-      >
-        <div className="text-center space-y-2 mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono uppercase tracking-wider">
-            <GraduationCap className="w-3.5 h-3.5" />
-            <span>INSTITUTIONAL MENTORSHIP</span>
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-            Faculty Advisor & Mentor
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
-            Guiding our club&apos;s academic rigor, research integrity, and student development under SATI Vidisha.
-          </p>
-        </div>
-
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-[#0c111d] to-[#070b13] border border-cyan-500/20 p-6 sm:p-8 shadow-2xl">
-          {/* Subtle backdrop glow */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 relative z-10">
-            {/* Academic Mentorship Emblem */}
-            <div className="relative w-36 h-48 sm:w-44 sm:h-56 rounded-2xl overflow-hidden shrink-0 bg-gradient-to-b from-[#0d1424] to-[#070b13] border border-cyan-500/30 flex flex-col items-center justify-center p-4 text-center shadow-xl">
-              <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/25 flex items-center justify-center mb-3 text-cyan-400 shadow-inner">
-                <GraduationCap className="w-9 h-9" />
-              </div>
-              <span className="font-mono text-xs text-cyan-400 font-semibold tracking-wider uppercase">
-                Faculty Mentor
-              </span>
-              <span className="font-mono text-[10px] text-slate-500 mt-1 uppercase">
-                SATI Vidisha
-              </span>
-            </div>
-
-            {/* Information */}
-            <div className="flex-1 space-y-3.5 text-center sm:text-left">
-              <div>
-                <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-mono tracking-wide uppercase font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mb-2">
-                  {facultyAdvisor.role}
-                </span>
-                <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  {facultyAdvisor.name}
-                </h3>
-                {facultyAdvisor.department && (
-                  <p className="text-xs sm:text-sm text-slate-400 font-mono mt-1 flex items-center justify-center sm:justify-start gap-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                    <span>{facultyAdvisor.department}</span>
-                  </p>
-                )}
-              </div>
-
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-xl">
-                {facultyAdvisor.bio}
-              </p>
-
-              <div className="pt-2 flex flex-wrap items-center justify-center sm:justify-start gap-3">
-                {facultyAdvisor.email && (
-                  <a
-                    href={`mailto:${facultyAdvisor.email}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs font-mono text-slate-200 hover:text-white transition-colors"
-                  >
-                    <Mail className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>{facultyAdvisor.email}</span>
-                  </a>
-                )}
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500/[0.06] border border-cyan-500/20 text-xs font-mono text-cyan-300">
-                  <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>SATI CSE Faculty</span>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Profile Details Modal */}
-      {selectedMember && (
-        <MemberDetailModal
-          member={selectedMember}
-          onClose={() => setSelectedMember(null)}
-        />
-      )}
-
+      {/* Global Comprehensive Footer */}
       <Footer />
     </div>
   );
