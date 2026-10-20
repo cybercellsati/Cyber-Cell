@@ -191,7 +191,7 @@ export default function LearningRoadmap() {
               </div>
 
               {/* Right Side Isometric Graphic (Amber) */}
-              <div className="absolute right-4 bottom-14 sm:bottom-10 w-44 sm:w-56 h-36 sm:h-44 pointer-events-none opacity-90 group-hover:opacity-100 transition-opacity">
+              <div className="absolute right-2 sm:right-4 bottom-14 sm:bottom-10 w-36 sm:w-56 h-28 sm:h-44 pointer-events-none opacity-20 sm:opacity-90 group-hover:opacity-100 transition-opacity">
                 <div className="relative w-full h-full">
                   <Image
                     src="/images/roadmap-isometric.png"

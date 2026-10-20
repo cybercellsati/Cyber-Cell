@@ -191,34 +191,34 @@ export default function FocusAreas() {
               <button
                 key={domain.id}
                 onClick={() => setSelectedDomain(domain.data)}
-                className="flex flex-col items-center text-center group transition-all duration-300 focus:outline-none"
+                className="flex flex-col items-center text-center group transition-all duration-300 focus:outline-none last:col-span-2 sm:last:col-span-1 last:justify-self-center"
               >
                 {/* Outer Circular Node with Orbital Ring & Satellite Dot */}
-                <div className="relative mb-4 flex items-center justify-center">
+                <div className="relative mb-3.5 sm:mb-4 flex items-center justify-center">
                   {/* Subtle outer orbital ring */}
-                  <div className="absolute -inset-2.5 rounded-full border border-white/[0.08] group-hover:border-amber-400/40 transition-colors duration-500 pointer-events-none" />
+                  <div className="absolute -inset-2 sm:-inset-2.5 rounded-full border border-white/[0.08] group-hover:border-amber-400/40 transition-colors duration-500 pointer-events-none" />
                   
                   {/* Satellite amber dot */}
                   <div className="absolute top-0 right-1 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.9)] transition-transform duration-500 group-hover:scale-125" />
 
                   {/* Main circular glass orb */}
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border border-white/[0.12] bg-[radial-gradient(circle_at_35%_35%,rgba(245,158,11,0.12),rgba(8,8,8,0.98))] shadow-[inset_0_2px_8px_rgba(255,255,255,0.08),0_10px_30px_rgba(0,0,0,0.6)] flex items-center justify-center text-white group-hover:text-amber-400 group-hover:border-amber-400/50 group-hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-all duration-300">
-                    <Icon className="w-8 h-8 sm:w-9 sm:h-9 text-amber-400 transition-transform duration-300 group-hover:scale-110" />
+                  <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full border border-white/[0.12] bg-[radial-gradient(circle_at_35%_35%,rgba(245,158,11,0.12),rgba(8,8,8,0.98))] shadow-[inset_0_2px_8px_rgba(255,255,255,0.08),0_10px_30px_rgba(0,0,0,0.6)] flex items-center justify-center text-white group-hover:text-amber-400 group-hover:border-amber-400/50 group-hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-all duration-300">
+                    <Icon className="w-7 h-7 sm:w-9 sm:h-9 text-amber-400 transition-transform duration-300 group-hover:scale-110" />
                   </div>
                 </div>
 
                 {/* Title */}
-                <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-amber-400 transition-colors tracking-tight">
+                <h4 className="text-xs sm:text-base font-bold text-white group-hover:text-amber-400 transition-colors tracking-tight">
                   {domain.name}
                 </h4>
 
                 {/* Subtitle */}
-                <p className="text-[11px] sm:text-xs text-slate-400 mt-1 max-w-[150px] leading-snug">
+                <p className="text-[10.5px] sm:text-xs text-slate-400 mt-0.5 sm:mt-1 max-w-[150px] leading-snug">
                   {domain.desc}
                 </p>
 
                 {/* Subtle Amber Underline */}
-                <span className="w-6 h-[1.5px] bg-amber-400/40 group-hover:bg-amber-400 group-hover:w-10 transition-all duration-300 mt-2 block" />
+                <span className="w-5 sm:w-6 h-[1.5px] bg-amber-400/40 group-hover:bg-amber-400 group-hover:w-10 transition-all duration-300 mt-2 block" />
               </button>
             );
           })}

@@ -201,7 +201,7 @@ export default function Navbar() {
 
       {/* Mobile Drawer with Stagger Animation */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-full bg-[#06080d]/95 backdrop-blur-2xl border-b border-white/[0.08] shadow-2xl px-6 py-6 space-y-2 animate-in slide-in-from-top-3 duration-200">
+        <div className="lg:hidden fixed inset-x-0 top-full max-h-[calc(100dvh-75px)] overflow-y-auto bg-[#06080d]/95 backdrop-blur-2xl border-b border-white/[0.08] shadow-2xl px-5 sm:px-6 py-5 space-y-2 animate-in slide-in-from-top-3 duration-200">
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-mono mb-2">
             Navigation Menu
           </div>
@@ -214,12 +214,12 @@ export default function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-white/[0.06] text-[#38bdf8] font-semibold"
+                    ? "bg-white/[0.06] text-amber-400 font-semibold"
                     : "text-slate-300 hover:text-white hover:bg-white/[0.03]"
                 }`}
               >
                 <span>{item.name}</span>
-                {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#38bdf8]" />}
+                {isActive && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />}
               </Link>
             );
           })}
@@ -232,10 +232,10 @@ export default function Navbar() {
                     <img
                       src={user.photoURL}
                       alt={user.displayName || "User"}
-                      className="w-7 h-7 rounded-full border border-cyan-400/40 object-cover"
+                      className="w-7 h-7 rounded-full border border-amber-400/40 object-cover"
                     />
                   ) : (
-                    <div className="w-7 h-7 rounded-full bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-xs font-bold text-cyan-300">
+                    <div className="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-xs font-bold text-amber-300">
                       {(user.displayName?.[0] || user.email?.[0] || "U").toUpperCase()}
                     </div>
                   )}
@@ -243,7 +243,7 @@ export default function Navbar() {
                     <p className="text-xs font-medium text-white truncate max-w-[150px]">
                       {user.displayName || user.email}
                     </p>
-                    <p className="text-[10px] font-mono text-cyan-400 uppercase">
+                    <p className="text-[10px] font-mono text-amber-400 uppercase">
                       {profile?.role || "Member"}
                     </p>
                   </div>

@@ -150,25 +150,25 @@ function CertificateModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-6 bg-black/90 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
       <div
-        className="relative w-full max-w-4xl bg-[#080808] border border-amber-500/30 rounded-3xl p-5 sm:p-8 shadow-[0_20px_80px_rgba(0,0,0,0.9)] my-auto text-white"
+        className="relative w-full max-w-4xl bg-[#080808] border border-amber-500/30 rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-[0_20px_80px_rgba(0,0,0,0.9)] my-auto text-white max-h-[95vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Controls Bar */}
-        <div className="flex items-center justify-between pb-4 border-b border-white/10 gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-              <ShieldCheck className="w-4 h-4" />
+        <div className="flex items-center justify-between pb-3.5 sm:pb-4 border-b border-white/10 gap-2">
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-amber-400 truncate">
                   Verified Institutional Credential
                 </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
               </div>
-              <span className="text-[11px] font-mono text-slate-400">
+              <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 block truncate">
                 SATI Vidisha Cyber Cell Official Record
               </span>
             </div>
@@ -176,63 +176,63 @@ function CertificateModal({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-slate-300 hover:text-white transition-colors"
+            className="p-1.5 sm:p-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-slate-300 hover:text-white transition-colors shrink-0"
             title="Close certificate viewer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 
         {/* Certificate Recipient Header */}
-        <div className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08]">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+        <div className="py-3.5 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08]">
+          <div className="min-w-0">
+            <h2 className="text-lg sm:text-2xl font-black text-white tracking-tight break-words">
               {formatStudentName(cert.recipient_name)}
             </h2>
-            <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-slate-400 mt-0.5">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs font-mono text-slate-400 mt-0.5">
               {cert.scholar_number && (
                 <span>
                   Scholar No: <strong className="text-amber-300">{cert.scholar_number}</strong>
                 </span>
               )}
               <span>•</span>
-              <span>Event: <strong className="text-white">{cert.event_name}</strong></span>
+              <span className="truncate">Event: <strong className="text-white">{cert.event_name}</strong></span>
             </div>
           </div>
 
-          <div className="text-left sm:text-right font-mono text-xs">
+          <div className="text-left sm:text-right font-mono text-xs shrink-0">
             <span className="text-slate-500">Credential ID:</span>
-            <div className="font-bold text-amber-300">{cert.certificate_id}</div>
+            <div className="font-bold text-amber-300 break-all">{cert.certificate_id}</div>
           </div>
         </div>
 
         {/* High-Definition Certificate Canvas Viewport */}
-        <div className="my-5 relative aspect-[297/210] w-full rounded-2xl overflow-hidden border border-white/10 bg-[#040404] shadow-2xl flex items-center justify-center">
+        <div className="my-4 sm:my-5 relative aspect-[297/210] w-full rounded-xl sm:rounded-2xl overflow-hidden border border-white/10 bg-[#040404] shadow-2xl flex items-center justify-center">
           <canvas
             ref={canvasRef}
             className="w-full h-full object-contain"
           />
           {rendering && (
-            <div className="absolute inset-0 bg-black/75 backdrop-blur-xs flex items-center justify-center gap-2.5 text-xs font-mono text-amber-300">
-              <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+            <div className="absolute inset-0 bg-black/75 backdrop-blur-xs flex items-center justify-center gap-2 text-xs font-mono text-amber-300 p-2 text-center">
+              <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin shrink-0" />
               <span>Rendering HD Institutional Certificate...</span>
             </div>
           )}
         </div>
 
         {/* Action Controls: Download & Share */}
-        <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-1 sm:pt-2">
           <button
             onClick={handleDownload}
-            className="w-full sm:w-auto flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-98"
+            className="w-full sm:w-auto flex-1 py-3 sm:py-3.5 px-5 sm:px-6 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-bold text-xs sm:text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 active:scale-98"
           >
             <Download className="w-4 h-4" />
-            <span>⬇ Download Certificate (HD PNG)</span>
+            <span>Download Certificate (HD PNG)</span>
           </button>
 
           <button
             onClick={() => onCopyLink(cert.certificate_id)}
-            className="w-full sm:w-auto py-3.5 px-5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-white font-mono text-xs transition-colors flex items-center justify-center gap-2"
+            className="w-full sm:w-auto py-3 sm:py-3.5 px-4 sm:px-5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-white font-mono text-xs transition-colors flex items-center justify-center gap-2"
           >
             {copiedId === cert.certificate_id ? (
               <>
@@ -249,14 +249,14 @@ function CertificateModal({
 
           <button
             onClick={onClose}
-            className="w-full sm:w-auto py-3.5 px-5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-400 hover:text-white font-mono text-xs transition-colors"
+            className="w-full sm:w-auto py-3 sm:py-3.5 px-4 sm:px-5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-400 hover:text-white font-mono text-xs transition-colors text-center"
           >
             ← Back to List
           </button>
         </div>
 
         {/* Institutional Verification Footer */}
-        <div className="mt-4 pt-3 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-slate-500 gap-2">
+        <div className="mt-4 pt-3 border-t border-white/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between text-[10px] sm:text-[11px] font-mono text-slate-500 gap-1 sm:gap-2">
           <span>Issuing Body: {cert.issued_by || "Cyber Cell, SATI Vidisha"}</span>
           <span>Issued Date: {cert.issue_date}</span>
         </div>
@@ -363,7 +363,7 @@ function VerifyContent() {
     <div className="min-h-screen bg-[#030303] text-white flex flex-col font-sans selection:bg-amber-400/20 selection:text-amber-300">
       <Navbar />
 
-      <main className="flex-1 w-full pt-28 sm:pt-32 lg:pt-36 pb-16 overflow-hidden">
+      <main className="flex-1 w-full pt-24 sm:pt-32 lg:pt-36 pb-16 overflow-hidden">
         
         {/* ========================================================
             HERO SECTION: VERIFY CERTIFICATE + 3D PLAQUE SCENE
@@ -372,16 +372,16 @@ function VerifyContent() {
         <section className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           
           {/* Subtle Ambient Amber Glow behind 3D Plaque */}
-          <div className="absolute top-1/2 right-10 -translate-y-1/2 w-[520px] h-[520px] rounded-full bg-amber-500/[0.05] blur-[150px] pointer-events-none" />
+          <div className="absolute top-1/2 right-10 -translate-y-1/2 w-[340px] sm:w-[520px] h-[340px] sm:h-[520px] rounded-full bg-amber-500/[0.05] blur-[150px] pointer-events-none" />
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center min-h-[460px] sm:min-h-[520px]">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-8 items-center min-h-0 lg:min-h-[520px]">
             
             {/* Left Column (lg:col-span-6): Eyebrow, Title, Capsule Search Bar */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:col-span-6 flex flex-col justify-center space-y-6 sm:space-y-8 z-10"
+              className="lg:col-span-6 flex flex-col justify-center space-y-5 sm:space-y-8 z-10"
             >
               
               {/* Eyebrow: — OFFICIAL CREDENTIALS */}
@@ -393,7 +393,7 @@ function VerifyContent() {
               </div>
 
               {/* Giant Two-Line Headline: Download & Verify / Certificate */}
-              <h1 className="text-4xl sm:text-6xl lg:text-[62px] xl:text-[74px] font-extrabold tracking-[-0.035em] leading-[0.95] select-none">
+              <h1 className="text-3xl sm:text-5xl lg:text-[62px] xl:text-[74px] font-extrabold tracking-[-0.035em] leading-[1.08] sm:leading-[0.95] select-none">
                 <span className="block text-white">
                   Download & Verify
                 </span>
@@ -403,7 +403,7 @@ function VerifyContent() {
               </h1>
 
               {/* Clear Informative Subtitle */}
-              <p className="text-xs sm:text-sm text-slate-400 font-normal leading-relaxed max-w-lg -mt-2">
+              <p className="text-xs sm:text-sm text-slate-400 font-normal leading-relaxed max-w-lg mt-0.5 sm:-mt-2">
                 Instant institutional verification and official HD PNG certificate download. Search by your Scholar Number, Name, or Credential ID.
               </p>
 
@@ -412,10 +412,10 @@ function VerifyContent() {
                 onSubmit={handleSearchSubmit}
                 className="relative w-full max-w-lg sm:max-w-xl space-y-2.5"
               >
-                <div className="group relative flex items-center rounded-full bg-black/60 border border-white/15 hover:border-white/30 focus-within:border-amber-400/80 focus-within:ring-2 focus-within:ring-amber-400/20 backdrop-blur-xl px-4 sm:px-5 py-2 sm:py-2.5 transition-all duration-300 shadow-[0_12px_40px_rgba(0,0,0,0.85)]">
+                <div className="group relative flex items-center rounded-full bg-black/60 border border-white/15 hover:border-white/30 focus-within:border-amber-400/80 focus-within:ring-2 focus-within:ring-amber-400/20 backdrop-blur-xl px-3.5 sm:px-5 py-2 sm:py-2.5 transition-all duration-300 shadow-[0_12px_40px_rgba(0,0,0,0.85)]">
                   
                   {/* Search Icon */}
-                  <Search className="w-5 h-5 text-slate-400 ml-1 mr-3 shrink-0 group-focus-within:text-amber-400 transition-colors" />
+                  <Search className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 ml-1 mr-2.5 sm:mr-3 shrink-0 group-focus-within:text-amber-400 transition-colors" />
                   
                   {/* Text Input */}
                   <input
@@ -423,7 +423,7 @@ function VerifyContent() {
                     required
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Enter scholar number, name, or certificate ID..."
+                    placeholder="Search by scholar no, name, or cert ID..."
                     className="w-full bg-transparent border-none outline-none text-xs sm:text-sm text-white placeholder:text-slate-500 font-sans tracking-wide pr-2"
                   />
 
@@ -431,19 +431,19 @@ function VerifyContent() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white hover:bg-slate-200 text-slate-950 flex items-center justify-center shrink-0 transition-transform duration-200 shadow-md shadow-white/20 active:scale-95 disabled:opacity-50 group-hover:scale-105"
+                    className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white hover:bg-slate-200 text-slate-950 flex items-center justify-center shrink-0 transition-transform duration-200 shadow-md shadow-white/20 active:scale-95 disabled:opacity-50 group-hover:scale-105"
                     title="Search and download certificate"
                   >
                     {loading ? (
-                      <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                      <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
                     )}
                   </button>
                 </div>
 
                 {/* Micro-Features Row */}
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] font-mono text-slate-400 px-3 select-none">
+                <div className="flex flex-wrap items-center gap-2.5 sm:gap-4 text-[10.5px] sm:text-[11px] font-mono text-slate-400 px-2 sm:px-3 select-none">
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
                     <span>Instant HD PNG Download</span>
@@ -473,12 +473,12 @@ function VerifyContent() {
                   alt="Cyber Cell SATI Official 3D Certificate Plaque"
                   fill
                   priority
-                  className="object-contain object-right drop-shadow-[0_20px_50px_rgba(0,0,0,0.95)] transition-transform duration-700 group-hover:scale-[1.02]"
+                  className="object-contain object-center sm:object-right drop-shadow-[0_20px_50px_rgba(0,0,0,0.95)] transition-transform duration-700 group-hover:scale-[1.02]"
                   sizes="(max-width: 1024px) 100vw, 620px"
                 />
                 
                 {/* Ambient Amber Rim Glow Under Plaque */}
-                <div className="absolute -bottom-4 right-10 w-72 h-14 bg-amber-500/25 blur-2xl pointer-events-none rounded-full" />
+                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-64 sm:w-72 h-14 bg-amber-500/25 blur-2xl pointer-events-none rounded-full" />
               </div>
 
               {/* Vertical Micro-Text along right edge (Matching Reference Image) */}
@@ -499,7 +499,7 @@ function VerifyContent() {
           {/* ========================================================
               BOTTOM EDITORIAL FOOTER STRIP (Matching Screenshot)
              ======================================================== */}
-          <div className="w-full border-t border-white/[0.08] mt-12 sm:mt-16 pt-5 pb-2 flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono tracking-widest text-slate-500 gap-3 select-none">
+          <div className="w-full border-t border-white/[0.08] mt-10 sm:mt-16 pt-5 pb-2 flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono tracking-widest text-slate-500 gap-3 select-none text-center sm:text-left">
             <div>
               <span className="text-slate-400 font-semibold">CYBER CELL</span> — SATI VIDISHA
             </div>
@@ -531,7 +531,7 @@ function VerifyContent() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="max-w-xl mx-auto p-8 rounded-3xl border border-white/10 bg-[#080808]/90 text-center space-y-4 shadow-2xl backdrop-blur-md"
+              className="max-w-xl mx-auto p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-white/10 bg-[#080808]/90 text-center space-y-4 shadow-2xl backdrop-blur-md"
             >
               <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto">
                 <AlertTriangle className="w-6 h-6" />
@@ -568,37 +568,37 @@ function VerifyContent() {
                   <SpotlightCard
                     key={cert.certificate_id}
                     spotlightColor="rgba(245, 158, 11, 0.12)"
-                    className="p-5 sm:p-6 rounded-2xl border border-white/10 hover:border-amber-400/50 transition-all duration-200 cursor-pointer group bg-[#080808]/90 hover:bg-[#0c0c0c] shadow-lg"
+                    className="p-4 sm:p-6 rounded-2xl border border-white/10 hover:border-amber-400/50 transition-all duration-200 cursor-pointer group bg-[#080808]/90 hover:bg-[#0c0c0c] shadow-lg"
                   >
                     <div
                       onClick={() => setSelectedCert(cert)}
                       className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                     >
                       {/* Left: Recipient & Scholar Info */}
-                      <div className="flex items-start sm:items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0 group-hover:scale-105 transition-transform group-hover:border-amber-400/50 shadow-sm">
-                          <GraduationCap className="w-6 h-6" />
+                      <div className="flex items-start sm:items-center gap-3 sm:gap-4">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0 group-hover:scale-105 transition-transform group-hover:border-amber-400/50 shadow-sm">
+                          <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6" />
                         </div>
 
-                        <div className="space-y-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-amber-300 transition-colors">
+                        <div className="space-y-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                            <h3 className="text-base sm:text-xl font-bold text-white group-hover:text-amber-300 transition-colors">
                               {formatStudentName(cert.recipient_name)}
                             </h3>
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-mono font-semibold text-emerald-400">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[9.5px] sm:text-[10px] font-mono font-semibold text-emerald-400">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                               Institutional Verified
                             </span>
                           </div>
 
-                          <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-slate-400">
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs font-mono text-slate-400">
                             {cert.scholar_number && (
                               <span>
                                 Scholar No: <strong className="text-amber-400">{cert.scholar_number}</strong>
                               </span>
                             )}
                             <span>•</span>
-                            <span className="text-slate-300">{cert.event_name}</span>
+                            <span className="text-slate-300 truncate">{cert.event_name}</span>
                             <span>•</span>
                             <span className="text-slate-400">{cert.role_or_rank || "Participant"}</span>
                           </div>
@@ -606,10 +606,10 @@ function VerifyContent() {
                       </div>
 
                       {/* Right: Credential ID & Action Button */}
-                      <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-white/[0.06]">
+                      <div className="flex flex-col xs:flex-row items-stretch xs:items-center justify-between sm:justify-end gap-3 sm:gap-4 shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 border-white/[0.06]">
                         <div className="text-left sm:text-right font-mono text-xs">
                           <div className="text-[10px] text-slate-500 uppercase tracking-wider">Credential ID</div>
-                          <div className="text-xs font-semibold text-slate-300">{cert.certificate_id}</div>
+                          <div className="text-xs font-semibold text-slate-300 break-all">{cert.certificate_id}</div>
                         </div>
 
                         <button
@@ -618,7 +618,7 @@ function VerifyContent() {
                             e.stopPropagation();
                             setSelectedCert(cert);
                           }}
-                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 group-hover:border-amber-400 text-amber-300 font-medium text-xs transition-all shadow-sm group-hover:shadow-[0_0_15px_rgba(251,191,36,0.2)]"
+                          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 group-hover:border-amber-400 text-amber-300 font-medium text-xs transition-all shadow-sm group-hover:shadow-[0_0_15px_rgba(251,191,36,0.2)]"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>View Certificate</span>

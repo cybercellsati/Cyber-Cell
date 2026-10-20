@@ -65,7 +65,7 @@ export default function ProjectsSection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           
           {/* Left Column: 3 Category Nodes */}
-          <div className="lg:col-span-6 grid grid-cols-3 gap-4 sm:gap-6">
+          <div className="lg:col-span-6 grid grid-cols-3 gap-2.5 sm:gap-6">
             {projectNodes.map((node) => {
               const Icon = node.icon;
               return (
@@ -75,20 +75,20 @@ export default function ProjectsSection() {
                   className="flex flex-col items-center text-center group focus:outline-none"
                 >
                   {/* Circular Node with Orbital Ring */}
-                  <div className="relative mb-3 flex items-center justify-center">
+                  <div className="relative mb-2.5 sm:mb-3 flex items-center justify-center">
                     {/* Outer thin orbital ring */}
-                    <div className="absolute -inset-2 rounded-full border border-white/[0.08] group-hover:border-amber-400/40 transition-colors pointer-events-none" />
+                    <div className="absolute -inset-1.5 sm:-inset-2 rounded-full border border-white/[0.08] group-hover:border-amber-400/40 transition-colors pointer-events-none" />
                     
                     {/* Orbital satellite amber dot */}
                     <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)] transition-transform group-hover:scale-125" />
 
                     {/* Central Glass Circle */}
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-white/[0.1] bg-[radial-gradient(circle_at_35%_35%,rgba(245,158,11,0.1),rgba(8,8,8,0.98))] shadow-[0_10px_25px_rgba(0,0,0,0.5)] flex items-center justify-center text-amber-400 group-hover:border-amber-400/50 group-hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] transition-all duration-300">
-                      <Icon className="w-7 h-7 sm:w-8 sm:h-8 transition-transform group-hover:scale-110" />
+                    <div className="w-16 h-16 xs:w-20 xs:h-20 sm:w-24 sm:h-24 rounded-full border border-white/[0.1] bg-[radial-gradient(circle_at_35%_35%,rgba(245,158,11,0.1),rgba(8,8,8,0.98))] shadow-[0_10px_25px_rgba(0,0,0,0.5)] flex items-center justify-center text-amber-400 group-hover:border-amber-400/50 group-hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] transition-all duration-300">
+                      <Icon className="w-6 h-6 sm:w-8 sm:h-8 transition-transform group-hover:scale-110" />
                     </div>
                   </div>
 
-                  <span className="text-xs sm:text-sm font-semibold text-white group-hover:text-amber-400 transition-colors">
+                  <span className="text-[11px] sm:text-sm font-semibold text-white group-hover:text-amber-400 transition-colors tracking-tight">
                     {node.name}
                   </span>
                 </Link>
