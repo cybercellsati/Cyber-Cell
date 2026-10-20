@@ -47,7 +47,7 @@ interface TeamCarouselMember {
   github: string;
 }
 
-// 6 Core Team Members arranged exactly matching the reference layout
+// 6 Core Team Members arranged: Yash -> Right: Ansh -> Right: Abhishek -> Right: Krishna
 const teamCarouselMembers: TeamCarouselMember[] = [
   {
     id: "yash",
@@ -63,6 +63,34 @@ const teamCarouselMembers: TeamCarouselMember[] = [
     quote: "Building a community where curiosity meets opportunity.",
     linkedin: "https://linkedin.com/in/yashharfode",
     github: "https://github.com/yashharfode",
+  },
+  {
+    id: "ansh",
+    name: "ANSH KUSHWAHA",
+    role: "Club Secretary",
+    categoryBadge: "CLUB SECRETARY",
+    department: "CSE, SATI Vidisha",
+    email: "ansh@cybercell.in",
+    image: "/images/team/ansh-kushwaha.png",
+    bio: "Overseeing executive administration, member relations, official campus coordination, and cross-team workflows.",
+    tags: ["Operations", "Administration", "Planning", "Outreach"],
+    quote: "Great teams turn shared passion into lasting institutional impact.",
+    linkedin: "https://linkedin.com",
+    github: "https://github.com",
+  },
+  {
+    id: "abhishek",
+    name: "ABHISHEK",
+    role: "Co-Convenor",
+    categoryBadge: "CO-CONVENOR",
+    department: "CSE, SATI Vidisha",
+    email: "abhishek@cybercell.in",
+    image: "/images/team/abhishek-mahore.png",
+    bio: "Assisting club leadership in strategic planning, event logistics, inter-college outreach, and multimedia production.",
+    tags: ["Media Production", "Strategy", "Logistics", "Community"],
+    quote: "Documenting the journey inspires the next generation of defenders.",
+    linkedin: "https://linkedin.com",
+    github: "https://github.com",
   },
   {
     id: "krishna",
@@ -93,20 +121,6 @@ const teamCarouselMembers: TeamCarouselMember[] = [
     github: "https://github.com",
   },
   {
-    id: "abhishek",
-    name: "ABHISHEK",
-    role: "Co-Convenor",
-    categoryBadge: "CO-CONVENOR",
-    department: "CSE, SATI Vidisha",
-    email: "abhishek@cybercell.in",
-    image: "/images/team/abhishek-mahore.png",
-    bio: "Assisting club leadership in strategic planning, event logistics, inter-college outreach, and multimedia production.",
-    tags: ["Media Production", "Strategy", "Logistics", "Community"],
-    quote: "Documenting the journey inspires the next generation of defenders.",
-    linkedin: "https://linkedin.com",
-    github: "https://github.com",
-  },
-  {
     id: "arya",
     name: "ARYA MISHRA",
     role: "Design & Public Relations",
@@ -117,20 +131,6 @@ const teamCarouselMembers: TeamCarouselMember[] = [
     bio: "Directing brand aesthetics, visual design assets, UI/UX, official announcements, and stage presentations for campus events.",
     tags: ["UI/UX Design", "Public Speaking", "Branding", "Creative"],
     quote: "Visual clarity turns complex security concepts into accessible ideas.",
-    linkedin: "https://linkedin.com",
-    github: "https://github.com",
-  },
-  {
-    id: "ansh",
-    name: "ANSH KUSHWAHA",
-    role: "Club Secretary",
-    categoryBadge: "CLUB SECRETARY",
-    department: "CSE, SATI Vidisha",
-    email: "ansh@cybercell.in",
-    image: "/images/team/ansh-kushwaha.png",
-    bio: "Overseeing executive administration, member relations, official campus coordination, and cross-team workflows.",
-    tags: ["Operations", "Administration", "Planning", "Outreach"],
-    quote: "Great teams turn shared passion into lasting institutional impact.",
     linkedin: "https://linkedin.com",
     github: "https://github.com",
   },
