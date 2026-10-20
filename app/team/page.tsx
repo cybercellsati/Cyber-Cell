@@ -624,16 +624,14 @@ export default function TeamPage() {
 
             {/* Right Column: Mentor Card */}
             <div className="lg:col-span-7">
-              <div className="relative rounded-2xl border border-white/10 bg-[#070b14]/90 backdrop-blur-md p-5 sm:p-6 shadow-2xl overflow-hidden flex flex-col sm:flex-row items-center sm:items-start gap-5 group">
+              <div className="relative rounded-2xl border border-white/10 bg-[#070b14]/90 backdrop-blur-md p-6 sm:p-7 shadow-2xl overflow-hidden flex flex-col sm:flex-row items-center sm:items-start gap-6 group">
                 
-                {/* Photo */}
-                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shrink-0 border border-white/10 bg-black/40">
-                  <Image
-                    src="/images/team/shivangi-jain.jpg"
-                    alt="Prof. Shivangi Jain"
-                    fill
-                    className="object-cover"
-                  />
+                {/* Academic Mentorship Emblem */}
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-b from-[#0c1424] to-[#060910] border border-[#00e5ff]/25 flex flex-col items-center justify-center shrink-0 shadow-xl text-[#00e5ff]">
+                  <GraduationCap className="w-9 h-9 mb-1 text-[#00e5ff]" />
+                  <span className="text-[9px] font-mono tracking-widest text-slate-400 uppercase font-semibold">
+                    SATI CSE
+                  </span>
                 </div>
 
                 {/* Info */}
