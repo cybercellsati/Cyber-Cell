@@ -15,8 +15,13 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // 2. Protect all /api/admin/* endpoints except /api/admin/auth
+  // 2. Protect all /api/admin/* endpoints except /api/admin/auth and public GET on config
   if (pathname.startsWith("/api/admin") && pathname !== "/api/admin/auth") {
+    // Allow public GET to read template/font coordinates for certificate rendering
+    if (pathname === "/api/admin/certificates/config" && request.method === "GET") {
+      return NextResponse.next();
+    }
+
     const session = request.cookies.get("cybercell_admin_session");
 
     if (!session || session.value !== "authenticated_admin_session") {
