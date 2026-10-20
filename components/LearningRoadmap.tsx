@@ -1,193 +1,223 @@
 "use client";
 
 import React, { useState } from "react";
-import { learningRoadmap, RoadmapStage } from "@/data/roadmap";
-import { ChevronRight, BookOpen, Terminal, CheckCircle2, ArrowRight } from "lucide-react";
-import SpotlightCard from "./SpotlightCard";
+import Link from "next/link";
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
+
+interface TimelineItem {
+  id: string;
+  category: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  tags: string[];
+}
+
+const roadmapItems: TimelineItem[] = [
+  {
+    id: "fundamentals",
+    category: "FOUNDATION",
+    title: "Computer Fundamentals",
+    subtitle: "Build a strong foundation",
+    description:
+      "Understand how computers work, operating systems, file systems, and essential concepts required for security.",
+    tags: ["Hardware Basics", "OS Concepts", "File System"]
+  },
+  {
+    id: "networking",
+    category: "INFRASTRUCTURE",
+    title: "Networking",
+    subtitle: "Understand how the internet works",
+    description:
+      "Master the OSI model, TCP/IP handshake, DNS, routing protocols, and packet sniffing with Wireshark to understand the attack surface.",
+    tags: ["TCP/IP Stack", "DNS & Routing", "Packet Analysis"]
+  },
+  {
+    id: "linux",
+    category: "SYSTEMS",
+    title: "Linux",
+    subtitle: "Master the command line",
+    description:
+      "Command-line proficiency, file permissions, shell piping, process management, and essential system administration for security operations.",
+    tags: ["Bash CLI", "File Permissions", "Process Lifecycle"]
+  },
+  {
+    id: "programming",
+    category: "AUTOMATION",
+    title: "Programming",
+    subtitle: "Automate and build tools",
+    description:
+      "Develop custom scripts in Python and Bash for rapid vulnerability scanning, packet crafting, payload generation, and log parsing.",
+    tags: ["Python Scripting", "Sockets & APIs", "Regex & Parsers"]
+  },
+  {
+    id: "web-security",
+    category: "OFFENSIVE & DEFENSIVE",
+    title: "Web Security",
+    subtitle: "Find and fix vulnerabilities",
+    description:
+      "Audit client-server interactions, uncover OWASP Top 10 vulnerabilities (SQLi, XSS, CSRF, IDOR), and test defenses with intercepting proxies.",
+    tags: ["OWASP Top 10", "Burp Suite", "Auth & Sessions"]
+  },
+  {
+    id: "labs",
+    category: "PRACTICE & WARGAMES",
+    title: "Hands-on Labs",
+    subtitle: "Apply your skills in real scenarios",
+    description:
+      "Put theory into practice through capture-the-flag (CTF) challenges, isolated cyber ranges, and real-world attack simulations.",
+    tags: ["CTF Challenges", "TryHackMe Labs", "Defensive Operations"]
+  }
+];
 
 export default function LearningRoadmap() {
-  const [activeStageIndex, setActiveStageIndex] = useState(0);
-  const currentStage: RoadmapStage = learningRoadmap[activeStageIndex];
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeItem = roadmapItems[activeIndex];
 
   return (
-    <section id="roadmap" className="relative py-24 bg-[#07090e] border-b border-white/[0.07]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="roadmap" className="relative py-20 lg:py-28 bg-[#030508] border-b border-white/[0.08] overflow-hidden">
+      {/* Background Subtle Gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_0%,rgba(0,229,255,0.03),transparent)] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="max-w-2xl mb-12">
-          <span className="text-xs font-mono font-medium tracking-widest text-[#38bdf8] uppercase block mb-2">
-            STUDENT PATHWAY
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Cybersecurity Learning Roadmap
+        <div className="mb-14">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="w-8 h-[2px] bg-[#00e5ff] inline-block" />
+            <span className="text-xs font-mono font-semibold tracking-[0.2em] text-[#00e5ff] uppercase">
+              THE LEARNING PATH
+            </span>
+          </div>
+
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-3 leading-tight">
+            Learn. Build. <span className="text-[#00e5ff]">Secure.</span>
           </h2>
-          <p className="text-sm text-slate-400 mt-2">
-            A progressive curriculum crafted for SATI engineering students. 
-            Select any stage to inspect required skills, fundamental concepts, and actionable practice drills.
+
+          <p className="text-sm sm:text-base text-slate-400 font-light max-w-xl">
+            A practical path from fundamentals to real-world security.
           </p>
         </div>
 
-        {/* Roadmap Interactive Layout: Left Stages Stepper, Right Stage Detail */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Roadmap Interactive Layout: Left Timeline, Right Detail Panel */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
           
-          {/* Left Column: 9-Stage Stepper */}
-          <div className="lg:col-span-5 space-y-2">
-            {learningRoadmap.map((stage, idx) => {
-              const isActive = idx === activeStageIndex;
-              return (
-                <button
-                  key={stage.step}
-                  onClick={() => setActiveStageIndex(idx)}
-                  className={`w-full text-left p-3.5 rounded-xl border transition-all duration-200 flex items-center justify-between group ${
-                    isActive
-                      ? "bg-gradient-to-r from-cyan-500/10 via-[#0d1628] to-[#070b14] border-cyan-400/40 shadow-[0_4px_20px_rgba(56,189,248,0.1)]"
-                      : "bg-gradient-to-b from-[#0c121e] to-[#070a12] border-white/[0.07] hover:border-cyan-400/25 hover:bg-[#0f1726]"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`text-xs font-mono font-bold px-2 py-0.5 rounded transition-all duration-200 ${
-                        isActive
-                          ? "bg-cyan-400 text-[#06080d] shadow-[0_0_10px_rgba(56,189,248,0.5)]"
-                          : "bg-white/[0.05] text-slate-400 group-hover:text-white"
-                      }`}
-                    >
-                      {stage.step}
-                    </span>
+          {/* Left Column: Connected Vertical Timeline */}
+          <div className="lg:col-span-5 relative">
+            {/* Continuous Vertical Connecting Line */}
+            <div className="absolute left-[13px] top-4 bottom-4 w-[1.5px] bg-white/[0.12]" />
+
+            <div className="space-y-6 sm:space-y-7 relative">
+              {roadmapItems.map((item, index) => {
+                const isActive = index === activeIndex;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveIndex(index)}
+                    className="flex items-start gap-4 text-left group w-full focus:outline-none"
+                  >
+                    {/* Timeline Node Ring */}
+                    <div className="relative z-10 shrink-0 mt-0.5">
+                      {isActive ? (
+                        <div className="w-7 h-7 rounded-full border-2 border-[#00e5ff] bg-[#030508] flex items-center justify-center shadow-[0_0_15px_rgba(0,229,255,0.5)]">
+                          <div className="w-2.5 h-2.5 rounded-full bg-[#00e5ff]" />
+                        </div>
+                      ) : (
+                        <div className="w-7 h-7 rounded-full border border-white/20 bg-[#070b14] flex items-center justify-center group-hover:border-[#00e5ff]/50 transition-colors">
+                          <div className="w-2 h-2 rounded-full bg-slate-500 group-hover:bg-[#00e5ff] transition-colors" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Stage Title and Subtitle */}
                     <div>
-                      <h3
-                        className={`text-xs sm:text-sm font-semibold transition-colors ${
-                          isActive ? "text-cyan-300 font-bold" : "text-slate-300 group-hover:text-white"
+                      <h4
+                        className={`text-sm sm:text-base font-semibold tracking-tight transition-colors ${
+                          isActive ? "text-white font-bold" : "text-slate-400 group-hover:text-white"
                         }`}
                       >
-                        {stage.title}
-                      </h3>
-                      <p className="text-[11px] text-slate-400 line-clamp-1">
-                        {stage.subtitle}
+                        {item.title}
+                      </h4>
+                      <p
+                        className={`text-xs mt-0.5 transition-colors ${
+                          isActive ? "text-slate-300" : "text-slate-500 group-hover:text-slate-400"
+                        }`}
+                      >
+                        {item.subtitle}
                       </p>
                     </div>
-                  </div>
-
-                  <ChevronRight
-                    className={`w-4 h-4 transition-transform duration-200 ${
-                      isActive
-                        ? "text-cyan-400 translate-x-1"
-                        : "text-slate-600 group-hover:text-slate-400"
-                    }`}
-                  />
-                </button>
-              );
-            })}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Right Column: Active Stage Deep-Dive Card */}
+          {/* Right Column: Single Glass Detail Panel */}
           <div className="lg:col-span-7">
-            <SpotlightCard className="p-6 sm:p-8">
-            <div className="flex items-start justify-between gap-4 border-b border-white/[0.07] pb-5 mb-6">
+            <div className="relative rounded-2xl sm:rounded-3xl border border-white/[0.08] bg-[#070b14]/90 backdrop-blur-md p-7 sm:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] min-h-[380px] flex flex-col justify-between overflow-hidden group">
+              
+              {/* Top and Body Content */}
               <div>
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.06] text-slate-300 border border-white/[0.08] font-semibold">
-                    STAGE {currentStage.step} OF 09
+                {/* Category Label */}
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-[11px] font-mono tracking-[0.2em] text-slate-400 uppercase font-semibold">
+                    {activeItem.category}
                   </span>
-                  <span className="text-xs font-mono text-slate-400">
-                    SATI Student Curriculum
-                  </span>
+                  <span className="w-8 h-[1px] bg-white/20" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-                  {currentStage.title}
+
+                {/* Title */}
+                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+                  {activeItem.title}
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                  {currentStage.subtitle}
+
+                {/* Description */}
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-md mb-8">
+                  {activeItem.description}
                 </p>
-              </div>
-            </div>
 
-            <div className="space-y-5">
-              {/* Skills Grid */}
-              <div>
-                <h4 className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-300 mb-2.5 font-semibold">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-slate-400" />
-                  Key Skills to Acquire
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {currentStage.skills.map((skill, i) => (
-                    <div
-                      key={i}
-                      className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04] text-xs text-slate-300 flex items-center gap-2"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                      <span>{skill}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Core Concepts */}
-              <div>
-                <h4 className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-300 mb-2 font-semibold">
-                  <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                  Fundamental Concepts
-                </h4>
-                <div className="flex flex-wrap gap-1.5">
-                  {currentStage.concepts.map((concept, i) => (
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2.5 mb-8">
+                  {activeItem.tags.map((tag) => (
                     <span
-                      key={i}
-                      className="text-xs px-2.5 py-1 rounded bg-white/[0.03] border border-white/[0.06] text-slate-300"
+                      key={tag}
+                      className="px-3.5 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-xs font-mono text-slate-300 shadow-sm"
                     >
-                      {concept}
+                      {tag}
                     </span>
                   ))}
                 </div>
               </div>
 
-              {/* Practice Drill */}
-              <div>
-                <h4 className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-300 mb-2 font-semibold">
-                  <Terminal className="w-3.5 h-3.5 text-slate-400" />
-                  Hands-on Practice Drill
-                </h4>
-                <div className="p-3.5 rounded-lg bg-white/[0.02] border border-white/[0.05] text-xs text-slate-300 leading-relaxed font-mono">
-                  {currentStage.practiceSuggestion}
+              {/* Right Side Isometric Graphic */}
+              <div className="absolute right-4 bottom-14 sm:bottom-10 w-44 sm:w-56 h-36 sm:h-44 pointer-events-none opacity-85 group-hover:opacity-100 transition-opacity">
+                <div className="relative w-full h-full">
+                  <Image
+                    src="/images/roadmap-isometric.png"
+                    alt="Isometric terminal monitor"
+                    fill
+                    className="object-contain"
+                  />
                 </div>
               </div>
 
-              {/* Study Resources */}
-              <div>
-                <h4 className="text-xs font-mono uppercase tracking-wider text-slate-400 mb-2 font-semibold">
-                  Recommended Study Materials
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {currentStage.recommendedResources.map((res, i) => (
-                    <div
-                      key={i}
-                      className="inline-flex items-center gap-2 text-xs px-2.5 py-1 rounded bg-white/[0.03] border border-white/[0.06] text-slate-300"
-                    >
-                      <span className="text-white font-medium">{res.name}</span>
-                      <span className="text-[10px] font-mono text-slate-400">({res.type})</span>
-                    </div>
-                  ))}
-                </div>
+              {/* Bottom Row Link */}
+              <div className="pt-6 border-t border-white/[0.06] flex items-center justify-between relative z-10">
+                <span className="text-[11px] font-mono text-slate-500 hidden sm:inline">
+                  Step 0{activeIndex + 1} of 06
+                </span>
+                <Link
+                  href="/domains"
+                  className="group inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition-colors relative pb-1 ml-auto"
+                >
+                  <span>Explore learning path</span>
+                  <ArrowRight className="w-4 h-4 text-[#00e5ff] transition-transform group-hover:translate-x-1" />
+                  <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#00e5ff]/40 group-hover:bg-[#00e5ff] transition-colors" />
+                </Link>
               </div>
 
-              {/* Next Stage */}
-              <div className="pt-5 border-t border-white/[0.07] flex items-center justify-between">
-                <div className="text-xs text-slate-400">
-                  <span>Next: </span>
-                  <span className="text-slate-200 font-semibold">{currentStage.nextStage}</span>
-                </div>
-
-                {activeStageIndex < learningRoadmap.length - 1 && (
-                  <button
-                    onClick={() => setActiveStageIndex((prev) => Math.min(prev + 1, learningRoadmap.length - 1))}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-white hover:text-slate-300 transition-colors"
-                  >
-                    <span>Next Stage</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
             </div>
-            </SpotlightCard>
           </div>
 
         </div>

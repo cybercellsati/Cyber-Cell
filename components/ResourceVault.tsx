@@ -1,116 +1,103 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { resourcesData, ResourceItem } from "@/data/resources";
-import { ExternalLink, BookOpen, Terminal, Wrench, FileText, ArrowRight, Users } from "lucide-react";
+import { Cloud, Box, Terminal, Flag, ArrowUpRight, ArrowRight } from "lucide-react";
 
-const categories: Array<ResourceItem["category"]> = [
-  "Learn",
-  "Practice",
-  "Tools",
-  "Cheatsheets",
-  "Community",
+const curatedResources = [
+  {
+    id: "thm",
+    name: "TryHackMe",
+    desc: "Hands-on security labs",
+    url: "https://tryhackme.com",
+    icon: Cloud
+  },
+  {
+    id: "portswigger",
+    name: "PortSwigger Academy",
+    desc: "Web security training",
+    url: "https://portswigger.net/web-security",
+    icon: Box
+  },
+  {
+    id: "otw",
+    name: "OverTheWire",
+    desc: "Linux and wargames",
+    url: "https://overthewire.org/wargames",
+    icon: Terminal
+  },
+  {
+    id: "picoctf",
+    name: "PicoCTF",
+    desc: "Beginner-friendly CTFs",
+    url: "https://picoctf.org",
+    icon: Flag
+  }
 ];
 
-const categoryIcons: Record<ResourceItem["category"], React.ComponentType<{ className?: string }>> = {
-  Learn: BookOpen,
-  Practice: Terminal,
-  Tools: Wrench,
-  Cheatsheets: FileText,
-  Community: Users,
-};
-
 export default function ResourceVault() {
-  const [activeCategory, setActiveCategory] = useState<ResourceItem["category"]>("Practice");
-
-  const filteredResources = resourcesData.filter(
-    (item) => item.category === activeCategory
-  );
-
   return (
-    <section id="resources" className="relative py-24 bg-[#07090e] border-b border-white/[0.07]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="resources" className="relative py-20 lg:py-24 bg-[#04060a] border-b border-white/[0.08] overflow-hidden">
+      {/* Background Subtle Gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_100%,rgba(0,229,255,0.02),transparent)] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
           <div>
-            <span className="text-xs font-mono font-medium tracking-widest text-slate-400 uppercase block mb-1">
-              CURATED KNOWLEDGE
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight uppercase">
-              Resource Vault
+            <div className="flex items-center gap-3 mb-4">
+              <span className="w-8 h-[2px] bg-[#00e5ff] inline-block" />
+              <span className="text-xs font-mono font-semibold tracking-[0.2em] text-[#00e5ff] uppercase">
+                CURATED KNOWLEDGE
+              </span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white">
+              Resources <span className="text-slate-400">worth your time.</span>
             </h2>
           </div>
 
           <Link
             href="/resources"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition-colors shrink-0"
+            className="group inline-flex items-center gap-2 text-sm font-medium text-slate-300 hover:text-white transition-colors relative pb-1 self-start sm:self-end"
           >
-            <span>Browse Full Vault</span>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+            <span>Browse all</span>
+            <ArrowRight className="w-4 h-4 text-[#00e5ff] transition-transform group-hover:translate-x-1" />
+            <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#00e5ff]/40 group-hover:bg-[#00e5ff] transition-colors" />
           </Link>
         </div>
 
-        {/* Category Tabs */}
-        <div className="flex flex-wrap gap-2 mb-8">
-          {categories.map((cat) => {
-            const Icon = categoryIcons[cat];
-            const isActive = activeCategory === cat;
-            return (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-xs sm:text-sm font-medium transition-all duration-200 ${
-                  isActive
-                    ? "bg-white text-black font-semibold border-white shadow-sm"
-                    : "bg-[#0d1424] border-white/[0.08] text-slate-300 hover:text-white hover:border-cyan-400/30"
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{cat}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Resources Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {filteredResources.map((item) => {
+        {/* 4 Cards Grid matching Reference 5 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {curatedResources.map((res) => {
+            const Icon = res.icon;
             return (
               <a
-                key={item.id}
-                href={item.url}
+                key={res.id}
+                href={res.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative flex flex-col justify-between p-5 rounded-2xl bg-gradient-to-b from-[#0d1424] via-[#090e18] to-[#060910] border border-white/[0.08] hover:border-cyan-400/35 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.85),0_0_20px_rgba(56,189,248,0.06)] overflow-hidden"
+                className="group flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-[#070b14]/80 border border-white/[0.08] hover:border-[#00e5ff]/40 hover:bg-[#09101e] transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] focus:outline-none"
               >
-                {/* Top Subtle Light Line on Hover */}
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-cyan-400/90 font-medium">
-                      {item.topic}
-                    </span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-white/10 bg-white/[0.03] text-slate-400">
-                      {item.type}
-                    </span>
+                <div className="flex items-center gap-3.5 min-w-0">
+                  {/* Circular Icon Orb */}
+                  <div className="w-11 h-11 rounded-full border border-white/[0.1] bg-white/[0.03] group-hover:border-[#00e5ff]/40 flex items-center justify-center text-[#00e5ff] shrink-0 transition-colors shadow-[0_0_15px_rgba(0,229,255,0.05)]">
+                    <Icon className="w-5 h-5 transition-transform group-hover:scale-110" />
                   </div>
 
-                  <h3 className="text-sm sm:text-[15px] font-bold text-white group-hover:text-cyan-300 transition-colors mb-2">
-                    {item.title}
-                  </h3>
-
-                  <p className="text-xs text-slate-400 leading-relaxed mb-4 line-clamp-3">
-                    {item.description}
-                  </p>
+                  {/* Title & Description */}
+                  <div className="min-w-0">
+                    <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-[#00e5ff] transition-colors truncate">
+                      {res.name}
+                    </h4>
+                    <p className="text-[11px] text-slate-400 mt-0.5 truncate font-light">
+                      {res.desc}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between text-[11px] font-mono text-slate-400 group-hover:text-slate-200">
-                  <span>{item.badge || "External Link"}</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-cyan-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200" />
-                </div>
+                {/* External Link Arrow */}
+                <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-[#00e5ff] transition-colors shrink-0 ml-2" />
               </a>
             );
           })}

@@ -1,7 +1,6 @@
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import Pillars from "@/components/Pillars";
 import AboutSection from "@/components/AboutSection";
 import FocusAreas from "@/components/FocusAreas";
 import LearningRoadmap from "@/components/LearningRoadmap";
@@ -9,8 +8,6 @@ import UpcomingEvents from "@/components/UpcomingEvents";
 import ProjectsSection from "@/components/ProjectsSection";
 import ResourceVault from "@/components/ResourceVault";
 import TerminalDemo from "@/components/TerminalDemo";
-import EarthBelief from "@/components/EarthBelief";
-import JoinCTA from "@/components/JoinCTA";
 import Footer from "@/components/Footer";
 
 export const metadata = {
@@ -21,44 +18,35 @@ export const metadata = {
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#06080d] text-white flex flex-col selection:bg-[#00e5ff]/20 selection:text-[#00e5ff]">
+    <main className="min-h-screen bg-[#030508] text-white flex flex-col selection:bg-[#00e5ff]/25 selection:text-white">
       {/* 1. Fixed / Sticky Glass Navbar */}
       <Navbar />
 
-      {/* 2. Cinematic Editorial Hero */}
+      {/* 2. Hero Section (UNTOUCHED & PRESERVED) */}
       <Hero />
 
-      {/* 3. Club Pillars (Learn, Practice, Collaborate, Innovate, Create Impact) */}
-      <Pillars />
-
-      {/* 4. About Cyber Cell (Story + Architectural Visual + Core Characteristics) */}
+      {/* 3. About Cyber Cell */}
       <AboutSection />
 
-      {/* 5. Cybersecurity Domains (8 interactive tracks with drill-down modals) */}
+      {/* 4. Specialized Focus Areas */}
       <FocusAreas />
 
-      {/* 6. Learning Roadmap (01 to 09 progressive student curriculum) */}
+      {/* 5. Cybersecurity Learning Roadmap */}
       <LearningRoadmap />
 
-      {/* 7. Upcoming Events (Real data only / verified empty state + notifications) */}
+      {/* 6. Upcoming Events */}
       <UpcomingEvents />
 
-      {/* 8. Projects Section (Engineering & Tools with filter tabs) */}
+      {/* 7. Engineering & Projects */}
       <ProjectsSection />
 
-      {/* 9. Resource Vault (Learn, Practice, Tools, Cheatsheets) */}
+      {/* 8. Curated Resource Vault */}
       <ResourceVault />
 
-      {/* 10. Interactive Simulated Terminal */}
+      {/* 9. Interactive Simulated Shell */}
       <TerminalDemo />
 
-      {/* 11. Core Beliefs Banner */}
-      <EarthBelief />
-
-      {/* 12. Bottom Call to Action */}
-      <JoinCTA />
-
-      {/* 13. Comprehensive Dark Footer */}
+      {/* 10. Comprehensive Official Footer */}
       <Footer />
     </main>
   );

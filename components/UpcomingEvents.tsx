@@ -3,15 +3,11 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { upcomingEvents as fallbackEvents, CyberEvent } from "@/data/events";
-import { Calendar, Bell, ArrowRight, Shield, CheckCircle2 } from "lucide-react";
-import SpotlightCard from "./SpotlightCard";
+import { Calendar, MapPin, ArrowRight } from "lucide-react";
+import { CyberEvent } from "@/data/events";
 
 export default function UpcomingEvents() {
   const [events, setEvents] = useState<CyberEvent[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [emailSubscribed, setEmailSubscribed] = useState(false);
-  const [notifyEmail, setNotifyEmail] = useState("");
 
   useEffect(() => {
     async function loadEvents() {
@@ -20,179 +16,219 @@ export default function UpcomingEvents() {
         const data = await res.json();
         if (data.success && Array.isArray(data.events)) {
           setEvents((data.events as CyberEvent[]).filter((e: CyberEvent) => e.status !== "Completed"));
-        } else {
-          setEvents(fallbackEvents);
         }
       } catch {
-        setEvents(fallbackEvents);
-      } finally {
-        setLoading(false);
+        // Keep fallback
       }
     }
     loadEvents();
   }, []);
 
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (notifyEmail.trim()) {
-      setEmailSubscribed(true);
-    }
-  };
-
   return (
-    <section id="events" className="relative py-24 bg-[#07090e] border-b border-white/[0.07]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="events" className="relative py-20 lg:py-28 bg-[#04060a] border-b border-white/[0.08] overflow-hidden">
+      {/* Background Subtle Gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_80%_30%,rgba(0,229,255,0.03),transparent)] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="flex items-center justify-between mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
           <div>
-            <span className="text-xs font-mono font-medium tracking-widest text-[#38bdf8] uppercase block mb-1">
-              SCHEDULE & WORKSHOPS
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight uppercase">
-              Upcoming Events
+            <div className="flex items-center gap-3 mb-4">
+              <span className="w-8 h-[2px] bg-[#00e5ff] inline-block" />
+              <span className="text-xs font-mono font-semibold tracking-[0.2em] text-[#00e5ff] uppercase">
+                MEET • LEARN • COMPETE
+              </span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white uppercase">
+              UPCOMING <span className="text-slate-400">EVENTS</span>
             </h2>
           </div>
 
           <Link
             href="/events"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition-colors shrink-0 group"
+            className="group inline-flex items-center gap-2 text-sm font-medium text-slate-300 hover:text-white transition-colors relative pb-1 self-start sm:self-end"
           >
             <span>View All Events</span>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-400 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="w-4 h-4 text-[#00e5ff] transition-transform group-hover:translate-x-1" />
+            <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#00e5ff]/40 group-hover:bg-[#00e5ff] transition-colors" />
           </Link>
         </div>
 
-        {/* Content Area: Real events or Authentic Empty State */}
-        {!loading && events.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.slice(0, 3).map((evt: CyberEvent) => (
-              <SpotlightCard
-                key={evt.id}
-                className="flex flex-col justify-between h-full overflow-hidden p-0 group"
-              >
-                <div>
-                  {/* Event Poster if present */}
-                  {evt.image ? (
-                    <div className="relative w-full h-44 bg-slate-900 overflow-hidden border-b border-white/[0.08]">
-                      <Image
-                        src={evt.image}
-                        alt={evt.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(max-width: 768px) 100vw, 400px"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-                      <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold bg-black/70 backdrop-blur-md border border-white/15 text-cyan-300">
-                          {evt.category}
-                        </span>
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
-                          {evt.status}
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-6 pb-0 flex items-center justify-between text-xs font-mono mb-2">
-                      <span className="text-[#38bdf8] font-medium">{evt.category}</span>
-                      <span className="px-2 py-0.5 rounded-full border border-white/10 bg-white/[0.04] text-slate-300 text-[10px]">
-                        {evt.mode}
-                      </span>
-                    </div>
-                  )}
+        {/* Content Layout: Left Featured Event Card, Right Calendar & Narrative */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          
+          {/* Left Column: Featured Event Card */}
+          <div className="lg:col-span-7">
+            <div className="relative rounded-2xl sm:rounded-3xl border border-white/[0.08] bg-[#070b14]/90 backdrop-blur-md overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] group">
+              
+              {/* Event Image Banner */}
+              <div className="relative w-full aspect-[16/8] sm:aspect-[16/7] overflow-hidden bg-black/50">
+                <Image
+                  src="/images/event-exploit-workshop.png"
+                  alt="EXPLOIT Intro to the Cyber Range workshop"
+                  fill
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  sizes="(max-width: 1024px) 100vw, 650px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#070b14] via-transparent to-transparent pointer-events-none" />
+              </div>
 
-                  <div className="p-6 space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-mono text-cyan-400">
-                      <Calendar className="w-3.5 h-3.5" />
-                      <span>{evt.date}</span>
-                    </div>
-
-                    <h3 className="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-2">
-                      {evt.title}
-                    </h3>
-
-                    <p className="text-xs sm:text-sm text-slate-400 leading-relaxed line-clamp-3">
-                      {evt.description}
-                    </p>
+              {/* Event Details */}
+              <div className="p-6 sm:p-8">
+                {/* Meta Row: Date & Venue */}
+                <div className="flex items-center justify-between text-xs font-mono mb-3">
+                  <div className="flex items-center gap-2 text-[#00e5ff] font-semibold">
+                    <Calendar className="w-4 h-4" />
+                    <span>16 OCT 2026</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-400">
+                    <MapPin className="w-3.5 h-3.5" />
+                    <span>SATI Vidisha</span>
                   </div>
                 </div>
 
-                <div className="p-6 pt-4 border-t border-white/[0.06] flex items-center justify-between">
-                  <span className="text-xs text-slate-400 font-mono truncate max-w-[160px]">
-                    {evt.venue}
-                  </span>
-                  {evt.registrationLink ? (
-                    <a
-                      href={evt.registrationLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-cyan-400 hover:text-cyan-300 transition-colors"
-                    >
-                      <span>Register Now</span>
-                      <ArrowRight className="w-3 h-3" />
-                    </a>
-                  ) : (
-                    <Link
-                      href="/events"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
-                    >
-                      <span>Details &rarr;</span>
-                    </Link>
-                  )}
-                </div>
-              </SpotlightCard>
-            ))}
-          </div>
-        ) : (
-          /* Graceful, Truthful Empty State */
-          <div className="max-w-2xl mx-auto">
-            <SpotlightCard className="p-8 sm:p-12 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-400/25 flex items-center justify-center text-cyan-400 mx-auto mb-4 shadow-[0_0_20px_rgba(56,189,248,0.15)]">
-                <Calendar className="w-6 h-6" />
-              </div>
+                {/* Event Title */}
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 group-hover:text-[#00e5ff] transition-colors">
+                  EXPLOIT — Intro to the Cyber Range
+                </h3>
 
-              <h3 className="text-lg sm:text-xl font-bold text-white mb-2 tracking-tight">
-                No events announced yet.
-              </h3>
+                {/* Event Description */}
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-6 font-light">
+                  A beginner friendly, hands-on cybersecurity workshop covering network recon, packet dissection, and basic exploit mechanics.
+                </p>
 
-              <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed mb-6">
-                Stay tuned for upcoming cybersecurity workshops, competitions and sessions. 
-                Official dates will be published once finalized by the Cyber Cell team.
-              </p>
-
-              {/* Notification alert / Signup box */}
-              {!emailSubscribed ? (
-                <form onSubmit={handleSubscribe} className="max-w-md mx-auto flex flex-col sm:flex-row gap-2.5">
-                  <input
-                    type="email"
-                    required
-                    placeholder="Enter your college / personal email"
-                    value={notifyEmail}
-                    onChange={(e) => setNotifyEmail(e.target.value)}
-                    className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#060910] border border-white/10 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/50 transition-colors shadow-inner"
-                  />
-                  <button
-                    type="submit"
-                    className="px-4 py-2.5 rounded-xl bg-[#27446b] hover:bg-[#315383] text-white text-xs sm:text-sm font-semibold transition-all duration-200 shrink-0 flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
+                {/* Divider Line */}
+                <div className="pt-5 border-t border-white/[0.08] flex items-center justify-between">
+                  <Link
+                    href="/events"
+                    className="group/link inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-white hover:text-[#00e5ff] transition-colors"
                   >
-                    <Bell className="w-3.5 h-3.5 text-cyan-300" />
-                    <span>Notify Me</span>
-                  </button>
-                </form>
-              ) : (
-                <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs">
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>You will receive announcements once events are published.</span>
-                </div>
-              )}
+                    <span>View event</span>
+                    <ArrowRight className="w-4 h-4 text-[#00e5ff] transition-transform group-hover/link:translate-x-1" />
+                  </Link>
 
-              <div className="mt-6 pt-5 border-t border-white/[0.06] flex items-center justify-center gap-2 text-[11px] font-mono text-slate-500">
-                <Shield className="w-3 h-3 text-cyan-500/70" />
-                <span>Real data only &bull; Verified SATI Cyber Cell schedule</span>
+                  {/* Attendee Stack Badge */}
+                  <div className="flex items-center">
+                    <div className="flex -space-x-2">
+                      <div className="w-7 h-7 rounded-full bg-slate-700 border-2 border-[#070b14] flex items-center justify-center text-[10px] text-white font-medium">
+                        AY
+                      </div>
+                      <div className="w-7 h-7 rounded-full bg-slate-600 border-2 border-[#070b14] flex items-center justify-center text-[10px] text-white font-medium">
+                        KM
+                      </div>
+                      <div className="w-7 h-7 rounded-full bg-slate-500 border-2 border-[#070b14] flex items-center justify-center text-[10px] text-white font-medium">
+                        YH
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-mono font-semibold text-slate-300 ml-2 px-2 py-0.5 rounded-full bg-white/[0.05] border border-white/10">
+                      +50
+                    </span>
+                  </div>
+                </div>
+
               </div>
-            </SpotlightCard>
+
+            </div>
           </div>
-        )}
+
+          {/* Right Column: Narrative & Minimalist Dark Calendar Widget */}
+          <div className="lg:col-span-5 relative flex flex-col justify-between h-full">
+            
+            {/* Top Narrative */}
+            <div className="mb-8">
+              <div className="w-10 h-[2px] bg-[#00e5ff] mb-6" />
+              <h3 className="text-3xl sm:text-4xl font-bold text-white tracking-tight leading-[1.15] mb-3">
+                Learn together.<br />
+                Build something real.
+              </h3>
+              <p className="text-xs font-mono tracking-widest text-slate-400 uppercase">
+                WORKSHOPS &nbsp;/&nbsp; CTFs &nbsp;/&nbsp; TECH TALKS
+              </p>
+            </div>
+
+            {/* Calendar Widget matching Reference 4 */}
+            <div className="relative rounded-2xl border border-white/[0.08] bg-[#070b14]/70 backdrop-blur-md p-6 max-w-sm">
+              {/* Calendar Icon Top */}
+              <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/[0.06]">
+                <Calendar className="w-4 h-4 text-[#00e5ff]" />
+                <span className="text-xs font-mono font-medium text-slate-400 uppercase tracking-wider">
+                  OCTOBER 2026
+                </span>
+              </div>
+
+              {/* Day Initials */}
+              <div className="grid grid-cols-7 gap-1 text-center font-mono text-[11px] text-slate-500 mb-2 font-semibold">
+                <span>S</span>
+                <span>M</span>
+                <span>T</span>
+                <span>W</span>
+                <span>T</span>
+                <span>F</span>
+                <span>S</span>
+              </div>
+
+              {/* Month Days Grid */}
+              <div className="grid grid-cols-7 gap-1 text-center font-mono text-xs text-slate-400">
+                {/* Empty days before 1st (Thursday) */}
+                <span />
+                <span />
+                <span />
+                <span />
+                <span className="py-1">1</span>
+                <span className="py-1">2</span>
+                <span className="py-1">3</span>
+                <span className="py-1">4</span>
+                <span className="py-1">5</span>
+                <span className="py-1">6</span>
+                <span className="py-1">7</span>
+                <span className="py-1">8</span>
+                <span className="py-1">9</span>
+                <span className="py-1">10</span>
+                <span className="py-1">11</span>
+                <span className="py-1">12</span>
+                <span className="py-1">13</span>
+                <span className="py-1">14</span>
+                <span className="py-1">15</span>
+                
+                {/* Event Day 16 (Highlighted Glowing Cyan Circle) */}
+                <span className="py-1 flex items-center justify-center">
+                  <span className="w-6 h-6 rounded-full bg-[#00e5ff]/20 text-[#00e5ff] border border-[#00e5ff] shadow-[0_0_12px_rgba(0,229,255,0.5)] font-bold flex items-center justify-center text-[11px]">
+                    16
+                  </span>
+                </span>
+
+                <span className="py-1">17</span>
+                <span className="py-1">18</span>
+                <span className="py-1">19</span>
+                <span className="py-1">20</span>
+                <span className="py-1">21</span>
+                <span className="py-1">22</span>
+                <span className="py-1">23</span>
+                <span className="py-1">24</span>
+                <span className="py-1">25</span>
+                <span className="py-1">26</span>
+                <span className="py-1">27</span>
+                <span className="py-1">28</span>
+                <span className="py-1">29</span>
+                <span className="py-1">30</span>
+                <span className="py-1">31</span>
+              </div>
+            </div>
+
+            {/* Vertical Accent Label & Slashes on desktop */}
+            <div className="hidden xl:flex absolute -right-12 top-0 bottom-0 flex-col justify-between items-center py-2 pointer-events-none">
+              <span className="text-[10px] font-mono tracking-[0.3em] text-slate-600 uppercase rotate-90 origin-center whitespace-nowrap mt-8">
+                CYBER CELL
+              </span>
+              <span className="text-[#00e5ff] font-mono text-sm tracking-tighter">
+                ///
+              </span>
+            </div>
+
+          </div>
+
+        </div>
 
       </div>
     </section>

@@ -1,136 +1,138 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { projectsData, CyberProject } from "@/data/projects";
-import { FolderGit2, ArrowRight, Code } from "lucide-react";
-
-import SpotlightCard from "./SpotlightCard";
-
-const categories = [
-  "All",
-  "Security Tools",
-  "Web Security",
-  "CTF",
-  "Automation",
-  "Awareness",
-  "Research"
-];
+import { Laptop, Globe, Flag, Terminal, ArrowRight } from "lucide-react";
 
 export default function ProjectsSection() {
-  const [activeCategory, setActiveCategory] = useState("All");
-
-  const filteredProjects = activeCategory === "All" 
-    ? projectsData 
-    : projectsData.filter((p) => p.category === activeCategory);
+  const projectNodes = [
+    {
+      id: "tools",
+      name: "Security Tools",
+      icon: Laptop,
+      href: "/projects?cat=Security+Tools"
+    },
+    {
+      id: "web",
+      name: "Web Security",
+      icon: Globe,
+      href: "/projects?cat=Web+Security"
+    },
+    {
+      id: "ctf",
+      name: "CTF Labs",
+      icon: Flag,
+      href: "/projects?cat=CTF"
+    }
+  ];
 
   return (
-    <section id="projects" className="relative py-24 bg-[#07090e] border-b border-white/[0.07]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="projects" className="relative py-20 lg:py-24 bg-[#030508] border-b border-white/[0.08] overflow-hidden">
+      {/* Background Subtle Gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_20%_40%,rgba(0,229,255,0.02),transparent)] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-14 gap-6">
           <div>
-            <span className="text-xs font-mono font-medium tracking-widest text-[#38bdf8] uppercase block mb-1">
-              ENGINEERING & CODE
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight uppercase">
-              Projects & Tooling
+            <div className="flex items-center gap-3 mb-4">
+              <span className="w-8 h-[2px] bg-[#00e5ff] inline-block" />
+              <span className="text-xs font-mono font-semibold tracking-[0.2em] text-[#00e5ff] uppercase">
+                ENGINEERING & CODE
+              </span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
+              Projects that<br />
+              make an impact<span className="text-[#00e5ff]">.</span>
             </h2>
+            <p className="text-sm sm:text-base text-slate-400 mt-3 font-light">
+              Build, test, and share practical security tools.
+            </p>
           </div>
 
           <Link
             href="/projects"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition-colors shrink-0 group"
+            className="group inline-flex items-center gap-2 text-sm font-medium text-slate-300 hover:text-white transition-colors relative pb-1 self-start sm:self-end"
           >
-            <span>Project Guidelines & Repo</span>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-400 transition-transform group-hover:translate-x-1" />
+            <span>Project guidelines</span>
+            <ArrowRight className="w-4 h-4 text-[#00e5ff] transition-transform group-hover:translate-x-1" />
+            <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#00e5ff]/40 group-hover:bg-[#00e5ff] transition-colors" />
           </Link>
         </div>
 
-        {/* Category Filter Pills */}
-        <div className="flex flex-wrap items-center gap-2 mb-8">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`text-xs font-mono px-3.5 py-1.5 rounded-lg border transition-all duration-200 ${
-                activeCategory === cat
-                  ? "bg-white text-black font-semibold border-white shadow-sm"
-                  : "bg-[#0d1424] border-white/[0.08] text-slate-400 hover:text-white hover:border-cyan-400/30"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        {/* Content Layout: 3 Circular Nodes on Left, Development Showcase on Right */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          
+          {/* Left Column: 3 Category Nodes */}
+          <div className="lg:col-span-6 grid grid-cols-3 gap-4 sm:gap-6">
+            {projectNodes.map((node) => {
+              const Icon = node.icon;
+              return (
+                <Link
+                  key={node.id}
+                  href={node.href}
+                  className="flex flex-col items-center text-center group focus:outline-none"
+                >
+                  {/* Circular Node with Orbital Ring */}
+                  <div className="relative mb-3 flex items-center justify-center">
+                    {/* Outer thin orbital ring */}
+                    <div className="absolute -inset-2 rounded-full border border-white/[0.08] group-hover:border-[#00e5ff]/40 transition-colors pointer-events-none" />
+                    
+                    {/* Orbital satellite dot */}
+                    <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-[#00e5ff] shadow-[0_0_8px_#00e5ff] transition-transform group-hover:scale-125" />
 
-        {/* Projects List or Truthful Empty State */}
-        {filteredProjects.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredProjects.map((proj: CyberProject) => (
-              <SpotlightCard
-                key={proj.id}
-                className="p-6 sm:p-7 flex flex-col justify-between h-full"
-              >
-                <div>
-                  <div className="flex items-center justify-between text-xs font-mono mb-3">
-                    <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 font-medium">
-                      {proj.category}
-                    </span>
-                    <span className="text-[11px] text-slate-400 font-mono">
-                      {proj.status}
-                    </span>
+                    {/* Central Glass Circle */}
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-white/[0.1] bg-[radial-gradient(circle_at_35%_35%,rgba(0,229,255,0.1),rgba(6,10,18,0.95))] shadow-[0_10px_25px_rgba(0,0,0,0.5)] flex items-center justify-center text-[#00e5ff] group-hover:border-[#00e5ff]/50 group-hover:shadow-[0_0_20px_rgba(0,229,255,0.25)] transition-all duration-300">
+                      <Icon className="w-7 h-7 sm:w-8 sm:h-8 transition-transform group-hover:scale-110" />
+                    </div>
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
-                    {proj.name}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-4">
-                    {proj.description}
-                  </p>
-                </div>
 
-                {proj.technologies && proj.technologies.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 pt-4 border-t border-white/[0.06]">
-                    {proj.technologies.map((t) => (
-                      <span
-                        key={t}
-                        className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.03] border border-white/[0.08] text-slate-400"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </SpotlightCard>
-            ))}
+                  <span className="text-xs sm:text-sm font-semibold text-white group-hover:text-[#00e5ff] transition-colors">
+                    {node.name}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
-        ) : (
-          <div className="max-w-xl mx-auto">
-            <SpotlightCard className="p-8 sm:p-12 text-center">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-400/25 flex items-center justify-center text-cyan-400 mx-auto mb-5 shadow-[0_0_20px_rgba(56,189,248,0.15)]">
-                <FolderGit2 className="w-6 h-6" />
+
+          {/* Right Column: "Good work takes shape here." Panel */}
+          <div className="lg:col-span-6 flex flex-col items-center sm:items-start text-center sm:text-left">
+            <div className="flex flex-col sm:flex-row items-center gap-6 mb-4">
+              {/* Large Central Node with Terminal Symbol */}
+              <div className="relative shrink-0 flex items-center justify-center">
+                <div className="absolute -inset-3 rounded-full border border-white/[0.08] pointer-events-none" />
+                <div className="absolute top-1 right-2 w-2.5 h-2.5 rounded-full bg-[#00e5ff] shadow-[0_0_10px_#00e5ff]" />
+                
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border border-white/[0.12] bg-[radial-gradient(circle_at_35%_35%,rgba(0,229,255,0.12),rgba(6,10,18,0.95))] shadow-[0_10px_30px_rgba(0,0,0,0.6)] flex items-center justify-center">
+                  <div className="w-12 h-10 rounded-lg bg-black/60 border border-white/10 flex items-center justify-center text-[#00e5ff]">
+                    <Terminal className="w-6 h-6" />
+                  </div>
+                </div>
               </div>
 
-              <h3 className="text-base sm:text-lg font-bold text-white mb-2 tracking-tight">
-                Projects are currently being developed.
-              </h3>
+              {/* Text Information */}
+              <div>
+                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                  Good work takes shape here.
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-400 font-light mb-4">
+                  Student-led projects are in development.
+                </p>
 
-              <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed mb-6">
-                Check back soon. Student working groups are building defensive scripts, 
-                packet inspection utilities, and CTF challenge sets. Verified repositories will appear here.
-              </p>
-
-              <Link
-                href="/join"
-                className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 hover:border-cyan-400/40 hover:bg-white/[0.08] text-slate-200 hover:text-white transition-all duration-200 shadow-sm"
-              >
-                <Code className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Interested in building a project? Recruitment Info (Closed)</span>
-              </Link>
-            </SpotlightCard>
+                <Link
+                  href="/projects"
+                  className="group inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-white hover:text-[#00e5ff] transition-colors relative pb-1"
+                >
+                  <span>Explore project guidelines</span>
+                  <ArrowRight className="w-4 h-4 text-[#00e5ff] transition-transform group-hover:translate-x-1" />
+                  <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#00e5ff]/40 group-hover:bg-[#00e5ff] transition-colors" />
+                </Link>
+              </div>
+            </div>
           </div>
-        )}
+
+        </div>
 
       </div>
     </section>
