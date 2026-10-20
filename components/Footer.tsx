@@ -10,6 +10,8 @@ const links = [
   { name: "Resources", href: "/resources" },
   { name: "Projects", href: "/projects" },
   { name: "Team", href: "/team" },
+  { name: "Certificate", href: "/verify" },
+  { name: "Admin", href: "/admin/login" },
   { name: "Join", href: "/join" },
   { name: "Contact", href: "/about#contact" },
 ];

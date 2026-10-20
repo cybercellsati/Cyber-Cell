@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { learningRoadmap, RoadmapStage } from "@/data/roadmap";
 import { ChevronRight, BookOpen, Terminal, CheckCircle2, ArrowRight } from "lucide-react";
+import SpotlightCard from "./SpotlightCard";
 
 export default function LearningRoadmap() {
   const [activeStageIndex, setActiveStageIndex] = useState(0);
@@ -30,24 +31,24 @@ export default function LearningRoadmap() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Left Column: 9-Stage Stepper */}
-          <div className="lg:col-span-5 space-y-1.5">
+          <div className="lg:col-span-5 space-y-2">
             {learningRoadmap.map((stage, idx) => {
               const isActive = idx === activeStageIndex;
               return (
                 <button
                   key={stage.step}
                   onClick={() => setActiveStageIndex(idx)}
-                  className={`w-full text-left p-3.5 rounded-xl border transition-colors flex items-center justify-between group ${
+                  className={`w-full text-left p-3.5 rounded-xl border transition-all duration-200 flex items-center justify-between group ${
                     isActive
-                      ? "bg-[#111622] border-white/20"
-                      : "bg-[#0d111a] border-white/[0.06] hover:bg-[#111622] hover:border-white/[0.12]"
+                      ? "bg-gradient-to-r from-cyan-500/10 via-[#0d1628] to-[#070b14] border-cyan-400/40 shadow-[0_4px_20px_rgba(56,189,248,0.1)]"
+                      : "bg-gradient-to-b from-[#0c121e] to-[#070a12] border-white/[0.07] hover:border-cyan-400/25 hover:bg-[#0f1726]"
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <span
-                      className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
+                      className={`text-xs font-mono font-bold px-2 py-0.5 rounded transition-all duration-200 ${
                         isActive
-                          ? "bg-white text-black"
+                          ? "bg-cyan-400 text-[#06080d] shadow-[0_0_10px_rgba(56,189,248,0.5)]"
                           : "bg-white/[0.05] text-slate-400 group-hover:text-white"
                       }`}
                     >
@@ -56,21 +57,21 @@ export default function LearningRoadmap() {
                     <div>
                       <h3
                         className={`text-xs sm:text-sm font-semibold transition-colors ${
-                          isActive ? "text-white" : "text-slate-300 group-hover:text-white"
+                          isActive ? "text-cyan-300 font-bold" : "text-slate-300 group-hover:text-white"
                         }`}
                       >
                         {stage.title}
                       </h3>
-                      <p className="text-[11px] text-slate-500 line-clamp-1">
+                      <p className="text-[11px] text-slate-400 line-clamp-1">
                         {stage.subtitle}
                       </p>
                     </div>
                   </div>
 
                   <ChevronRight
-                    className={`w-4 h-4 transition-transform ${
+                    className={`w-4 h-4 transition-transform duration-200 ${
                       isActive
-                        ? "text-white translate-x-0.5"
+                        ? "text-cyan-400 translate-x-1"
                         : "text-slate-600 group-hover:text-slate-400"
                     }`}
                   />
@@ -80,7 +81,8 @@ export default function LearningRoadmap() {
           </div>
 
           {/* Right Column: Active Stage Deep-Dive Card */}
-          <div className="lg:col-span-7 p-6 sm:p-8 rounded-xl bg-[#0d111a] border border-white/[0.08] relative">
+          <div className="lg:col-span-7">
+            <SpotlightCard className="p-6 sm:p-8">
             <div className="flex items-start justify-between gap-4 border-b border-white/[0.07] pb-5 mb-6">
               <div>
                 <div className="flex items-center gap-2 mb-1.5">
@@ -185,7 +187,7 @@ export default function LearningRoadmap() {
                 )}
               </div>
             </div>
-
+            </SpotlightCard>
           </div>
 
         </div>

@@ -1,0 +1,17 @@
+{
+  "templateUrl": "/templates/certificate-template.png?v=1792428778225",
+  "fontFamily": "'Cinzel', serif",
+  "fontSize": 76,
+  "fontWeight": "bold",
+  "color": "#d4af37",
+  "yPositionPercent": 49.5,
+  "xPositionPercent": 50,
+  "letterSpacing": 2,
+  "textTransform": "uppercase",
+  "showQrCode": false,
+  "showCertificateId": false,
+  "eventName": "National Cyber Defense Wargame 2026",
+  "issueDate": "2026-10-19",
+  "updatedAt": "2026-10-19T16:52:58.225Z",
+  "templateFileName": "certificate-template.png"
+}

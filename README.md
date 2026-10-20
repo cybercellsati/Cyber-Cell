@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
 
   <img src="public/images/team/hero-shield-badge.png" alt="Cyber Cell SATI Vidisha Shield Logo" width="160" />
 
@@ -11,7 +11,7 @@
   </p>
 
   [![Live Portal](https://img.shields.io/badge/Live_Portal-cyber--cell.vercel.app-00e5ff?style=for-the-badge&logo=vercel&logoColor=black)](https://cyber-cell.vercel.app)
-  [![GitHub Repo](https://img.shields.io/badge/GitHub-cybercellsati%2FCyber--Cell-white?style=for-the-badge&logo=github&logoColor=black)](https://github.com/cybercellsati/Cyber-Cell)
+  [![GitHub Repo](https://img.shields.io/badge/GitHub-yashharfode%2FCyber--Cell--Official--Website-white?style=for-the-badge&logo=github&logoColor=black)](https://github.com/yashharfode/Cyber-Cell-Official-Website)
   [![Next.js](https://img.shields.io/badge/Next.js-16.3-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org)
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
@@ -19,7 +19,7 @@
 
   <br />
 
-  [🌐 Explore Live Website](https://cyber-cell.vercel.app) • [👥 Meet the Team](https://cyber-cell.vercel.app/team) • [🎯 8 Core Domains](https://cyber-cell.vercel.app/domains) • [🗺️ 9-Stage Roadmap](https://cyber-cell.vercel.app#roadmap) • [📥 Join Offline](https://cyber-cell.vercel.app/join)
+  [🌐 Explore Website](https://cyber-cell.vercel.app) • [🎓 Verify Certificate](https://cyber-cell.vercel.app/verify) • [🎛️ Admin Panel](https://cyber-cell.vercel.app/admin) • [👥 Meet the Team](https://cyber-cell.vercel.app/team) • [🎯 8 Security Domains](https://cyber-cell.vercel.app/domains) • [🗺️ 9-Stage Roadmap](https://cyber-cell.vercel.app#roadmap) • [📥 Join Offline](https://cyber-cell.vercel.app/join)
 
 </div>
 
@@ -28,6 +28,9 @@
 ## 📌 Table of Contents
 
 - [Overview](#-overview)
+- [System Architecture & Capabilities](#-system-architecture--capabilities)
+- [Certificate Studio & Verification Engine](#-certificate-studio--verification-engine)
+- [Enterprise Security & Route Protection](#-enterprise-security--route-protection)
 - [Key Features](#-key-features)
 - [8 Security Focus Domains](#-8-security-focus-domains)
 - [Interactive Web Terminal](#-interactive-web-terminal)
@@ -46,9 +49,13 @@
 
 ## 🌐 Overview
 
-**Cyber Cell** is the premier student cybersecurity body and ethical defense initiative established under the **Central Coding Club** at **Samrat Ashok Technological Institute (SATI), Vidisha**. 
+**Cyber Cell** is the premier student cybersecurity body and ethical defense initiative operating under the **Central Coding Club** at **Samrat Ashok Technological Institute (SATI), Vidisha**.
 
-Our mission is to bridge academia and defensive/offensive engineering, providing students with structured, hands-on learning pipelines in ethical hacking, network defense, digital forensics, reverse engineering, and collegiate CTF (Capture The Flag) competitions.
+Our platform serves as both the club's official public gateway and an integrated institutional operations portal featuring:
+1. **Public Community Portal**: Syllabi across 8 security domains, live web terminal, event timelines, and student roadmap.
+2. **Admin Command Center (`/admin`)**: Operations telemetry, attendees registry, and certificate studio gateway.
+3. **Admin Certificate Studio (`/admin/certificates`)**: Custom Canva template generator, curated font engine, Excel parser, and on-demand issuance.
+4. **Public Verification & HD Download Portal (`/verify`)**: Zero-storage, instant high-resolution credential verification and 1920×1080 PNG download.
 
 ```
        ┌────────────────────────────────────────────────────────┐
@@ -75,10 +82,82 @@ Our mission is to bridge academia and defensive/offensive engineering, providing
 
 ---
 
+## 🎓 Certificate Studio & Verification Engine
+
+The platform includes a **Zero-Storage On-Demand Canvas Certificate Architecture**, eliminating expensive cloud storage and bandwidth costs while guaranteeing lifetime permanent authenticity.
+
+```
+                           ┌───────────────────────────┐
+                           │   Organizer / Admin       │
+                           │   (/admin/certificates)   │
+                           └─────────────┬─────────────┘
+                                         │
+                         ┌───────────────┴───────────────┐
+                         ▼                               ▼
+                 [ Canva Template ]              [ Excel Sheet ]
+              5 MB PNG/JPG background         Names & Scholar Numbers
+                         │                               │
+                         └───────────────┬───────────────┘
+                                         │
+                                         ▼
+                     ┌───────────────────────────────────────┐
+                     │   Visual Typography & Font Studio     │
+                     │  Cinzel, Pinyon Script, Great Vibes   │
+                     │  Precision X/Y Position & Color Picker│
+                     └───────────────────┬───────────────────┘
+                                         │
+                                         ▼
+                     ┌───────────────────────────────────────┐
+                     │   Saved Configuration (Server)        │
+                     │   data/certificateConfig.json         │
+                     └───────────────────┬───────────────────┘
+                                         │
+                       ┌─────────────────┴─────────────────┐
+                       ▼                                   ▼
+          ┌─────────────────────────┐         ┌─────────────────────────┐
+          │  Public Search (/verify)│         │ Institutional Ledger    │
+          │  Enter Scholar No / Name│         │ Permanent Verification  │
+          └────────────┬────────────┘         └─────────────────────────┘
+                       │
+                       ▼
+          ┌─────────────────────────┐
+          │   HTML5 Canvas Render   │
+          │  0.1s On-Demand HD PNG  │
+          │ 1920x1080 Direct Export │
+          └─────────────────────────┘
+```
+
+### Key Advantages:
+* **0 MB Cloud Storage Required**: Zero external cloud storage dependencies, no cards, and zero billing overhead.
+* **Name-Only Canva Mode**: Preserves 100% of the Canva template's borders, logos, and signatures; only writes the recipient's name at configured coordinates.
+* **8 Curated Typography Styles**: Choose between Academic Serif (`Cinzel`), Royal Calligraphy (`Pinyon Script`, `Great Vibes`), Editorial Luxury (`Playfair Display`), or Modern Sans (`Montserrat`).
+* **Direct Server Persistence**: Templates uploaded via the admin studio are permanently written to `public/templates/certificate-template.png` and tracked in Git.
+* **Hybrid Data Registry**: Dynamically loads and merges local Excel spreadsheets (`data/attendees.xlsx`) and Cloud Firestore records.
+
+---
+
+## 🔒 Enterprise Security & Route Protection
+
+The website implements defense-in-depth security to ensure no unauthorized access or vulnerabilities:
+
+| Layer | Implementation | Details |
+| :--- | :--- | :--- |
+| **Server-Side Route Interception** | `middleware.ts` | All `/admin/*` and `/api/admin/*` endpoints strictly require a valid admin session cookie before route execution. |
+| **Environment Password Guard** | `ADMIN_PASSWORD` | Access password is stored securely in environment variables (`.env.local`) and never hardcoded in source. |
+| **Session Security** | HTTP-Only Cookies | Session cookies are set with `HttpOnly: true`, `SameSite: Lax`, and `Secure: true` in production to prevent XSS theft. |
+| **Upload Validation & Magic Bytes** | Buffer Inspection | Template uploads check magic file headers (`0x89504E47` for PNG, `0xFFD8FF` for JPEG) to prevent disguised executable uploads. |
+| **Offline Resilience** | Firestore Fallback | All database operations gracefully fall back to local session caches or local Excel sheets if network drops. |
+| **Git Leak Prevention** | Strict `.gitignore` | Environment files (`.env*`) and sensitive local caches are strictly excluded from commits. |
+
+---
+
 ## ✨ Key Features
 
 | Feature | Description |
 | :--- | :--- |
+| **🎛️ Admin Command Center** | Dedicated `/admin` dashboard featuring real-time telemetry, loaded attendees count, active template status, and quick shortcuts. |
+| **🎓 Canva Certificate Studio** | Interactive `/admin/certificates` studio with live 16:9 canvas preview, font selector, position nudgers, and Excel parser. |
+| **🔍 Public Verification Portal** | Responsive `/verify` registry supporting searches by Scholar Number, Certificate ID, or Name with instant 1920×1080 HD download. |
 | **💻 Interactive Web CLI** | Built-in simulated educational Unix terminal supporting commands like `about`, `domains`, `roadmap`, `team`, `flag`, and `clear`. |
 | **🛡️ 8 Deep Security Domains** | Curated syllabi, tools, industry frameworks (OWASP, MITRE ATT&CK, NIST), and practical prerequisites. |
 | **🗺️ 9-Stage Student Roadmap** | Progressive path from Computer Fundamentals and Networking to Offensive CTFs and Career Specialization. |
@@ -97,7 +176,7 @@ Our mission is to bridge academia and defensive/offensive engineering, providing
 │                     CYBER CELL SECURITY DOMAINS                         │
 ├──────────────────────────┬──────────────────────────┬───────────────────┤
 │ 01. Ethical Hacking      │ 02. Network Security     │ 03. Web Security  │
-│ Penetration testing,     │ Packet analysis, Wireshark,│ OWASP Top 10,  │
+│ Penetration testing,     │ Packet analysis, Wireshark,│ OWASP Top 10,   │
 │ vulnerability assessment,│ firewalls, IDS/IPS, VPNs │ XSS, SQLi, CSRF,  │
 │ privilege escalation     │ & network architecture   │ authentication    │
 ├──────────────────────────┼──────────────────────────┼───────────────────┤
@@ -198,29 +277,37 @@ flowchart LR
 ┌────────────────────────────────────────────────────────┐
 │                      FRONTEND LAYER                    │
 │   Next.js 16 (Turbopack) • React 19 • Tailwind CSS 4   │
-│   Lucide Icons • Geist & Geist Mono Typography        │
+│   Lucide Icons • Geist & Google Certificate Fonts      │
+└──────────────────────────┬─────────────────────────────┘
+                           │
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│               SECURITY & ROUTE GATEWAY                 │
+│   Next.js Middleware • HTTP-Only Cookie Sessions       │
+│   Role-Based Guards • Magic Byte File Upload Validator │
 └──────────────────────────┬─────────────────────────────┘
                            │
                            ▼
 ┌────────────────────────────────────────────────────────┐
 │                   DATA & IDENTITY LAYER                │
-│   Firebase v12 • Firebase Authentication • Firestore   │
-│   Local Config Fallbacks • Zero-Crash SSR Safety       │
+│   Local Excel Auto-Parser (xlsx) • Cloud Firestore     │
+│   Firebase Authentication • On-Demand Canvas Renderer  │
 └──────────────────────────┬─────────────────────────────┘
                            │
                            ▼
 ┌────────────────────────────────────────────────────────┐
 │                   INFRASTRUCTURE LAYER                 │
-│   Vercel Edge Network • vercel.json Framework Pinning │
+│   Vercel Edge Network • Zero-Storage On-Demand Engine  │
 │   Automatic CI/CD from GitHub Main Branch              │
 └────────────────────────────────────────────────────────┘
 ```
 
 - **Frontend Core**: Next.js `16.3.4` (App Router) with React `19.2.8`
 - **Styling**: Tailwind CSS `v4` with `@tailwindcss/postcss`
-- **Design Language**: Cyber dark theme (`#06080d`), neon cyan accents (`#00e5ff`), frosted glassmorphism
-- **Authentication & Database**: Firebase Auth & Cloud Firestore
-- **Icons**: Lucide React
+- **Design Language**: Cyber executive theme (`#06080d`), neon cyan accents (`#00e5ff`), gold certificates
+- **Authentication**: Master Admin Password (`.env.local`) + Firebase Auth
+- **Database**: Hybrid (Local `data/attendees.xlsx` + Cloud Firestore)
+- **Icons & Graphics**: Lucide React + HTML5 1920×1080 Canvas Engine
 - **Deployment**: Vercel Global Edge Network with continuous GitHub integration
 
 ---
@@ -230,37 +317,65 @@ flowchart LR
 ```text
 Cyber-Cell/
 ├── app/
-│   ├── about/             # About Cyber Cell & SATI Coding Club
-│   ├── domains/           # 8 Cybersecurity Focus Domain syllabi
-│   ├── events/            # Official events, workshops & status
-│   ├── join/              # Offline induction guide & recruitment process
-│   ├── projects/          # Open-source tools & defensive scripts
-│   ├── resources/         # Verified external security learning vault
-│   ├── team/              # Leadership, Advisory & Core Operations roster
-│   ├── not-found.tsx      # Custom cyber-themed 404 handler
-│   ├── layout.tsx         # Root layout with fonts, AuthProvider & modals
-│   ├── page.tsx           # Landing hero, stats, interactive shell & roadmap
-│   └── globals.css        # Tailwind CSS 4 theme rules & animations
+│   ├── about/                   # About Cyber Cell & SATI Coding Club
+│   ├── admin/                   # Admin Command Center Dashboard
+│   │   ├── certificates/        # Canva Certificate Studio & Visual Generator
+│   │   ├── login/               # Master password authentication portal
+│   │   └── page.tsx             # Executive admin hub overview & telemetry
+│   ├── api/
+│   │   ├── admin/
+│   │   │   ├── auth/            # Cookie session login & logout endpoints
+│   │   │   ├── certificates/
+│   │   │   │   ├── config/      # Typography & placement settings API
+│   │   │   │   ├── issue/       # Batch issuance endpoint
+│   │   │   │   ├── upload-excel/# Validated attendees spreadsheet upload
+│   │   │   │   └── upload-template/ # Magic-byte validated Canva template upload
+│   │   ├── certificates/
+│   │   │   └── verify/          # Public verification & attendee query API
+
+│   ├── certificates/            # Permanent redirect alias to /verify
+│   ├── domains/                 # 8 Cybersecurity Focus Domain syllabi
+│   ├── events/                  # Official events, workshops & status
+│   ├── join/                    # Offline induction guide & recruitment process
+│   ├── projects/                # Open-source tools & defensive scripts
+│   ├── resources/               # Verified external security learning vault
+│   ├── team/                    # Leadership, Advisory & Core Operations roster
+│   ├── verify/                  # Public certificate search & HD download portal
+│   ├── not-found.tsx            # Custom cyber-themed 404 handler
+│   ├── layout.tsx               # Root layout with fonts, AuthProvider & modals
+│   ├── page.tsx                 # Landing hero, stats, interactive shell & roadmap
+│   └── globals.css              # Tailwind CSS 4 theme rules & animations
 ├── components/
-│   ├── AuthModal.tsx      # Sign in / Register popup modal
-│   ├── CyberShieldLogo.tsx# Vector SVG brand logo badge
-│   ├── Footer.tsx         # Site footer with disclaimer & social links
-│   ├── Navbar.tsx         # Floating pill navigation with auth pill
-│   └── TerminalDemo.tsx   # Interactive client-side simulated CLI
+│   ├── AuthModal.tsx            # Sign in / Register popup modal
+│   ├── CyberShieldLogo.tsx      # Vector SVG brand logo badge
+│   ├── CyberSplashScreen.tsx    # High-tech loading transition
+│   ├── Footer.tsx               # Site footer with disclaimer & links
+│   ├── Navbar.tsx               # Floating pill navigation with Certificate tab
+│   ├── SpotlightCard.tsx        # Interactive mouse spotlight cards
+│   ├── StairsTransition.tsx     # Smooth multi-step page transition
+│   └── TerminalDemo.tsx         # Interactive client-side simulated CLI
 ├── context/
-│   └── AuthContext.tsx    # Firebase authentication context provider
+│   └── AuthContext.tsx          # Firebase authentication context with offline fallback
 ├── data/
-│   ├── domains.ts         # Domain datasets, syllabi & toolchains
-│   ├── resources.ts       # Curated resource links by category
-│   └── team.ts            # Faculty advisor, leadership & core heads data
+│   ├── attendees.xlsx           # Local attendees registry spreadsheet
+│   ├── certificateConfig.json   # Saved official font and coordinates configuration
+│   ├── domains.ts               # Domain datasets, syllabi & toolchains
+│   ├── resources.ts             # Curated resource links by category
+│   └── team.ts                  # Faculty advisor, leadership & core heads data
 ├── lib/
-│   └── firebase.ts        # Resilient Firebase client initialization
+│   ├── certificateRenderer.ts   # 1920x1080 HTML5 Canvas certificate renderer
+│   ├── certificates.ts          # Hybrid certificate database & Excel reader
+│   ├── firebase.ts              # Resilient Firebase client initialization
+│   ├── firestore.ts             # User profiles & offline-safe Firestore sync
+├── middleware.ts                # Server-side route security & admin protection
 ├── public/
-│   └── images/            # Shield logos, badges & member avatars
-├── vercel.json            # Framework preset configuration (Next.js)
-├── next.config.ts         # Next.js configuration
-├── package.json           # Node dependencies & build scripts
-└── tsconfig.json          # TypeScript compiler configuration
+│   ├── images/                  # Shield logos, badges & member avatars
+│   └── templates/               # Permanent Canva certificate template storage
+├── .env.example                 # Environment configuration template
+├── vercel.json                  # Framework preset configuration (Next.js)
+├── next.config.ts               # Next.js configuration
+├── package.json                 # Node dependencies & build scripts
+└── tsconfig.json                # TypeScript compiler configuration
 ```
 
 ---
@@ -268,14 +383,14 @@ Cyber-Cell/
 ## 🚀 Getting Started Locally
 
 ### Prerequisites
-- **Node.js**: `v20.x` or `v22.x` / `v24.x`
+- **Node.js**: `v20.x` or `v22.x`+
 - **npm**: `v9.x`+ or `pnpm` / `yarn` / `bun`
 - **Git**
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/cybercellsati/Cyber-Cell.git
-cd Cyber-Cell
+git clone https://github.com/yashharfode/Cyber-Cell-Official-Website.git
+cd Cyber-Cell-Official-Website
 ```
 
 ### 2. Install Dependencies
@@ -284,9 +399,15 @@ npm install
 ```
 
 ### 3. Setup Environment Variables
-Copy the sample environment file and configure your Firebase credentials (optional for UI browsing, required for full Auth):
+Copy the sample environment file:
 ```bash
 cp .env.example .env.local
+```
+
+Configure your master admin password and Firebase keys in `.env.local`:
+```env
+ADMIN_PASSWORD=Cybercell$123
+ADMIN_SECRET_KEY=Cybercell$123
 ```
 
 ### 4. Launch Development Server
@@ -295,6 +416,8 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+* **Admin Panel**: [http://localhost:3000/admin](http://localhost:3000/admin) *(Password: `Cybercell$123`)*
+* **Certificate Registry**: [http://localhost:3000/verify](http://localhost:3000/verify)
 
 ### 5. Build for Production
 ```bash
@@ -306,10 +429,10 @@ npm run start
 
 ## 🔑 Environment Variables
 
-The project features safe fallback mocks so it builds and runs even without Firebase keys. To enable live Firebase authentication and Firestore user profiles, provide:
-
-| Variable | Description | Example |
+| Variable | Description | Default / Example |
 | :--- | :--- | :--- |
+| `ADMIN_PASSWORD` | Master password to access `/admin` and Certificate Studio | `Cybercell$123` |
+| `ADMIN_SECRET_KEY` | Secondary fallback key for API authentication | `Cybercell$123` |
 | `NEXT_PUBLIC_FIREBASE_API_KEY` | Firebase Web API Key | `AIzaSy...` |
 | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Firebase Auth Domain | `cyber-cell-d0258.firebaseapp.com` |
 | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Google Cloud Project ID | `cyber-cell-d0258` |
@@ -321,20 +444,11 @@ The project features safe fallback mocks so it builds and runs even without Fire
 
 ## ☁️ Production Deployment
 
-The project is configured for continuous zero-downtime deployment on **Vercel**:
+The project is configured for continuous zero-downtime deployment on **Vercel** / **Docker**:
 
-- Pushes to branch `main` automatically build and deploy to **[https://cyber-cell.vercel.app](https://cyber-cell.vercel.app)**.
-- `vercel.json` ensures the framework preset is locked to `nextjs`.
-- All 8 routes are prerendered as high-performance static content:
-  - `/` (Home)
-  - `/about`
-  - `/domains`
-  - `/events`
-  - `/join`
-  - `/projects`
-  - `/resources`
-  - `/team`
-  - `/_not-found`
+- Pushes to branch `main` automatically build and deploy.
+- All public pages are pre-rendered statically with instant CDN delivery.
+- Dynamic route handlers (`/api/*`) run server-side with Next.js edge and node runtime.
 
 ---
 

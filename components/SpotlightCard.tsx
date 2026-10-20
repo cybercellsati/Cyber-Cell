@@ -48,21 +48,24 @@ export default function SpotlightCard({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={onClick}
-      className={`group relative overflow-hidden rounded-2xl bg-[#0d111a] border border-white/[0.08] hover:border-white/[0.2] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,0.5)] ${
+      className={`group relative overflow-hidden rounded-2xl bg-gradient-to-b from-[#0d1424] via-[#090e18] to-[#060910] border border-white/[0.09] hover:border-cyan-400/40 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.9),0_0_30px_rgba(56,189,248,0.08)] backdrop-blur-md ${
         asButton ? "cursor-pointer text-left w-full" : ""
       } ${className}`}
       {...props}
     >
       {/* Interactive Radial Spotlight Follower */}
       <div
-        className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        className="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0"
         style={{
-          background: `radial-gradient(500px circle at ${mousePosition.x}px ${mousePosition.y}px, ${spotlightColor}, transparent 80%)`,
+          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, ${spotlightColor}, transparent 70%)`,
         }}
       />
 
-      {/* Subtle Top Border Sheen Highlight */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.15] to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-300" />
+      {/* Top Edge Architectural Light Sheen */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/[0.2] to-transparent group-hover:via-cyan-400/60 transition-all duration-300 z-10" />
+
+      {/* Subtle Inner Glass Refraction Rim */}
+      <div className="pointer-events-none absolute inset-0 rounded-2xl shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.06)] z-10" />
 
       {/* Content wrapper */}
       <div className="relative z-10 h-full w-full">{children}</div>

@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import CyberShieldLogo from "./CyberShieldLogo";
 import { ArrowRight, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { motion } from "framer-motion";
 
 interface NavItem {
   name: string;
@@ -20,6 +21,7 @@ const navItems: NavItem[] = [
   { name: "Resources", href: "/resources" },
   { name: "Projects", href: "/projects" },
   { name: "Team", href: "/team" },
+  { name: "Certificate", href: "/verify" },
 ];
 
 export default function Navbar() {
@@ -28,16 +30,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [indicatorStyle, setIndicatorStyle] = useState<{ left: number; width: number; opacity: number }>({
-    left: 0,
-    width: 0,
-    opacity: 0,
-  });
-  
-  const navContainerRef = useRef<HTMLDivElement>(null);
-  const itemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const pathname = usePathname();
-
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,27 +43,6 @@ export default function Navbar() {
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
-
-  // Handle smooth floating pill animation
-  const handleMouseEnter = (index: number) => {
-    setHoveredIndex(index);
-    const target = itemRefs.current[index];
-    const container = navContainerRef.current;
-    if (target && container) {
-      const targetRect = target.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-      setIndicatorStyle({
-        left: targetRect.left - containerRect.left,
-        width: targetRect.width,
-        opacity: 1,
-      });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    setHoveredIndex(null);
-    setIndicatorStyle((prev) => ({ ...prev, opacity: 0 }));
-  };
 
   return (
     <header
@@ -85,43 +57,43 @@ export default function Navbar() {
         {/* Brand Logo matching reference */}
         <CyberShieldLogo size="md" />
 
-        {/* Center Desktop Navigation with Smooth Gliding Pill */}
+        {/* Center Desktop Navigation with Liquid Bubble Hover Effect */}
         <nav
-          ref={navContainerRef}
-          onMouseLeave={handleMouseLeave}
-          className="hidden lg:flex relative items-center gap-1 px-3 py-1.5 rounded-full"
+          onMouseLeave={() => setHoveredIndex(null)}
+          className="hidden lg:flex relative items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.02] border border-white/[0.05]"
         >
-          {/* Smooth Floating Hover Pill */}
-          <div
-            className="absolute top-1 bottom-1 rounded-lg bg-white/[0.06] border border-white/[0.08] transition-all duration-200 ease-out pointer-events-none"
-            style={{
-              left: `${indicatorStyle.left}px`,
-              width: `${indicatorStyle.width}px`,
-              opacity: indicatorStyle.opacity,
-            }}
-          />
-
           {navItems.map((item, idx) => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.name}
                 href={item.href}
-                ref={(el) => {
-                  itemRefs.current[idx] = el;
-                }}
-                onMouseEnter={() => handleMouseEnter(idx)}
-                className={`relative px-4 py-2 text-[13.5px] font-medium transition-colors duration-200 rounded-lg select-none flex flex-col items-center ${
+                onMouseEnter={() => setHoveredIndex(idx)}
+                className={`relative px-4 py-2 text-[13.5px] font-medium transition-colors duration-200 select-none flex items-center justify-center rounded-full ${
                   isActive
-                    ? "text-[#38bdf8]"
+                    ? "text-[#38bdf8] font-semibold"
                     : "text-slate-300 hover:text-white"
                 }`}
               >
-                <span>{item.name}</span>
+                {/* Floating Liquid Bubble */}
+                {hoveredIndex === idx && (
+                  <motion.span
+                    layoutId="navbar-liquid-bubble"
+                    className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/15 via-sky-500/20 to-blue-500/15 border border-cyan-400/30 shadow-[0_0_20px_rgba(56,189,248,0.25),inset_0_1px_2px_rgba(255,255,255,0.25)] backdrop-blur-sm"
+                    transition={{
+                      type: "spring",
+                      stiffness: 450,
+                      damping: 32,
+                    }}
+                  />
+                )}
 
-                {/* Refined Active Underline Indicator matching reference */}
+                {/* Nav Item Label */}
+                <span className="relative z-10">{item.name}</span>
+
+                {/* Active Page Indicator */}
                 {isActive && (
-                  <span className="absolute -bottom-1 w-5 h-[2px] bg-[#38bdf8] rounded-full shadow-[0_0_8px_rgba(56,189,248,0.6)] animate-in fade-in zoom-in-75 duration-200" />
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.8)] pointer-events-none" />
                 )}
               </Link>
             );
@@ -239,6 +211,7 @@ export default function Navbar() {
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
                     ? "bg-white/[0.06] text-[#38bdf8] font-semibold"

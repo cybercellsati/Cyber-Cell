@@ -55,9 +55,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           await syncUserProfile(currentUser);
           const p = await getUserProfile(currentUser.uid);
-          setProfile(p);
+          setProfile(
+            p || {
+              uid: currentUser.uid,
+              email: currentUser.email,
+              displayName: currentUser.displayName,
+              photoURL: currentUser.photoURL,
+              role: "member",
+              createdAt: new Date() as unknown as UserProfile["createdAt"],
+              lastLoginAt: new Date() as unknown as UserProfile["lastLoginAt"],
+            }
+          );
         } catch (err) {
-          console.warn("Could not sync user profile:", err);
+          console.warn("[AuthContext] Offline mode active; session profile loaded:", err);
+          setProfile({
+            uid: currentUser.uid,
+            email: currentUser.email,
+            displayName: currentUser.displayName,
+            photoURL: currentUser.photoURL,
+            role: "member",
+            createdAt: new Date() as unknown as UserProfile["createdAt"],
+            lastLoginAt: new Date() as unknown as UserProfile["lastLoginAt"],
+          });
         }
       } else {
         setProfile(null);

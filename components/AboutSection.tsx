@@ -113,19 +113,21 @@ export default function AboutSection() {
                   <span className="text-xs font-mono text-[#38bdf8]">WHAT WE DO</span>
                 </div>
 
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   {characteristics.map((item) => {
                     const Icon = item.icon;
                     return (
                       <div
                         key={item.title}
-                        className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.05] hover:border-white/10 transition-colors"
+                        className="group/item p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.05] hover:border-cyan-400/25 transition-all duration-200"
                       >
-                        <div className="flex items-center gap-2 mb-1">
-                          <Icon className="w-3.5 h-3.5 text-slate-300" />
-                          <span className="text-xs font-semibold text-white">{item.title}</span>
+                        <div className="flex items-center gap-2.5 mb-1">
+                          <div className="w-6 h-6 rounded-md bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-slate-300 group-hover/item:text-cyan-300 group-hover/item:border-cyan-400/30 transition-colors">
+                            <Icon className="w-3.5 h-3.5" />
+                          </div>
+                          <span className="text-xs font-semibold text-white group-hover/item:text-cyan-300 transition-colors">{item.title}</span>
                         </div>
-                        <p className="text-[11px] text-slate-400 leading-snug pl-5.5">
+                        <p className="text-[11px] text-slate-400 leading-snug pl-[34px]">
                           {item.desc}
                         </p>
                       </div>

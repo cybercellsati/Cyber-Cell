@@ -38,43 +38,42 @@ export interface EventRegistration {
 }
 
 /**
- * Creates or updates the user profile document in Firestore
+ * Creates or updates the user profile document in Firestore with offline resilience
  */
 export async function syncUserProfile(
   user: { uid: string; email: string | null; displayName: string | null; photoURL: string | null },
   extraData: Partial<UserProfile> = {}
 ): Promise<void> {
   if (!isFirebaseConfigured || !user.uid) return;
-  const userRef = doc(db, "users", user.uid);
-  const snap = await getDoc(userRef);
 
-  if (!snap.exists()) {
-    await setDoc(userRef, {
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      role: "member",
-      createdAt: serverTimestamp(),
-      lastLoginAt: serverTimestamp(),
-      ...extraData,
-    });
-  } else {
+  try {
+    const userRef = doc(db, "users", user.uid);
+    // Direct upsert with merge: true avoids redundant getDoc reads that throw offline errors
     await setDoc(
       userRef,
       {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        role: "member",
         lastLoginAt: serverTimestamp(),
-        ...(user.displayName ? { displayName: user.displayName } : {}),
-        ...(user.photoURL ? { photoURL: user.photoURL } : {}),
         ...extraData,
       },
       { merge: true }
     );
+  } catch (error: unknown) {
+    const err = error as { code?: string; message?: string };
+    if (err?.code === "unavailable" || err?.message?.includes("client is offline")) {
+      console.warn("[Firestore] Operating in offline mode; profile sync deferred.");
+    } else {
+      console.warn("[Firestore] syncUserProfile warning:", err?.message || err);
+    }
   }
 }
 
 /**
- * Fetches user profile from Firestore
+ * Fetches user profile from Firestore with offline resilience
  */
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   if (!isFirebaseConfigured || !uid) return null;
@@ -84,8 +83,13 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
     if (snap.exists()) {
       return snap.data() as UserProfile;
     }
-  } catch (error) {
-    console.error("Error fetching user profile:", error);
+  } catch (error: unknown) {
+    const err = error as { code?: string; message?: string };
+    if (err?.code === "unavailable" || err?.message?.includes("client is offline")) {
+      console.warn("[Firestore] Client is offline; using active session profile.");
+    } else {
+      console.warn("[Firestore] getUserProfile warning:", err?.message || err);
+    }
   }
   return null;
 }

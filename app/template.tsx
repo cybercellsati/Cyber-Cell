@@ -6,12 +6,12 @@ import { motion } from "framer-motion";
 export default function Template({ children }: { children: React.ReactNode }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
-        duration: 0.38,
-        delay: 0.12,
-        ease: [0.25, 1, 0.5, 1],
+        duration: 0.28,
+        delay: 0.1,
+        ease: [0.22, 1, 0.36, 1],
       }}
       className="flex-1 flex flex-col min-h-0"
     >
