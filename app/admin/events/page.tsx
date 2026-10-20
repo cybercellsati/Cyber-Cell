@@ -19,13 +19,11 @@ import {
   AlertCircle,
   X,
   Search,
-  SlidersHorizontal,
   Sparkles,
-  Shield,
   Layers,
-  Globe,
-  Tag,
-  Users,
+  Star,
+  Eye,
+  Laptop,
 } from "lucide-react";
 
 const CATEGORIES: CyberEvent["category"][] = [
@@ -71,15 +69,17 @@ export default function AdminEventsPage() {
     description: "",
     longDescription: "",
     image: "",
+    images: [],
     organizer: "Cyber Cell SATI",
     registrationLink: "",
     tags: [],
     capacity: "",
+    prerequisites: "",
+    toolsRequired: "",
   });
 
   const [tagInput, setTagInput] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>("");
+  const [urlInput, setUrlInput] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -127,7 +127,7 @@ export default function AdminEventsPage() {
     }
   }, [authenticated]);
 
-  // Handle Form Open for New
+  // Handle Form Open for New Event
   const handleOpenNew = () => {
     setEditingEvent(null);
     setFormData({
@@ -141,14 +141,16 @@ export default function AdminEventsPage() {
       description: "",
       longDescription: "",
       image: "",
+      images: [],
       organizer: "Cyber Cell SATI",
       registrationLink: "",
       tags: [],
       capacity: "",
+      prerequisites: "",
+      toolsRequired: "",
     });
     setTagInput("");
-    setImageFile(null);
-    setImagePreview("");
+    setUrlInput("");
     setErrorMsg("");
     setSuccessMsg("");
     setIsModalOpen(true);
@@ -157,42 +159,112 @@ export default function AdminEventsPage() {
   // Handle Form Open for Edit
   const handleOpenEdit = (evt: CyberEvent) => {
     setEditingEvent(evt);
+    const existingImages = Array.isArray(evt.images) && evt.images.length > 0
+      ? evt.images
+      : evt.image
+      ? [evt.image]
+      : [];
+
     setFormData({
       ...evt,
+      images: existingImages,
+      image: evt.image || existingImages[0] || "",
     });
     setTagInput(evt.tags ? evt.tags.join(", ") : "");
-    setImageFile(null);
-    setImagePreview(evt.image || "");
+    setUrlInput("");
     setErrorMsg("");
     setSuccessMsg("");
     setIsModalOpen(true);
   };
 
-  // Handle Image Selection
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const url = URL.createObjectURL(file);
-      setImagePreview(url);
+  // Handle Multi-file Upload (up to 10 images)
+  const handleFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const currentImages = formData.images || [];
+    const remainingSlots = 10 - currentImages.length;
+    if (remainingSlots <= 0) {
+      setErrorMsg("Maximum 10 images allowed per event. Please remove an image first.");
+      return;
+    }
+
+    const filesToUpload = Array.from(files).slice(0, remainingSlots);
+
+    setIsUploading(true);
+    setErrorMsg("");
+
+    try {
+      const uploadFormData = new FormData();
+      filesToUpload.forEach((f) => uploadFormData.append("images", f));
+
+      const res = await fetch("/api/admin/events/upload-image", {
+        method: "POST",
+        body: uploadFormData,
+      });
+
+      const data = await res.json();
+      if (!data.success || !Array.isArray(data.urls) || data.urls.length === 0) {
+        throw new Error(data.error || "Failed uploading images.");
+      }
+
+      const updatedImages = [...currentImages, ...data.urls].slice(0, 10);
+      setFormData((prev) => ({
+        ...prev,
+        images: updatedImages,
+        image: prev.image && prev.image.trim() !== "" ? prev.image : updatedImages[0],
+      }));
+    } catch (err) {
+      setErrorMsg((err as Error).message || "Error uploading image files.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
-  // Handle Image Upload
-  const uploadImageFile = async (file: File): Promise<string> => {
-    const form = new FormData();
-    form.append("image", file);
-
-    const res = await fetch("/api/admin/events/upload-image", {
-      method: "POST",
-      body: form,
-    });
-
-    const data = await res.json();
-    if (!data.success || !data.url) {
-      throw new Error(data.error || "Failed to upload image.");
+  // Add Image URL manually
+  const handleAddImageUrl = () => {
+    if (!urlInput || !urlInput.trim()) return;
+    const currentImages = formData.images || [];
+    if (currentImages.length >= 10) {
+      setErrorMsg("Maximum 10 images allowed per event.");
+      return;
     }
-    return data.url;
+
+    const clean = urlInput.trim();
+    const updated = [...currentImages, clean].slice(0, 10);
+    setFormData((prev) => ({
+      ...prev,
+      images: updated,
+      image: prev.image || updated[0],
+    }));
+    setUrlInput("");
+  };
+
+  // Remove single image from list
+  const handleRemoveImage = (indexToRemove: number) => {
+    const currentImages = formData.images || [];
+    const updated = currentImages.filter((_, idx) => idx !== indexToRemove);
+    const removedUrl = currentImages[indexToRemove];
+
+    let newPrimary = formData.image;
+    if (newPrimary === removedUrl) {
+      newPrimary = updated.length > 0 ? updated[0] : "";
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      images: updated,
+      image: newPrimary,
+    }));
+  };
+
+  // Set Primary Cover Image
+  const handleSetPrimary = (url: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      image: url,
+    }));
   };
 
   // Save Event Handler
@@ -209,25 +281,19 @@ export default function AdminEventsPage() {
     setIsSaving(true);
 
     try {
-      let finalImageUrl = formData.image || "";
-
-      // Upload image if a new file was chosen
-      if (imageFile) {
-        setIsUploading(true);
-        finalImageUrl = await uploadImageFile(imageFile);
-        setIsUploading(false);
-      }
-
-      // Parse tags
       const parsedTags = tagInput
         .split(",")
         .map((t) => t.trim())
         .filter((t) => t.length > 0);
 
+      const imagesArray = formData.images || [];
+      const primaryImage = formData.image || (imagesArray.length > 0 ? imagesArray[0] : "");
+
       const payload: Partial<CyberEvent> = {
         ...formData,
         id: editingEvent ? editingEvent.id : undefined,
-        image: finalImageUrl,
+        image: primaryImage,
+        images: imagesArray.slice(0, 10),
         tags: parsedTags,
       };
 
@@ -252,7 +318,6 @@ export default function AdminEventsPage() {
       setErrorMsg((err as Error).message || "An error occurred while saving the event.");
     } finally {
       setIsSaving(false);
-      setIsUploading(false);
     }
   };
 
@@ -323,6 +388,8 @@ export default function AdminEventsPage() {
     );
   }
 
+  const imagesList = formData.images || [];
+
   return (
     <div className="min-h-screen bg-[#06080d] text-white flex flex-col font-sans selection:bg-cyan-500/20 selection:text-cyan-300">
       {/* Top Header */}
@@ -387,13 +454,13 @@ export default function AdminEventsPage() {
             <div className="space-y-2 max-w-xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono uppercase tracking-widest">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Publishing & Schedules</span>
+                <span>Multi-Image Gallery & Per-Event Pages</span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                 Manage Campus & Virtual Events
               </h1>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Add, edit, and publish verified cybersecurity workshops, CTF competitions, seminars, and bootcamps with banner images, registration forms, and venue details.
+                Add up to 10 photos per event, publish workshops, CTF competitions, seminars, and bootcamps with individual event pages, registration forms, and full agendas.
               </p>
             </div>
 
@@ -420,7 +487,6 @@ export default function AdminEventsPage() {
 
         {/* Filter Toolbar */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 rounded-2xl bg-[#090d16] border border-white/10">
-          {/* Search Box */}
           <div className="relative flex-1">
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -432,9 +498,7 @@ export default function AdminEventsPage() {
             />
           </div>
 
-          {/* Filter Dropdowns */}
           <div className="flex flex-wrap items-center gap-2.5">
-            {/* Category Filter */}
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -448,7 +512,6 @@ export default function AdminEventsPage() {
               ))}
             </select>
 
-            {/* Status Filter */}
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
@@ -472,145 +535,153 @@ export default function AdminEventsPage() {
           </div>
         ) : filteredEvents.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredEvents.map((evt) => (
-              <div
-                key={evt.id}
-                className="group rounded-3xl bg-[#0a0f1d] border border-white/10 hover:border-cyan-500/40 shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
-              >
-                <div>
-                  {/* Event Image Banner / Poster */}
-                  <div className="relative w-full h-44 bg-slate-900 overflow-hidden border-b border-white/[0.08]">
-                    {evt.image ? (
-                      <Image
-                        src={evt.image}
-                        alt={evt.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(max-width: 768px) 100vw, 400px"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-[#070c18] text-slate-600 font-mono text-xs">
-                        <Calendar className="w-10 h-10 text-cyan-400/30 mb-1" />
-                        <span>No Poster Image</span>
+            {filteredEvents.map((evt) => {
+              const evtImages = Array.isArray(evt.images) && evt.images.length > 0
+                ? evt.images
+                : evt.image
+                ? [evt.image]
+                : [];
+              const coverImg = evt.image || evtImages[0] || "";
+
+              return (
+                <div
+                  key={evt.id}
+                  className="group rounded-3xl bg-[#0a0f1d] border border-white/10 hover:border-cyan-500/40 shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                >
+                  <div>
+                    {/* Event Banner */}
+                    <div className="relative w-full h-44 bg-slate-900 overflow-hidden border-b border-white/[0.08]">
+                      {coverImg ? (
+                        <Image
+                          src={coverImg}
+                          alt={evt.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          sizes="(max-width: 768px) 100vw, 400px"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-[#070c18] text-slate-600 font-mono text-xs">
+                          <Calendar className="w-10 h-10 text-cyan-400/30 mb-1" />
+                          <span>No Poster Image</span>
+                        </div>
+                      )}
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+
+                      {/* Top Badges */}
+                      <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold bg-black/70 backdrop-blur-md border border-white/15 text-cyan-300 shadow">
+                          {evt.category}
+                        </span>
+
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-wider uppercase font-bold shadow ${
+                            evt.status === "Live"
+                              ? "bg-red-500/20 text-red-300 border border-red-500/40 animate-pulse"
+                              : evt.status === "Upcoming"
+                              ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
+                              : evt.status === "Completed"
+                              ? "bg-slate-700/40 text-slate-400 border border-slate-600/30"
+                              : "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                          }`}
+                        >
+                          {evt.status}
+                        </span>
                       </div>
-                    )}
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+                      {/* Mode & Image Count */}
+                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[10px] font-mono">
+                        <span className="px-2 py-0.5 rounded-md bg-black/60 backdrop-blur border border-white/15 text-slate-300">
+                          {evt.mode}
+                        </span>
 
-                    {/* Top Badges */}
-                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold bg-black/70 backdrop-blur-md border border-white/15 text-cyan-300 shadow">
-                        {evt.category}
-                      </span>
-
-                      {/* Status Badge */}
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-wider uppercase font-bold shadow ${
-                          evt.status === "Live"
-                            ? "bg-red-500/20 text-red-300 border border-red-500/40 animate-pulse"
-                            : evt.status === "Upcoming"
-                            ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
-                            : evt.status === "Completed"
-                            ? "bg-slate-700/40 text-slate-400 border border-slate-600/30"
-                            : "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-                        }`}
-                      >
-                        {evt.status}
-                      </span>
-                    </div>
-
-                    {/* Mode Tag */}
-                    <div className="absolute bottom-3 left-3">
-                      <span className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-black/60 backdrop-blur border border-white/15 text-slate-300">
-                        {evt.mode}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Body Content */}
-                  <div className="p-5 space-y-3">
-                    <h3 className="text-base sm:text-lg font-black text-white leading-snug tracking-tight group-hover:text-cyan-300 transition-colors">
-                      {evt.title}
-                    </h3>
-
-                    <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
-                      {evt.description || "No description provided."}
-                    </p>
-
-                    {/* Date, Time & Venue */}
-                    <div className="space-y-1.5 pt-2 text-xs font-mono text-slate-300 border-t border-white/[0.06]">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                        <span>{evt.date}</span>
-                        {evt.time && (
-                          <>
-                            <span className="text-slate-600">&bull;</span>
-                            <span className="text-slate-400">{evt.time}</span>
-                          </>
+                        {evtImages.length > 0 && (
+                          <span className="px-2 py-0.5 rounded-md bg-black/70 backdrop-blur border border-white/20 text-cyan-300">
+                            📷 {evtImages.length} {evtImages.length === 1 ? "photo" : "photos"}
+                          </span>
                         )}
                       </div>
-
-                      <div className="flex items-center gap-2 text-slate-400">
-                        <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                        <span className="truncate">{evt.venue}</span>
-                      </div>
                     </div>
 
-                    {/* Tags */}
-                    {evt.tags && evt.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 pt-1">
-                        {evt.tags.slice(0, 3).map((tag, tIdx) => (
-                          <span
-                            key={tIdx}
-                            className="px-2 py-0.5 rounded text-[10px] font-mono bg-white/[0.03] border border-white/[0.06] text-slate-400"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
+                    {/* Body Content */}
+                    <div className="p-5 space-y-3">
+                      <h3 className="text-base sm:text-lg font-black text-white leading-snug tracking-tight group-hover:text-cyan-300 transition-colors">
+                        {evt.title}
+                      </h3>
+
+                      <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                        {evt.description || "No description provided."}
+                      </p>
+
+                      <div className="space-y-1.5 pt-2 text-xs font-mono text-slate-300 border-t border-white/[0.06]">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                          <span>{evt.date}</span>
+                          {evt.time && (
+                            <>
+                              <span className="text-slate-600">&bull;</span>
+                              <span className="text-slate-400">{evt.time}</span>
+                            </>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2 text-slate-400">
+                          <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                          <span className="truncate">{evt.venue}</span>
+                        </div>
                       </div>
-                    )}
+                    </div>
+                  </div>
+
+                  {/* Footer Controls */}
+                  <div className="p-4 bg-black/40 border-t border-white/[0.06] flex items-center justify-between gap-2">
+                    <select
+                      value={evt.status}
+                      onChange={(e) =>
+                        handleStatusToggle(evt, e.target.value as CyberEvent["status"])
+                      }
+                      className="px-2 py-1 rounded-lg bg-white/[0.04] border border-white/10 text-[11px] font-mono text-slate-300 focus:outline-none focus:border-cyan-400/50"
+                    >
+                      {STATUSES.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+
+                    <div className="flex items-center gap-1.5">
+                      {/* View Per-Event Page Button */}
+                      <Link
+                        href={`/events/${evt.id}`}
+                        target="_blank"
+                        className="p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 hover:text-white border border-white/10 transition-colors"
+                        title="View Live Event Page"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </Link>
+
+                      {/* Edit Button */}
+                      <button
+                        onClick={() => handleOpenEdit(evt)}
+                        className="p-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 transition-colors"
+                        title="Edit Event"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* Delete Button */}
+                      <button
+                        onClick={() => handleDeleteEvent(evt.id, evt.title)}
+                        className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 transition-colors"
+                        title="Delete Event"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-
-                {/* Footer Controls */}
-                <div className="p-4 bg-black/40 border-t border-white/[0.06] flex items-center justify-between gap-2">
-                  {/* Status Dropdown */}
-                  <select
-                    value={evt.status}
-                    onChange={(e) =>
-                      handleStatusToggle(evt, e.target.value as CyberEvent["status"])
-                    }
-                    className="px-2 py-1 rounded-lg bg-white/[0.04] border border-white/10 text-[11px] font-mono text-slate-300 focus:outline-none focus:border-cyan-400/50"
-                  >
-                    {STATUSES.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-
-                  <div className="flex items-center gap-1.5">
-                    {/* Edit Button */}
-                    <button
-                      onClick={() => handleOpenEdit(evt)}
-                      className="p-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 transition-colors"
-                      title="Edit Event"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                    </button>
-
-                    {/* Delete Button */}
-                    <button
-                      onClick={() => handleDeleteEvent(evt.id, evt.title)}
-                      className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 transition-colors"
-                      title="Delete Event"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           /* Empty State */
@@ -636,12 +707,12 @@ export default function AdminEventsPage() {
       </main>
 
       {/* ========================================================================= */}
-      {/* ADD / EDIT EVENT MODAL                                                   */}
+      {/* ADD / EDIT EVENT MODAL (UP TO 10 IMAGES & FULL CONTROLS)                  */}
       {/* ========================================================================= */}
       {isModalOpen && (
         <div
           onClick={() => setIsModalOpen(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -655,10 +726,10 @@ export default function AdminEventsPage() {
                 </div>
                 <div>
                   <h2 className="text-lg sm:text-xl font-black text-white">
-                    {editingEvent ? "Edit Event Details" : "Create New Event"}
+                    {editingEvent ? "Edit Event & Photos" : "Create New Event & Photos"}
                   </h2>
                   <span className="text-[11px] font-mono text-slate-400 block">
-                    Fill in event information and upload banner
+                    Upload up to 10 photos, configure agenda & links
                   </span>
                 </div>
               </div>
@@ -688,81 +759,128 @@ export default function AdminEventsPage() {
 
             {/* Event Form */}
             <form onSubmit={handleSaveEvent} className="space-y-6">
-              {/* 1. Image Banner Upload */}
-              <div className="space-y-2">
-                <label className="text-xs font-mono text-cyan-400 uppercase tracking-wider block font-semibold">
-                  Event Banner / Poster Image
-                </label>
-
-                <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl bg-black/40 border border-white/10">
-                  {/* Image Preview Box */}
-                  <div className="relative w-full sm:w-48 h-32 rounded-xl overflow-hidden bg-slate-900 border border-white/15 shrink-0 flex items-center justify-center">
-                    {imagePreview ? (
-                      <Image
-                        src={imagePreview}
-                        alt="Preview"
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center text-slate-500 text-xs font-mono p-2 text-center">
-                        <Upload className="w-6 h-6 mb-1 text-slate-600" />
-                        <span>No image</span>
-                      </div>
-                    )}
+              
+              {/* ========================================================================= */}
+              {/* 1. UP TO 10 IMAGES GALLERY UPLOADER                                       */}
+              {/* ========================================================================= */}
+              <div className="space-y-3 p-4 rounded-2xl bg-black/40 border border-cyan-500/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-mono text-cyan-400 uppercase tracking-wider font-bold">
+                      Event Photos & Posters Gallery
+                    </label>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/15 border border-cyan-500/30 text-cyan-300">
+                      {imagesList.length} / 10 Images
+                    </span>
                   </div>
 
-                  {/* Upload Controls */}
-                  <div className="flex-1 space-y-2 text-center sm:text-left w-full">
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      accept="image/png,image/jpeg,image/webp"
-                      onChange={handleImageChange}
-                      className="hidden"
-                    />
+                  {imagesList.length < 10 && (
+                    <button
+                      type="button"
+                      disabled={isUploading}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs font-mono transition-colors disabled:opacity-50"
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{isUploading ? "Uploading..." : "Upload Photos"}</span>
+                    </button>
+                  )}
+                </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="px-4 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] border border-white/15 text-xs font-mono text-white flex items-center gap-2 transition-colors"
-                      >
-                        <Upload className="w-3.5 h-3.5 text-cyan-400" />
-                        <span>{imagePreview ? "Change Image" : "Upload Poster"}</span>
-                      </button>
+                {/* Hidden Multi-file input */}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  multiple
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={handleFilesSelected}
+                  className="hidden"
+                />
 
-                      {imagePreview && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setImageFile(null);
-                            setImagePreview("");
-                            setFormData((prev) => ({ ...prev, image: "" }));
-                          }}
-                          className="px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-xs font-mono text-red-300 transition-colors"
+                {/* Thumbnails Grid (Up to 10 images) */}
+                {imagesList.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1">
+                    {imagesList.map((imgUrl, idx) => {
+                      const isCover = formData.image === imgUrl;
+                      return (
+                        <div
+                          key={idx}
+                          className={`relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-900 border group ${
+                            isCover
+                              ? "border-cyan-400 ring-2 ring-cyan-400/50"
+                              : "border-white/15 hover:border-white/30"
+                          }`}
                         >
-                          Remove
-                        </button>
-                      )}
-                    </div>
+                          <Image src={imgUrl} alt={`Uploaded ${idx}`} fill className="object-cover" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
+                            {!isCover && (
+                              <button
+                                type="button"
+                                onClick={() => handleSetPrimary(imgUrl)}
+                                className="p-1.5 rounded-lg bg-cyan-500 text-slate-950 hover:bg-cyan-400 transition-colors"
+                                title="Set as Primary Cover"
+                              >
+                                <Star className="w-3.5 h-3.5 fill-current" />
+                              </button>
+                            )}
 
-                    <p className="text-[11px] text-slate-500 font-mono">
-                      Recommended: 16:9 or 4:3 ratio (PNG, JPG, WebP up to 12MB). Or paste direct URL below.
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(idx)}
+                              className="p-1.5 rounded-lg bg-red-500/80 hover:bg-red-500 text-white transition-colors"
+                              title="Delete Image"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+
+                          {isCover && (
+                            <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-mono bg-cyan-500 text-slate-950 font-black">
+                              COVER
+                            </span>
+                          )}
+
+                          <span className="absolute top-1 left-1 px-1 py-0.5 rounded text-[8px] font-mono bg-black/70 text-slate-300">
+                            #{idx + 1}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="p-6 rounded-xl border border-dashed border-white/20 hover:border-cyan-400/50 text-center cursor-pointer transition-colors"
+                  >
+                    <Upload className="w-7 h-7 text-cyan-400/60 mx-auto mb-1.5" />
+                    <p className="text-xs font-mono text-slate-300 font-semibold">
+                      Click to choose up to 10 images from your device
                     </p>
+                    <p className="text-[10px] font-mono text-slate-500 mt-0.5">
+                      Supports PNG, JPG, WebP. You can select multiple files at once.
+                    </p>
+                  </div>
+                )}
 
+                {/* Paste URL Option */}
+                {imagesList.length < 10 && (
+                  <div className="flex gap-2 pt-1">
                     <input
                       type="url"
-                      placeholder="Or enter image URL (https://...)"
-                      value={formData.image || ""}
-                      onChange={(e) => {
-                        setFormData((prev) => ({ ...prev, image: e.target.value }));
-                        setImagePreview(e.target.value);
-                      }}
-                      className="w-full px-3 py-1.5 rounded-lg bg-[#060910] border border-white/10 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400/50"
+                      placeholder="Or paste external image URL (https://...)"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      className="flex-1 px-3 py-1.5 rounded-xl bg-[#060910] border border-white/10 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400/50"
                     />
+                    <button
+                      type="button"
+                      onClick={handleAddImageUrl}
+                      className="px-3 py-1.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] border border-white/15 text-xs font-mono text-slate-200 transition-colors"
+                    >
+                      Add URL
+                    </button>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* 2. Basic Information */}
@@ -843,7 +961,7 @@ export default function AdminEventsPage() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-mono text-slate-300 block font-semibold">
-                    Time
+                    Time Slot
                   </label>
                   <input
                     type="text"
@@ -856,7 +974,7 @@ export default function AdminEventsPage() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-mono text-slate-300 block font-semibold">
-                    Mode
+                    Delivery Mode
                   </label>
                   <select
                     value={formData.mode}
@@ -877,11 +995,11 @@ export default function AdminEventsPage() {
                 </div>
               </div>
 
-              {/* 4. Venue & Organizer */}
+              {/* 4. Venue & Registration URL */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-mono text-slate-300 block font-semibold">
-                    Venue / Location
+                    Venue / Campus Location
                   </label>
                   <input
                     type="text"
@@ -894,7 +1012,7 @@ export default function AdminEventsPage() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-mono text-slate-300 block font-semibold">
-                    Registration Link (URL)
+                    Registration URL (Google Form / Unstop)
                   </label>
                   <input
                     type="url"
@@ -908,14 +1026,14 @@ export default function AdminEventsPage() {
                 </div>
               </div>
 
-              {/* 5. Short Description */}
+              {/* 5. Short Overview */}
               <div className="space-y-1.5">
                 <label className="text-xs font-mono text-slate-300 block font-semibold">
-                  Short Summary / Overview
+                  Short Overview / Summary (Shown in cards)
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="A concise 1-2 sentence description shown in event cards and previews..."
+                  placeholder="A concise 1-2 sentence overview shown in event preview cards..."
                   value={formData.description || ""}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, description: e.target.value }))
@@ -924,14 +1042,14 @@ export default function AdminEventsPage() {
                 />
               </div>
 
-              {/* 6. Long Description */}
+              {/* 6. Detailed Information / Agenda */}
               <div className="space-y-1.5">
                 <label className="text-xs font-mono text-slate-300 block font-semibold">
-                  Detailed Information / Agenda (Optional)
+                  Detailed Information & Session Agenda (Shown on Per-Event Page)
                 </label>
                 <textarea
                   rows={4}
-                  placeholder="Detailed session breakdown, prerequisites, CTF rules, tools required (Kali Linux, Burp Suite), or instructions for attendees..."
+                  placeholder="Detailed session breakdown, topics covered, CTF rules, hands-on lab exercises, and schedule timeline..."
                   value={formData.longDescription || ""}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, longDescription: e.target.value }))
@@ -940,7 +1058,40 @@ export default function AdminEventsPage() {
                 />
               </div>
 
-              {/* 7. Tags & Capacity */}
+              {/* 7. Prerequisites & Tools Required */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-mono text-slate-300 block font-semibold">
+                    Prerequisites (Optional)
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="e.g. Basic networking, familiar with Linux commands, or Python basics..."
+                    value={formData.prerequisites || ""}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, prerequisites: e.target.value }))
+                    }
+                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/50 leading-relaxed"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-mono text-slate-300 block font-semibold">
+                    Tools & Software Required (Optional)
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="e.g. Laptop with Kali Linux in VirtualBox, Burp Suite Community, Wireshark..."
+                    value={formData.toolsRequired || ""}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, toolsRequired: e.target.value }))
+                    }
+                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/50 leading-relaxed"
+                  />
+                </div>
+              </div>
+
+              {/* 8. Tags & Capacity */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-mono text-slate-300 block font-semibold">
@@ -957,7 +1108,7 @@ export default function AdminEventsPage() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-mono text-slate-300 block font-semibold">
-                    Capacity / Seats
+                    Capacity / Seating Limit
                   </label>
                   <input
                     type="text"
@@ -987,7 +1138,7 @@ export default function AdminEventsPage() {
                   {isSaving || isUploading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                      <span>{isUploading ? "Uploading Poster..." : "Saving Event..."}</span>
+                      <span>{isUploading ? "Uploading Photos..." : "Saving Event..."}</span>
                     </>
                   ) : (
                     <>

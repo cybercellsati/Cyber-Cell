@@ -99,7 +99,12 @@ export async function saveEvent(eventData: Partial<CyberEvent>): Promise<CyberEv
     mode: eventData.mode || "On-Campus",
     description: eventData.description || "",
     longDescription: eventData.longDescription || "",
-    image: eventData.image || "",
+    image: eventData.image || (Array.isArray(eventData.images) && eventData.images.length > 0 ? eventData.images[0] : ""),
+    images: Array.isArray(eventData.images)
+      ? eventData.images.slice(0, 10)
+      : eventData.image
+      ? [eventData.image]
+      : [],
     organizer: eventData.organizer || "Cyber Cell SATI",
     registrationLink: eventData.registrationLink || "",
     status: eventData.status || "Upcoming",
@@ -107,6 +112,10 @@ export async function saveEvent(eventData: Partial<CyberEvent>): Promise<CyberEv
     featured: Boolean(eventData.featured),
     tags: Array.isArray(eventData.tags) ? eventData.tags : [],
     capacity: eventData.capacity || "",
+    prerequisites: eventData.prerequisites || "",
+    toolsRequired: eventData.toolsRequired || "",
+    agenda: eventData.agenda || "",
+    speakers: Array.isArray(eventData.speakers) ? eventData.speakers : [],
     createdAt: eventData.createdAt || now,
     updatedAt: now,
   };

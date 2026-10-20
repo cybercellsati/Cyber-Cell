@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { isCloudinaryConfigured, uploadToCloudinary } from "@/lib/cloudinary";
 
 const COOKIE_NAME = "cybercell_admin_session";
-const MAX_SIZE_BYTES = 12 * 1024 * 1024; // 12MB limit
+const MAX_SIZE_BYTES = 15 * 1024 * 1024; // 15MB limit per file
 
 async function isAdmin(): Promise<boolean> {
   try {
@@ -29,6 +29,34 @@ function getExtension(buffer: Buffer): string {
   return "";
 }
 
+async function saveSingleBuffer(buffer: Buffer, ext: string): Promise<string> {
+  // 1. Primary: Cloudinary if configured
+  if (isCloudinaryConfigured) {
+    try {
+      const uploadRes = await uploadToCloudinary(buffer, {
+        folder: "cybercell/events",
+        resource_type: "image",
+      });
+      if (uploadRes && uploadRes.secure_url) {
+        return uploadRes.secure_url;
+      }
+    } catch (cloudErr) {
+      console.warn("[Upload Image] Cloudinary failed, falling back to local storage:", cloudErr);
+    }
+  }
+
+  // 2. Local fallback in public/images/events
+  const fileName = `event_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
+  const uploadDir = path.join(process.cwd(), "public", "images", "events");
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+  const filePath = path.join(uploadDir, fileName);
+  fs.writeFileSync(filePath, buffer);
+
+  return `/images/events/${fileName}`;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const authorized = await isAdmin();
@@ -40,65 +68,54 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const file = (formData.get("image") || formData.get("file")) as File | null;
+    // Support both single file ("image" / "file") and multiple files ("images" / "files")
+    let files = formData.getAll("images") as File[];
+    if (!files || files.length === 0) {
+      files = formData.getAll("files") as File[];
+    }
+    if (!files || files.length === 0) {
+      const single = (formData.get("image") || formData.get("file")) as File | null;
+      if (single) files = [single];
+    }
 
-    if (!file) {
+    if (!files || files.length === 0) {
       return NextResponse.json(
         { success: false, error: "No image file provided." },
         { status: 400 }
       );
     }
 
-    if (file.size > MAX_SIZE_BYTES) {
-      return NextResponse.json(
-        { success: false, error: "Image file exceeds 12MB limit." },
-        { status: 400 }
-      );
-    }
+    // Limit to at most 10 images
+    const targetFiles = files.slice(0, 10);
+    const uploadedUrls: string[] = [];
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    for (const file of targetFiles) {
+      if (file.size > MAX_SIZE_BYTES) {
+        continue; // skip files exceeding size
+      }
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const ext = getExtension(buffer);
+      if (!ext) continue; // skip non-image
 
-    const ext = getExtension(buffer);
-    if (!ext) {
-      return NextResponse.json(
-        { success: false, error: "Invalid image format. Allowed formats: PNG, JPG, WebP." },
-        { status: 400 }
-      );
-    }
-
-    // 1. Primary: Cloudinary if configured
-    if (isCloudinaryConfigured) {
-      try {
-        const uploadRes = await uploadToCloudinary(buffer, {
-          folder: "cybercell/events",
-          resource_type: "image",
-        });
-        if (uploadRes && uploadRes.secure_url) {
-          return NextResponse.json({
-            success: true,
-            url: uploadRes.secure_url,
-            publicId: uploadRes.public_id,
-          });
-        }
-      } catch (cloudErr) {
-        console.warn("[Upload Image] Cloudinary failed, falling back to local storage:", cloudErr);
+      const url = await saveSingleBuffer(buffer, ext);
+      if (url) {
+        uploadedUrls.push(url);
       }
     }
 
-    // 2. Local fallback in public/images/events
-    const fileName = `event_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
-    const uploadDir = path.join(process.cwd(), "public", "images", "events");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    if (uploadedUrls.length === 0) {
+      return NextResponse.json(
+        { success: false, error: "No valid image files could be processed. Please use PNG, JPG, or WebP." },
+        { status: 400 }
+      );
     }
-    const filePath = path.join(uploadDir, fileName);
-    fs.writeFileSync(filePath, buffer);
 
-    const localUrl = `/images/events/${fileName}`;
     return NextResponse.json({
       success: true,
-      url: localUrl,
+      url: uploadedUrls[0],
+      urls: uploadedUrls,
+      count: uploadedUrls.length,
     });
   } catch (error) {
     console.error("[Upload Image Error]:", error);

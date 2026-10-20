@@ -1,5 +1,13 @@
+export interface EventSpeaker {
+  name: string;
+  role: string;
+  org?: string;
+  avatar?: string;
+}
+
 export interface CyberEvent {
   id: string;
+  slug?: string;
   title: string;
   date: string; // YYYY-MM-DD or formatted date
   time: string; // e.g. "10:00 AM - 04:00 PM"
@@ -7,7 +15,8 @@ export interface CyberEvent {
   mode: "On-Campus" | "Online" | "Hybrid";
   description: string;
   longDescription?: string;
-  image?: string; // Poster or banner URL
+  image?: string; // Primary cover poster URL
+  images?: string[]; // Up to 10 gallery photos/posters
   organizer: string;
   registrationLink?: string;
   status: "Upcoming" | "Live" | "Completed" | "Tentative";
@@ -15,6 +24,10 @@ export interface CyberEvent {
   featured?: boolean;
   tags?: string[];
   capacity?: string;
+  prerequisites?: string;
+  toolsRequired?: string;
+  agenda?: string;
+  speakers?: EventSpeaker[];
   createdAt?: string;
   updatedAt?: string;
 }
