@@ -1,1 +1,32 @@
-[]
+[
+  {
+    "id": "evt_1792524138107",
+    "title": "Exploit: Intro to the Cyber Range",
+    "date": "2026-10-20",
+    "time": "10:00 AM - 01:00 PM",
+    "venue": "Central Computer Center (CCC), SATI Campus",
+    "mode": "On-Campus",
+    "description": "EXPLOIT — Intro to the Cyber Range\n\n​Curious about cybersecurity and ethical hacking? EXPLOIT is a beginner-friendly, practical cybersecurity workshop organised by Cyber Cell, SATI Vidisha, exclusively for first-year students interested in cybersecurity.\n\n​Discover how cybersecurity works, explore career opportunities, watch practical demonstrations, and challenge yourself through interactive activities. No prior cybersecurity experience is required—just curiosity and a willingness to learn.",
+    "longDescription": "​What to Expect\n​Phase 01 — Explore Cybersecurity\nGet introduced to cybersecurity, discover its major domains and career paths, and learn which foundational skills to develop as a first-year student.\n\n​Phase 02 — Think Like an Attacker\nExperience cybersecurity through practical demonstrations and understand how security weaknesses can be identified, why they matter, and how systems can be better protected.\n\n​Phase 03 — Your First Cyber Challenge\nPut your thinking skills to the test through beginner-friendly cybersecurity challenges. Learn by exploring, solving problems, and discovering new concepts.\n\n​The session focuses on practical learning, audience participation, and building a strong starting point for your cybersecurity journey—not just theory.",
+    "image": "/images/events/event_1792524059137_2swvdc.jpg",
+    "images": [
+      "/images/events/event_1792524059137_2swvdc.jpg"
+    ],
+    "organizer": "Cyber Cell SATI",
+    "registrationLink": "https://luma.com/sph445ld",
+    "status": "Upcoming",
+    "category": "Workshop",
+    "featured": false,
+    "tags": [
+      "Live Demo",
+      "Try Hack Me"
+    ],
+    "capacity": "160",
+    "prerequisites": "",
+    "toolsRequired": "Laptop",
+    "agenda": "",
+    "speakers": [],
+    "createdAt": "2026-10-20T19:22:18.107Z",
+    "updatedAt": "2026-10-20T19:22:18.107Z"
+  }
+]

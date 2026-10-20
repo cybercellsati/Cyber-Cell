@@ -47,8 +47,8 @@ export default function CyberShieldLogo({
           CYBER CELL
         </span>
         {!hideSubtitle && (
-          <span className="text-[11px] text-slate-400 font-normal tracking-normal mt-1">
-            SATI Vidisha
+          <span className="text-[9.5px] sm:text-[10.5px] text-slate-400 font-mono tracking-[0.2em] uppercase mt-1">
+            SATI VIDISHA
           </span>
         )}
       </div>

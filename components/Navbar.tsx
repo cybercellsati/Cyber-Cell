@@ -71,7 +71,7 @@ export default function Navbar() {
                 onMouseEnter={() => setHoveredIndex(idx)}
                 className={`relative px-4 py-2 text-[13.5px] font-medium transition-colors duration-200 select-none flex items-center justify-center rounded-full ${
                   isActive
-                    ? "text-[#38bdf8] font-semibold"
+                    ? "text-white font-semibold"
                     : "text-slate-300 hover:text-white"
                 }`}
               >
@@ -79,7 +79,7 @@ export default function Navbar() {
                 {hoveredIndex === idx && (
                   <motion.span
                     layoutId="navbar-liquid-bubble"
-                    className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500/15 via-sky-500/20 to-blue-500/15 border border-cyan-400/30 shadow-[0_0_20px_rgba(56,189,248,0.25),inset_0_1px_2px_rgba(255,255,255,0.25)] backdrop-blur-sm"
+                    className="absolute inset-0 rounded-full bg-white/[0.06] border border-white/10 backdrop-blur-sm"
                     transition={{
                       type: "spring",
                       stiffness: 450,
@@ -91,9 +91,9 @@ export default function Navbar() {
                 {/* Nav Item Label */}
                 <span className="relative z-10">{item.name}</span>
 
-                {/* Active Page Indicator */}
+                {/* Active Page Indicator matching reference: warm amber accent */}
                 {isActive && (
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.8)] pointer-events-none" />
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-[2px] rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)] pointer-events-none" />
                 )}
               </Link>
             );
