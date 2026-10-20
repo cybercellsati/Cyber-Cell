@@ -77,7 +77,7 @@ function CertificateCardItem({
     const cfg: CertificateConfig = {
       mode: "name_only",
       templateType: "custom",
-      templateUrl: globalConfig?.templateUrl || "/templates/certificate-template.png",
+      templateUrl: globalConfig?.templateUrl || "",
       recipientName: cert.recipient_name,
       scholarNumber: cert.scholar_number,
       certificateId: cert.certificate_id,

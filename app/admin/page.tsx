@@ -38,7 +38,7 @@ export default function AdminDashboardPage() {
   const [loadingStats, setLoadingStats] = useState(true);
   const [stats, setStats] = useState<AdminStats>({
     attendeeCount: 5,
-    templateUrl: "/templates/certificate-template.png",
+    templateUrl: "",
     fontFamily: "Cinzel",
     fontSize: 76,
     color: "#d4af37",
@@ -97,7 +97,7 @@ export default function AdminDashboardPage() {
           const cfg = configData.config;
           setStats({
             attendeeCount: count,
-            templateUrl: cfg.templateUrl || "/templates/certificate-template.png",
+            templateUrl: cfg.templateUrl || "",
             fontFamily: cfg.fontFamily || "Cinzel",
             fontSize: cfg.fontSize || 76,
             color: cfg.color || "#d4af37",

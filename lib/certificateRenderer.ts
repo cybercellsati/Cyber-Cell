@@ -209,15 +209,15 @@ export async function renderCertificateToCanvas(
     drawGoldMeritTemplate(ctx, width, height);
   } else if (config.templateType === "monochrome_slate") {
     drawMonochromeSlateTemplate(ctx, width, height);
-  } else if (config.templateType === "cyber_midnight") {
-    drawCyberMidnightTemplate(ctx, width, height);
-  } else {
+  } else if (config.templateUrl) {
     try {
-      const img = await loadImageAsync("/templates/certificate-template.png");
+      const img = await loadImageAsync(config.templateUrl);
       ctx.drawImage(img, 0, 0, width, height);
     } catch {
       drawCyberMidnightTemplate(ctx, width, height);
     }
+  } else {
+    drawCyberMidnightTemplate(ctx, width, height);
   }
 
   // 4. Draw Recipient Name (Proportionally scaled to canvas resolution)

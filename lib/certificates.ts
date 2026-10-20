@@ -1,4 +1,4 @@
-﻿import {
+import {
   collection,
   doc,
   setDoc,
@@ -24,7 +24,6 @@ export interface CertificateRecord {
   issue_date: string; // "2026-10-19"
   expiry_date: string; // "2027-01-17" (Issue date + 60 or 90 days)
   image_url?: string; // Optional direct image url
-
   is_download_active: boolean; // True while within validity window, false after expiry
   role_or_rank?: string; // "Winner", "1st Runner Up", "Participant", "Lead Organizer"
   issued_by?: string; // "Cyber Cell, SATI Vidisha"
@@ -45,28 +44,28 @@ export function isCertificateExpired(cert: CertificateRecord): boolean {
 }
 
 /**
- * Calculates expiry date based on issue date and days (30, 60, or 90)
+ * Calculates standard validity expiry date
  */
-export function calculateExpiryDate(issueDateStr: string, days: number = 60): string {
-  const date = new Date(issueDateStr);
-  date.setDate(date.getDate() + days);
+export function calculateExpiryDate(issueDateStr: string, validityDays = 60): string {
+  const date = new Date(issueDateStr || Date.now());
+  date.setDate(date.getDate() + validityDays);
   return date.toISOString().split("T")[0];
 }
 
 /**
- * Generates an official Cyber Cell Unique Certificate ID (e.g. CYB-2026-X8K2M1)
+ * Generates a unique, official Certificate ID
  */
-export function generateCertificateId(eventPrefix: string = "CYB", year: number = 2026): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // No ambiguous chars (0, O, 1, I)
-  let randomCode = "";
+export function generateCertificateId(year: number = new Date().getFullYear()): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Removed ambiguous characters like 0, O, 1, I
+  let randomPart = "";
   for (let i = 0; i < 6; i++) {
-    randomCode += chars.charAt(Math.floor(Math.random() * chars.length));
+    randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  return `${eventPrefix.toUpperCase()}-${year}-${randomCode}`;
+  return `CYB-${year}-${randomPart}`;
 }
 
 /**
- * Save or update a single certificate record in Firestore (permanent record)
+ * Saves a new certificate record to Cloud Firestore (or mock DB if offline)
  */
 export async function saveCertificateRecord(cert: CertificateRecord): Promise<void> {
   const isExpired = isCertificateExpired(cert);
@@ -107,15 +106,17 @@ export async function saveCertificateRecord(cert: CertificateRecord): Promise<vo
 export async function batchSaveCertificateRecords(certs: CertificateRecord[]): Promise<number> {
   if (certs.length === 0) return 0;
 
+  // Always update in-memory cache as well
+  certs.forEach((c) => {
+    const idx = mockCertificates.findIndex((m) => m.certificate_id === c.certificate_id);
+    if (idx >= 0) {
+      mockCertificates[idx] = c;
+    } else {
+      mockCertificates.unshift(c);
+    }
+  });
+
   if (!isFirebaseConfigured) {
-    certs.forEach((c) => {
-      const idx = mockCertificates.findIndex((m) => m.certificate_id === c.certificate_id);
-      if (idx >= 0) {
-        mockCertificates[idx] = c;
-      } else {
-        mockCertificates.unshift(c);
-      }
-    });
     return certs.length;
   }
 
@@ -138,8 +139,34 @@ export async function batchSaveCertificateRecords(certs: CertificateRecord[]): P
     await batch.commit();
     return certs.length;
   } catch (error) {
-    console.error("[Firestore batchSaveCertificateRecords Error]:", error);
-    throw error;
+    console.warn("[Firestore batchSaveCertificateRecords Warning]:", error);
+    return certs.length;
+  }
+}
+
+/**
+ * Fetches all issued certificates (combining local registry, memory, and Firestore)
+ */
+export async function getAllCertificates(limitCount = 100): Promise<CertificateRecord[]> {
+  const local = getLocalCertificates();
+  const allInMemory = [...local, ...mockCertificates];
+
+  if (!isFirebaseConfigured) {
+    return allInMemory.slice(0, limitCount);
+  }
+
+  try {
+    const q = query(collection(db, "certificates"), limit(limitCount));
+    const snap = await getDocs(q);
+    const firestoreCerts: CertificateRecord[] = snap.docs.map((d) => d.data() as CertificateRecord);
+
+    const certMap = new Map<string, CertificateRecord>();
+    allInMemory.forEach((c) => certMap.set(c.certificate_id, c));
+    firestoreCerts.forEach((c) => certMap.set(c.certificate_id, c));
+    return Array.from(certMap.values()).slice(0, limitCount);
+  } catch (e) {
+    console.warn("[Firestore getAllCertificates Warning]:", e);
+    return allInMemory.slice(0, limitCount);
   }
 }
 
@@ -149,49 +176,56 @@ export async function batchSaveCertificateRecords(certs: CertificateRecord[]): P
 export async function getCertificateById(certificateId: string): Promise<CertificateRecord | null> {
   const cleanId = certificateId.trim().toUpperCase();
 
-  if (!isFirebaseConfigured) {
-    const found = mockCertificates.find((c) => c.certificate_id === cleanId);
-    if (found) {
-      return { ...found, is_download_active: !isCertificateExpired(found) };
-    }
-    return null;
+  // Check local attendee sources first
+  const localRecords = getLocalCertificates();
+  const localMatch = localRecords.find((c) => c.certificate_id.toUpperCase() === cleanId);
+  if (localMatch) {
+    return { ...localMatch, is_download_active: !isCertificateExpired(localMatch) };
   }
+
+  const mockFound = mockCertificates.find((c) => c.certificate_id === cleanId);
+  if (mockFound) {
+    return { ...mockFound, is_download_active: !isCertificateExpired(mockFound) };
+  }
+
+  if (!isFirebaseConfigured) return null;
 
   try {
     const certRef = doc(db, "certificates", cleanId);
     const snap = await getDoc(certRef);
-    if (snap.exists()) {
-      const data = snap.data() as CertificateRecord;
-      return {
-        ...data,
-        is_download_active: !isCertificateExpired(data),
-      };
-    }
-  } catch (error: unknown) {
-    const err = error as { code?: string; message?: string };
-    if (err?.code === "unavailable" || err?.message?.includes("client is offline")) {
-      console.warn("[Firestore getCertificateById] Offline mode active; querying local attendee sources.");
-    } else {
-      console.warn("[Firestore getCertificateById]:", err?.message || err);
-    }
-  }
+    if (!snap.exists()) return null;
 
-  // 2. Check local Excel or JSON attendees
-  const localRecords = getLocalCertificates();
-  const foundLocal = localRecords.find(
-    (c) => c.certificate_id === cleanId || c.scholar_number === cleanId
-  );
-  if (foundLocal) {
-    return { ...foundLocal, is_download_active: !isCertificateExpired(foundLocal) };
+    const data = snap.data() as CertificateRecord;
+    return {
+      ...data,
+      is_download_active: !isCertificateExpired(data),
+    };
+  } catch (error) {
+    console.error("[Firestore getCertificateById Error]:", error);
+    return null;
   }
-
-  // 3. Fallback to mock search if not found in db or during offline dev
-  const foundMock = mockCertificates.find((c) => c.certificate_id === cleanId);
-  return foundMock ? { ...foundMock, is_download_active: !isCertificateExpired(foundMock) } : null;
 }
 
 /**
- * Reads attendees dynamically from local Excel or JSON files in data/
+ * Extracts a column value from a row using case-insensitive candidate keys
+ */
+function getRowValue(row: Record<string, unknown>, candidateKeys: string[]): string {
+  const rowKeys = Object.keys(row);
+  for (const candidate of candidateKeys) {
+    const cleanCandidate = candidate.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const foundKey = rowKeys.find(
+      (k) => k.toLowerCase().replace(/[^a-z0-9]/g, "") === cleanCandidate
+    );
+    if (foundKey && row[foundKey] !== undefined && row[foundKey] !== null) {
+      const val = String(row[foundKey]).trim();
+      if (val) return val;
+    }
+  }
+  return "";
+}
+
+/**
+ * Safely reads attendees from local files (JSON and XLSX)
  */
 export function getLocalCertificates(): CertificateRecord[] {
   if (typeof window !== "undefined") return [];
@@ -200,12 +234,37 @@ export function getLocalCertificates(): CertificateRecord[] {
   try {
     const fs = require("fs");
     const path = require("path");
+    const os = require("os");
     const XLSX = require("xlsx");
 
+    // 1. Check JSON attendees first (Fastest & most accurate)
+    const jsonPaths = [
+      path.join(os.tmpdir(), "attendees.json"),
+      path.join(process.cwd(), "data", "attendees.json"),
+      path.join(process.cwd(), "data", "certificates.json"),
+    ];
+
+    for (const jPath of jsonPaths) {
+      if (fs.existsSync(/*turbopackIgnore: true*/ jPath)) {
+        try {
+          const raw = JSON.parse(fs.readFileSync(/*turbopackIgnore: true*/ jPath, "utf-8"));
+          if (Array.isArray(raw)) {
+            raw.forEach((c) => {
+              records.push({
+                ...c,
+                is_download_active: true,
+              });
+            });
+          }
+        } catch {}
+      }
+    }
+
+    // 2. Check Excel files
     const excelPaths = [
-      path.join(require('os').tmpdir(), 'attendees.xlsx'),
-      path.join(process.cwd(), "data", "certificates.xlsx"),
+      path.join(os.tmpdir(), "attendees.xlsx"),
       path.join(process.cwd(), "data", "attendees.xlsx"),
+      path.join(process.cwd(), "data", "certificates.xlsx"),
     ];
 
     for (const filePath of excelPaths) {
@@ -217,31 +276,34 @@ export function getLocalCertificates(): CertificateRecord[] {
           if (firstSheet) {
             const rawRows: Record<string, unknown>[] = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
             rawRows.forEach((row, idx) => {
-              const scholarNo = String(
-                row["Scholar Number"] || row["Scholar No"] || row["scholar_number"] || row["Enrollment No"] || ""
-              ).trim();
-              const name = String(
-                row["Name"] || row["Recipient Name"] || row["Student Name"] || row["recipient_name"] || ""
-              ).trim();
+              const name = getRowValue(row, [
+                "name", "recipient name", "student name", "full name", "participant name", "candidate name", "student"
+              ]);
+              const scholarNo = getRowValue(row, [
+                "scholar number", "scholar no", "scholar no.", "scholarno", "enrollment number", "enrollment no", "roll no", "id"
+              ]);
 
               if (!name && !scholarNo) return;
 
-              const certId = String(
-                row["Certificate ID"] || row["certificate_id"] || row["Cert ID"] || `CYB-2026-${scholarNo || idx + 1}`
+              const certId = (
+                getRowValue(row, ["certificate id", "cert id", "certificate no", "id"]) ||
+                `CYB-2026-${scholarNo || idx + 1}`
               ).trim().toUpperCase();
+
+              // Avoid duplicate if already loaded from JSON
+              if (records.some((r) => r.certificate_id === certId)) return;
 
               records.push({
                 id: `local-excel-${idx}`,
                 certificate_id: certId,
                 scholar_number: scholarNo,
-                recipient_name: name,
-                event_name: String(row["Event"] || row["Event Name"] || row["event_name"] || "National Cyber Defense Wargame 2026"),
-                issue_date: String(row["Issue Date"] || row["issue_date"] || new Date().toISOString().split("T")[0]),
+                recipient_name: name || `Student ${idx + 1}`,
+                event_name: getRowValue(row, ["event", "event name", "workshop"]) || "National Cyber Defense Wargame 2026",
+                issue_date: getRowValue(row, ["issue date", "date"]) || new Date().toISOString().split("T")[0],
                 expiry_date: "2030-01-01",
                 image_url: "",
-            
                 is_download_active: true,
-                role_or_rank: String(row["Role"] || row["role_or_rank"] || "Participant"),
+                role_or_rank: getRowValue(row, ["role", "rank", "position"]) || "Participant",
                 issued_by: "Cyber Cell, SATI Vidisha",
                 created_at: new Date().toISOString(),
               });
@@ -250,24 +312,6 @@ export function getLocalCertificates(): CertificateRecord[] {
         } catch (e) {
           console.warn("Could not parse excel file:", filePath, e);
         }
-      }
-    }
-
-    const jsonPath = path.join(process.cwd(), "data", "certificates.json");
-    if (fs.existsSync(jsonPath)) {
-      try {
-        const rawJson = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
-        if (Array.isArray(rawJson)) {
-          rawJson.forEach((c, idx) => {
-            records.push({
-              ...c,
-              id: c.id || `local-json-${idx}`,
-              is_download_active: true,
-            });
-          });
-        }
-      } catch (e) {
-        console.warn("Could not parse data/certificates.json:", e);
       }
     }
   } catch (err) {
@@ -285,25 +329,31 @@ export async function searchCertificates(searchQuery: string): Promise<Certifica
   if (!queryTerm) return [];
 
   const localRecords = getLocalCertificates();
+  const allInMemory = [...localRecords, ...mockCertificates];
+
+  const inMemoryMatches = allInMemory
+    .filter(
+      (c) =>
+        c.certificate_id.toUpperCase().includes(queryTerm) ||
+        c.scholar_number.toUpperCase().includes(queryTerm) ||
+        c.recipient_name.toUpperCase().includes(queryTerm) ||
+        c.event_name.toUpperCase().includes(queryTerm)
+    )
+    .map((c) => ({
+      ...c,
+      is_download_active: !isCertificateExpired(c),
+    }));
+
+  if (inMemoryMatches.length > 0) {
+    return inMemoryMatches;
+  }
 
   if (!isFirebaseConfigured) {
-    const combined = [...localRecords, ...mockCertificates];
-    return combined
-      .filter(
-        (c) =>
-          c.certificate_id.toUpperCase().includes(queryTerm) ||
-          c.scholar_number.toUpperCase().includes(queryTerm) ||
-          c.recipient_name.toUpperCase().includes(queryTerm) ||
-          c.event_name.toUpperCase().includes(queryTerm)
-      )
-      .map((c) => ({
-        ...c,
-        is_download_active: !isCertificateExpired(c),
-      }));
+    return inMemoryMatches;
   }
 
   try {
-    // 1. Direct ID lookup
+    // 1. Direct ID lookup in Firestore
     const directDoc = await getDoc(doc(db, "certificates", queryTerm));
     if (directDoc.exists()) {
       const data = directDoc.data() as CertificateRecord;
@@ -324,7 +374,7 @@ export async function searchCertificates(searchQuery: string): Promise<Certifica
       });
     }
 
-    // 3. Fallback: Query all recent and filter by name or partial match
+    // 3. Fallback: Query recent certificates and partial match
     const recentQuery = query(collection(db, "certificates"), limit(100));
     const recentSnap = await getDocs(recentQuery);
     const results: CertificateRecord[] = [];
@@ -343,93 +393,29 @@ export async function searchCertificates(searchQuery: string): Promise<Certifica
 
     if (results.length > 0) return results;
   } catch (error: unknown) {
-    const err = error as { code?: string; message?: string };
-    if (err?.code === "unavailable" || err?.message?.includes("client is offline")) {
-      console.warn("[Firestore searchCertificates] Offline mode active; querying local attendee sources.");
-    } else {
-      console.warn("[Firestore searchCertificates]:", err?.message || err);
-    }
+    console.warn("[Firestore searchCertificates Warning]:", error);
   }
 
-  // Fallback to local files & mock search
-  const combined = [...localRecords, ...mockCertificates];
-  return combined
-    .filter(
-      (c) =>
-        c.certificate_id.toUpperCase().includes(queryTerm) ||
-        c.scholar_number.toUpperCase().includes(queryTerm) ||
-        c.recipient_name.toUpperCase().includes(queryTerm)
-    )
-    .map((c) => ({
-      ...c,
-      is_download_active: !isCertificateExpired(c),
-    }));
+  return inMemoryMatches;
 }
 
 /**
- * Returns all issued certificates for admin directory
- */
-export async function getAllCertificates(limitCount: number = 100): Promise<CertificateRecord[]> {
-  const localRecords = getLocalCertificates();
-
-  if (!isFirebaseConfigured) {
-    const combined = [...localRecords, ...mockCertificates];
-    const map = new Map<string, CertificateRecord>();
-    combined.forEach((c) => map.set(c.certificate_id, c));
-    return Array.from(map.values()).map((c) => ({
-      ...c,
-      is_download_active: !isCertificateExpired(c),
-    }));
-  }
-
-  try {
-    const q = query(collection(db, "certificates"), limit(limitCount));
-    const snap = await getDocs(q);
-    const map = new Map<string, CertificateRecord>();
-
-    snap.forEach((d) => {
-      const data = d.data() as CertificateRecord;
-      map.set(data.certificate_id, { ...data, is_download_active: !isCertificateExpired(data) });
-    });
-
-    // Merge local records
-    localRecords.forEach((c) => {
-      if (!map.has(c.certificate_id)) {
-        map.set(c.certificate_id, { ...c, is_download_active: !isCertificateExpired(c) });
-      }
-    });
-
-    return Array.from(map.values());
-  } catch (error: unknown) {
-    const err = error as { code?: string; message?: string };
-    if (err?.code === "unavailable" || err?.message?.includes("client is offline")) {
-      console.warn("[Firestore getAllCertificates] Offline mode active; querying local attendee sources.");
-    } else {
-      console.warn("[Firestore getAllCertificates]:", err?.message || err);
-    }
-    const combined = [...localRecords, ...mockCertificates];
-    const map = new Map<string, CertificateRecord>();
-    combined.forEach((c) => map.set(c.certificate_id, c));
-    return Array.from(map.values()).map((c) => ({
-      ...c,
-      is_download_active: !isCertificateExpired(c),
-    }));
-  }
-}
-
-/**
- * Revoke or delete a certificate
+ * Deletes a certificate
  */
 export async function deleteCertificate(certificateId: string): Promise<boolean> {
   const cleanId = certificateId.trim().toUpperCase();
 
-  if (!isFirebaseConfigured) {
-    mockCertificates = mockCertificates.filter((c) => c.certificate_id !== cleanId);
-    return true;
+  // Remove from mock store
+  const mockIdx = mockCertificates.findIndex((c) => c.certificate_id === cleanId);
+  if (mockIdx >= 0) {
+    mockCertificates.splice(mockIdx, 1);
   }
 
+  if (!isFirebaseConfigured) return true;
+
   try {
-    await deleteDoc(doc(db, "certificates", cleanId));
+    const certRef = doc(db, "certificates", cleanId);
+    await deleteDoc(certRef);
     return true;
   } catch (error) {
     console.error("[Firestore deleteCertificate Error]:", error);
