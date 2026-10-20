@@ -2,153 +2,93 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import * as XLSX from "xlsx";
+import Link from "next/link";
 import {
-  Shield,
+  ArrowLeft,
   Upload,
-  FileSpreadsheet,
   Download,
-  CheckCircle2,
-  AlertCircle,
-  Eye,
-  Search,
-  RefreshCw,
-  LogOut,
-  Sliders,
+  Check,
+  Save,
+  Trash2,
+  ExternalLink,
+  FileSpreadsheet,
   Type,
   MoveVertical,
-  MoveHorizontal,
   Palette,
+  Eye,
+  LogOut,
   Sparkles,
-  Save,
-  Check,
-  Award,
-  Layers,
-  GraduationCap,
-  LayoutDashboard,
-  ArrowLeft,
+  CheckCircle2,
+  Users,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
-import Link from "next/link";
 import {
   renderCertificateToCanvas,
   CertificateConfig,
   CERTIFICATE_FONTS,
   FontOption,
 } from "@/lib/certificateRenderer";
-import { generateCertificateId, CertificateRecord } from "@/lib/certificates";
 
 interface AttendeeRow {
   name: string;
   scholarNumber: string;
   certificateId: string;
   role: string;
-  status?: "active";
 }
 
-const COLOR_PRESETS = [
+const COLOR_SWATCHES = [
   { name: "Royal Gold", hex: "#d4af37", bg: "bg-[#d4af37]" },
   { name: "Deep Gold", hex: "#b8860b", bg: "bg-[#b8860b]" },
-  { name: "Dark Navy", hex: "#0f172a", bg: "bg-[#0f172a]" },
-  { name: "Dark Slate", hex: "#1e293b", bg: "bg-[#1e293b]" },
   { name: "Pure Black", hex: "#000000", bg: "bg-black" },
+  { name: "Dark Navy", hex: "#0f172a", bg: "bg-[#0f172a]" },
   { name: "Pure White", hex: "#ffffff", bg: "bg-white" },
   { name: "Cyber Cyan", hex: "#00e5ff", bg: "bg-[#00e5ff]" },
 ];
 
-export default function AdminCertificatesStudio() {
+export default function CleanAdminCertificatesStudio() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"studio" | "directory">("studio");
-  const [authenticated, setAuthenticated] = useState<boolean | null>(null);
 
-  // Template Mode & File
-  const [templateMode, setTemplateMode] = useState<"name_only" | "full">("name_only");
-  const [templateType, setTemplateType] = useState<
-    "custom" | "cyber_midnight" | "gold_merit" | "monochrome_slate"
-  >("custom");
-  const [customImage, setCustomImage] = useState<HTMLImageElement | null>(null);
-  const [customImageName, setCustomImageName] = useState("Canva Template (Cloudinary CDN)");
+  // Template State
   const [templateUrl, setTemplateUrl] = useState<string>("");
+  const [templateFileName, setTemplateFileName] = useState<string>("");
+  const [customImage, setCustomImage] = useState<HTMLImageElement | null>(null);
+  const [isUploadingTemplate, setIsUploadingTemplate] = useState(false);
   const [isDeletingTemplate, setIsDeletingTemplate] = useState(false);
 
   // Typography Settings
-  const [selectedFont, setSelectedFont] = useState<FontOption>(CERTIFICATE_FONTS[0]); // Default: Cinzel
+  const [selectedFont, setSelectedFont] = useState<FontOption>(CERTIFICATE_FONTS[0]);
   const [fontSize, setFontSize] = useState<number>(76);
   const [fontWeight, setFontWeight] = useState<string>("bold");
   const [fontColor, setFontColor] = useState<string>("#d4af37");
-  const [nameYPos, setNameYPos] = useState<number>(0.48); // 48% from top
-  const [nameXPos, setNameXPos] = useState<number>(0.50); // 50% centered
-  const [letterSpacing, setLetterSpacing] = useState<number>(2);
+  const [nameYPos, setNameYPos] = useState<number>(0.495); // 49.5% from top
   const [textTransform, setTextTransform] = useState<"uppercase" | "capitalize" | "none">("uppercase");
-  const [showQrCode, setShowQrCode] = useState<boolean>(false);
-  const [showCertId, setShowCertId] = useState<boolean>(false);
 
   // Save State
-  const [savingConfig, setSavingConfig] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Attendees Data
-  const [attendees, setAttendees] = useState<AttendeeRow[]>([
-    {
-      name: "Aarav Sharma",
-      scholarNumber: "0108CS221001",
-      certificateId: "CYB-2026-ARV001",
-      role: "1st Place Winner",
-    },
-    {
-      name: "Yash Harfode",
-      scholarNumber: "0108CS221045",
-      certificateId: "CYB-2026-YSH045",
-      role: "Lead Convenor",
-    },
-    {
-      name: "Priya Sen",
-      scholarNumber: "0108IT221012",
-      certificateId: "CYB-2026-PRY012",
-      role: "2nd Place Winner",
-    },
-    {
-      name: "Rohan Vishwakarma",
-      scholarNumber: "0108EC221089",
-      certificateId: "CYB-2026-RHN089",
-      role: "Participant",
-    },
-    {
-      name: "Dr. Rohith Venkataraman",
-      scholarNumber: "0108CS221999",
-      certificateId: "CYB-2026-LONG01",
-      role: "Special Recognition",
-    },
-  ]);
+  const [attendees, setAttendees] = useState<AttendeeRow[]>([]);
+  const [isUploadingExcel, setIsUploadingExcel] = useState(false);
+  const [showAttendeesList, setShowAttendeesList] = useState(false);
+  const [previewIndex, setPreviewIndex] = useState(0);
 
-  // Preview State
-  const [previewIndex, setPreviewIndex] = useState(1); // Default to Yash Harfode
   const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  // Directory State
-  const [directoryList, setDirectoryList] = useState<CertificateRecord[]>([]);
-  const [directoryLoading, setDirectoryLoading] = useState(false);
-  const [directorySearch, setDirectorySearch] = useState("");
-
-  // 1. Verify Admin Session on mount
+  // 1. Check Admin Auth on mount
   useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await fetch("/api/admin/auth");
-        if (res.ok) {
-          setAuthenticated(true);
-        } else {
-          router.push("/admin/login");
-        }
-      } catch {
-        router.push("/admin/login");
-      }
-    }
-    checkAuth();
+    fetch("/api/admin/auth")
+      .then((res) => {
+        if (!res.ok) router.push("/admin/login");
+      })
+      .catch(() => router.push("/admin/login"));
   }, [router]);
 
-  // 2. Load existing saved config from data/certificateConfig.json
+  // 2. Load existing saved config from server
   useEffect(() => {
-    async function loadSavedConfig() {
+    async function loadConfig() {
       try {
         const res = await fetch("/api/admin/certificates/config");
         const data = await res.json();
@@ -157,12 +97,8 @@ export default function AdminCertificatesStudio() {
           if (cfg.fontSize) setFontSize(cfg.fontSize);
           if (cfg.color) setFontColor(cfg.color);
           if (cfg.yPositionPercent) setNameYPos(cfg.yPositionPercent / 100);
-          if (cfg.xPositionPercent) setNameXPos(cfg.xPositionPercent / 100);
-          if (cfg.letterSpacing !== undefined) setLetterSpacing(cfg.letterSpacing);
           if (cfg.textTransform) setTextTransform(cfg.textTransform);
           if (cfg.fontWeight) setFontWeight(cfg.fontWeight);
-          if (cfg.showQrCode !== undefined) setShowQrCode(cfg.showQrCode);
-          if (cfg.showCertificateId !== undefined) setShowCertId(cfg.showCertificateId);
 
           if (cfg.fontFamily) {
             const match = CERTIFICATE_FONTS.find(
@@ -170,111 +106,104 @@ export default function AdminCertificatesStudio() {
             );
             if (match) setSelectedFont(match);
           }
+
+          if (cfg.templateUrl) {
+            setTemplateUrl(cfg.templateUrl);
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => setCustomImage(img);
+            img.src = cfg.templateUrl;
+          }
+          if (cfg.templateFileName) {
+            setTemplateFileName(cfg.templateFileName);
+          }
+        }
+
+        // Load attendees if already in Excel/Registry
+        const attRes = await fetch("/api/certificates/verify?query=0108");
+        const attData = await attRes.json();
+        if (attData.certificates && attData.certificates.length > 0) {
+          setAttendees(
+            attData.certificates.map((c: any) => ({
+              name: c.recipient_name,
+              scholarNumber: c.scholar_number,
+              certificateId: c.certificate_id,
+              role: c.role_or_rank || "Participant",
+            }))
+          );
         }
       } catch (err) {
-        console.warn("Could not load saved certificate config:", err);
+        console.warn("Could not load certificate config:", err);
       }
     }
-    loadSavedConfig();
+    loadConfig();
   }, []);
 
-  // 3. Fetch Directory
-  useEffect(() => {
-    if (activeTab === "directory") {
-      fetchDirectory();
-    }
-  }, [activeTab]);
-
-  const fetchDirectory = async () => {
-    setDirectoryLoading(true);
-    try {
-      const res = await fetch("/api/certificates/verify?query=0108");
-      const data = await res.json();
-      if (data.certificates) {
-        setDirectoryList(data.certificates);
-      }
-    } catch (err) {
-      console.error("Failed to fetch directory:", err);
-    } finally {
-      setDirectoryLoading(false);
-    }
-  };
-
-  // 4. Render Canvas Preview whenever settings change
+  // 3. Render Canvas whenever settings change
   useEffect(() => {
     if (!previewCanvasRef.current) return;
-    const currentAttendee = attendees.length > 0 ? (attendees[previewIndex] || attendees[0]) : { name: "STUDENT FULL NAME", scholarNumber: "0108CS221001", certificateId: "CYB-2026-PREVIEW", role: "Participant" };
+
+    const currentAttendee: AttendeeRow =
+      attendees.length > 0
+        ? attendees[previewIndex] || attendees[0]
+        : {
+            name: "STUDENT FULL NAME",
+            scholarNumber: "0108CS221001",
+            certificateId: "CYB-2026-SAMPLE",
+            role: "Participant",
+          };
 
     const config: CertificateConfig = {
-      mode: templateMode,
-      templateType: templateType,
+      mode: "name_only",
+      templateType: "custom",
       customTemplateImage: customImage,
-      templateUrl: "/templates/certificate-template.png",
+      templateUrl: templateUrl || "/templates/certificate-template.png",
       recipientName: currentAttendee.name,
       scholarNumber: currentAttendee.scholarNumber,
       certificateId: currentAttendee.certificateId,
       issueDate: new Date().toISOString().split("T")[0],
       roleOrRank: currentAttendee.role,
       nameYPosition: nameYPos,
-      nameXPosition: nameXPos,
+      nameXPosition: 0.50, // Always centered horizontally
       nameFontSize: fontSize,
       nameFontFamily: selectedFont.family,
       nameFontWeight: fontWeight,
       nameColor: fontColor,
-      nameLetterSpacing: letterSpacing,
+      nameLetterSpacing: 2,
       nameTextTransform: textTransform,
-      showQrCode,
-      showCertificateId: showCertId,
+      showQrCode: false,
+      showCertificateId: false,
     };
 
     renderCertificateToCanvas(previewCanvasRef.current, config).catch((err) =>
       console.error("Canvas render error:", err)
     );
-  }, [
-    templateMode,
-    templateType,
-    customImage,
-    selectedFont,
-    fontSize,
-    fontWeight,
-    fontColor,
-    nameYPos,
-    nameXPos,
-    letterSpacing,
-    textTransform,
-    showQrCode,
-    showCertId,
-    attendees,
-    previewIndex,
-  ]);
+  }, [customImage, templateUrl, selectedFont, fontSize, fontWeight, fontColor, nameYPos, textTransform, attendees, previewIndex]);
 
-  // Uploading States & Notification
-  const [isUploadingTemplate, setIsUploadingTemplate] = useState(false);
-  const [isUploadingExcel, setIsUploadingExcel] = useState(false);
-  const [uploadNotification, setUploadNotification] = useState<string | null>(null);
+  // Show Toast
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 5000);
+  };
 
-  // Handle Custom Canva Template Upload (Permanently Saves to Server)
-  const handleCustomTemplateUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Upload Canva Template (Auto-saves to Cloudinary)
+  const handleTemplateUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setCustomImageName(file.name);
+    setTemplateFileName(file.name);
     setIsUploadingTemplate(true);
 
-    // 1. Instant client-side preview
+    // Instant local preview
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
-      img.onload = () => {
-        setCustomImage(img);
-        setTemplateType("custom");
-        setTemplateMode("name_only");
-      };
+      img.onload = () => setCustomImage(img);
       img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
 
-    // 2. Permanently upload to server (public/templates/certificate-template.png)
+    // Upload to Cloudinary
     try {
       const formData = new FormData();
       formData.append("template", file);
@@ -287,57 +216,48 @@ export default function AdminCertificatesStudio() {
       const data = await res.json();
       if (data.success) {
         if (data.templateUrl) setTemplateUrl(data.templateUrl);
-        if (data.fileName) setCustomImageName(data.fileName);
-        setUploadNotification("✓ Canva template permanently saved to Cloudinary CDN & server!");
-        setTimeout(() => setUploadNotification(null), 6000);
+        showToast("✓ Template successfully uploaded to Cloudinary CDN!");
       } else {
-        alert("Template upload error: " + (data.error || "Failed to save file"));
+        alert("Upload error: " + (data.error || "Failed to upload"));
       }
-    } catch (err) {
-      console.error("Template upload error:", err);
-      alert("Network error while uploading template to server.");
+    } catch {
+      alert("Network error while uploading template.");
     } finally {
       setIsUploadingTemplate(false);
     }
   };
 
-
-  // Handle Delete Canva Template (Deletes from Cloudinary & resets server)
+  // Delete Canva Template from Cloudinary
   const handleDeleteTemplate = async () => {
-    if (!confirm("Are you sure you want to delete this Canva template from Cloudinary storage?")) {
+    if (!confirm("Are you sure you want to delete this template from Cloudinary storage?")) {
       return;
     }
 
     setIsDeletingTemplate(true);
     try {
-      const res = await fetch("/api/admin/certificates/upload-template", {
-        method: "DELETE",
-      });
+      const res = await fetch("/api/admin/certificates/upload-template", { method: "DELETE" });
       const data = await res.json();
       if (data.success) {
         setTemplateUrl("");
         setCustomImage(null);
-        setCustomImageName("No Template Loaded");
-        setUploadNotification("✓ Canva template successfully deleted from Cloudinary storage.");
-        setTimeout(() => setUploadNotification(null), 5000);
+        setTemplateFileName("");
+        showToast("✓ Template deleted from Cloudinary storage.");
       } else {
-        alert("Delete template error: " + (data.error || "Failed to delete"));
+        alert("Delete error: " + data.error);
       }
-    } catch (err) {
-      console.error("Delete template error:", err);
+    } catch {
       alert("Network error while deleting template.");
     } finally {
       setIsDeletingTemplate(false);
     }
   };
 
-  // Handle Excel Upload (Permanently Saves to Server data/attendees.xlsx)
+  // Upload Attendees Excel File
   const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsUploadingExcel(true);
-
     try {
       const formData = new FormData();
       formData.append("excel", file);
@@ -349,10 +269,9 @@ export default function AdminCertificatesStudio() {
 
       const data = await res.json();
       if (data.success) {
-        setUploadNotification(`✓ Excel attendees file permanently saved to server (${data.rowCount} attendees)!`);
-        setTimeout(() => setUploadNotification(null), 6000);
+        showToast(`✓ Excel uploaded successfully! ${data.rowCount} attendees loaded.`);
 
-        // Fetch refreshed attendees from server
+        // Refresh attendees
         const refreshRes = await fetch("/api/certificates/verify?query=0108");
         const refreshData = await refreshRes.json();
         if (refreshData.certificates && refreshData.certificates.length > 0) {
@@ -362,139 +281,108 @@ export default function AdminCertificatesStudio() {
               scholarNumber: c.scholar_number,
               certificateId: c.certificate_id,
               role: c.role_or_rank || "Participant",
-              status: "active",
             }))
           );
           setPreviewIndex(0);
         }
       } else {
-        alert("Excel upload error: " + (data.error || "Failed to save Excel file"));
+        alert("Excel upload error: " + data.error);
       }
-    } catch (err) {
-      console.error("Excel upload error:", err);
-      alert("Network error while uploading Excel to server.");
+    } catch {
+      alert("Network error while uploading Excel.");
     } finally {
       setIsUploadingExcel(false);
     }
   };
 
-  // Save Final Official Font & Configuration
-  const handleSaveConfig = async () => {
-    setSavingConfig(true);
-    setSaveSuccess(false);
-
+  // Save Final Font Decision
+  const handleSaveDesign = async () => {
+    setIsSaving(true);
     try {
-      const payload = {
-        templateUrl: "/templates/certificate-template.png",
-        fontFamily: selectedFont.family,
-        fontSize,
-        fontWeight,
-        color: fontColor,
-        yPositionPercent: Math.round(nameYPos * 1000) / 10,
-        xPositionPercent: Math.round(nameXPos * 1000) / 10,
-        letterSpacing,
-        textTransform,
-        showQrCode,
-        showCertificateId: showCertId,
-      };
-
       const res = await fetch("/api/admin/certificates/config", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          fontFamily: selectedFont.family,
+          fontSize,
+          fontWeight,
+          color: fontColor,
+          yPositionPercent: Number((nameYPos * 100).toFixed(1)),
+          xPositionPercent: 50,
+          textTransform,
+        }),
       });
 
-      if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
         setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 3500);
-      } else {
-        alert("Failed to save config to server");
+        showToast("✓ Certificate design saved! All students will receive this style.");
+        setTimeout(() => setSaveSuccess(false), 4000);
       }
-    } catch (err) {
-      console.error("Save config error:", err);
-      alert("Error saving configuration");
+    } catch {
+      alert("Network error while saving.");
     } finally {
-      setSavingConfig(false);
+      setIsSaving(false);
     }
   };
 
-  // Test Download Current Canvas PNG
+  // Download Test PNG
   const handleDownloadTestPng = () => {
     if (!previewCanvasRef.current) return;
-    const currentAttendee = attendees[previewIndex] || attendees[0];
-    const dataUrl = previewCanvasRef.current.toDataURL("image/png", 1.0);
+    const url = previewCanvasRef.current.toDataURL("image/png", 1.0);
     const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = `CyberCell-${currentAttendee.name.replace(/\s+/g, "_")}-Certificate.png`;
+    link.href = url;
+    link.download = "CyberCell-Certificate-Preview.png";
     link.click();
   };
 
+  // Logout
   const handleLogout = async () => {
     await fetch("/api/admin/auth", { method: "DELETE" });
     router.push("/admin/login");
   };
 
-  if (!authenticated) {
-    return (
-      <div className="min-h-screen bg-[#06080d] flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  const currentAttendee = attendees[previewIndex] || attendees[0];
-
   return (
-    <div className="min-h-screen bg-[#06080d] text-white flex flex-col">
+    <div className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-black">
       {/* ========================================================================= */}
-      {/* Top Admin Navigation Bar                                                 */}
+      {/* Header Bar                                                                */}
       {/* ========================================================================= */}
-      <header className="border-b border-white/[0.08] bg-[#090d16]/90 backdrop-blur sticky top-0 z-40">
+      <header className="border-b border-white/[0.08] bg-[#090e1a]/80 backdrop-blur-xl sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
               href="/admin"
-              className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 hover:bg-cyan-500/20 transition-colors"
-              title="Return to Admin Dashboard"
+              className="w-9 h-9 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+              title="Back to Admin Dashboard"
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-sm tracking-wide text-white">
-                  CYBER CELL STUDIO
+              <h1 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
+                <span>Certificate Studio</span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
+                  Canva + Cloudinary
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-amber-500/15 border border-amber-500/30 text-amber-300">
-                  On-Demand Canvas
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400 font-mono">
-                Canva Template & Font Customizer
+              </h1>
+              <p className="text-[11px] text-slate-400">
+                Upload Canva template, adjust name placement, and finalize
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Link
-              href="/admin"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs text-slate-300 hover:text-white transition-colors"
-            >
-              <LayoutDashboard className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Dashboard</span>
-            </Link>
-
+          <div className="flex items-center gap-2.5">
             <Link
               href="/verify"
               target="_blank"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs text-slate-300 hover:text-white transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs text-slate-300 hover:text-white transition-colors font-medium"
             >
               <Eye className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Verify Portal (/verify)</span>
+              <span className="hidden sm:inline">View Public Portal</span>
             </Link>
 
             <button
               onClick={handleLogout}
-              className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors"
+              className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
               title="Logout"
             >
               <LogOut className="w-4 h-4" />
@@ -503,101 +391,89 @@ export default function AdminCertificatesStudio() {
         </div>
       </header>
 
-      {/* Main Studio Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1">
-        {/* Upload Notification Banner */}
-        {uploadNotification && (
-          <div className="mb-6 p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-mono flex items-center gap-2.5 shadow-lg animate-fadeIn">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-            <span>{uploadNotification}</span>
+      {/* Main Studio Container */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1 space-y-6">
+        {/* Floating Toast Notification */}
+        {toastMessage && (
+          <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-mono flex items-center gap-2.5 shadow-xl animate-fadeIn">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>{toastMessage}</span>
           </div>
         )}
 
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-2 mb-8 border-b border-white/[0.08] pb-4">
-          <button
-            onClick={() => setActiveTab("studio")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${
-              activeTab === "studio"
-                ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shadow-sm"
-                : "text-slate-400 hover:text-white hover:bg-white/[0.03]"
-            }`}
-          >
-            <Palette className="w-4 h-4" />
-            <span>Font & Template Studio</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("directory")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${
-              activeTab === "directory"
-                ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shadow-sm"
-                : "text-slate-400 hover:text-white hover:bg-white/[0.03]"
-            }`}
-          >
-            <FileSpreadsheet className="w-4 h-4" />
-            <span>Excel Attendees Registry ({attendees.length})</span>
-          </button>
-        </div>
-
-        {activeTab === "studio" && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* ========================================================================= */}
-            {/* LEFT / CENTER: Live High-Definition Certificate Preview                   */}
-            {/* ========================================================================= */}
-            <div className="lg:col-span-7 space-y-5">
-              <div className="bg-[#0b101b] border border-white/10 rounded-2xl p-5 shadow-2xl relative">
-                {/* Header info */}
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-white/[0.08]">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-xs font-mono font-semibold text-white uppercase tracking-wider">
-                      Live Canvas Preview (1920×1080 HD)
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleDownloadTestPng}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#27446b] hover:bg-[#315383] text-white text-xs font-semibold shadow-md active:scale-98 transition-all"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>Download Test PNG</span>
-                    </button>
-                  </div>
+        {/* 2-Column Responsive Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* ========================================================================= */}
+          {/* LEFT COLUMN: Large Live Canvas Preview                                    */}
+          {/* ========================================================================= */}
+          <div className="lg:col-span-7 space-y-4">
+            <div className="bg-[#0b101c] border border-white/10 rounded-3xl p-5 shadow-2xl relative">
+              {/* Canvas Header */}
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/[0.08]">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-xs font-mono font-semibold text-slate-300 uppercase tracking-wider">
+                    Live 1920×1080 Preview
+                  </span>
                 </div>
 
-                {/* 16:9 Aspect Ratio Canvas Container */}
-                <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden border border-white/10 bg-black/60 shadow-inner flex items-center justify-center">
-                  <canvas
-                    ref={previewCanvasRef}
-                    className="w-full h-full object-contain"
-                  />
-                  {isUploadingTemplate && (
-                    <div className="absolute inset-0 bg-black/70 backdrop-blur-xs flex flex-col items-center justify-center gap-2 text-cyan-300 text-xs font-mono">
-                      <div className="w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-                      <span>Saving Canva Template permanently to server...</span>
+                <button
+                  onClick={handleDownloadTestPng}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-semibold transition-all active:scale-95 shadow-sm"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download Test PNG</span>
+                </button>
+              </div>
+
+              {/* 16:9 Canvas Viewport */}
+              <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-white/10 bg-[#050811] flex items-center justify-center shadow-inner group">
+                <canvas
+                  ref={previewCanvasRef}
+                  className="w-full h-full object-contain"
+                />
+
+                {/* Overlay if No Template is uploaded yet */}
+                {!templateUrl && !customImage && (
+                  <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                      <Sparkles className="w-6 h-6" />
                     </div>
-                  )}
+                    <div>
+                      <p className="text-sm font-semibold text-white">No Canva Template Uploaded</p>
+                      <p className="text-xs text-slate-400 mt-1 max-w-sm">
+                        Upload your Canva certificate below. It will automatically save to Cloudinary and display here.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Uploading Spinner Overlay */}
+                {isUploadingTemplate && (
+                  <div className="absolute inset-0 bg-black/75 backdrop-blur-xs flex flex-col items-center justify-center gap-2 text-cyan-300 text-xs font-mono">
+                    <div className="w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                    <span>Uploading Canva Template to Cloudinary CDN...</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Preview Testing Name Bar */}
+              <div className="mt-4 pt-3 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2 text-slate-400 font-mono">
+                  <span>Testing:</span>
+                  <strong className="text-white font-sans text-sm font-bold">
+                    {attendees.length > 0 ? (attendees[previewIndex]?.name || attendees[0].name) : "STUDENT FULL NAME"}
+                  </strong>
                 </div>
 
-                {/* Active Attendee Test Switcher */}
-                <div className="mt-4 pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
-                  <div className="flex items-center gap-2 text-slate-400">
-                    <span>Testing Name:</span>
-                    <strong className="text-cyan-300 font-sans text-sm">
-                      {currentAttendee.name}
-                    </strong>
-                    <span className="text-slate-500">({currentAttendee.scholarNumber})</span>
-                  </div>
-
+                {attendees.length > 1 && (
                   <div className="flex items-center gap-1.5">
-                    <span className="text-slate-500 mr-1">Switch:</span>
-                    {attendees.slice(0, 4).map((att, idx) => (
+                    <span className="text-[11px] text-slate-500 font-mono">Sample:</span>
+                    {attendees.slice(0, 3).map((att, idx) => (
                       <button
-                        key={att.scholarNumber || idx}
+                        key={idx}
                         onClick={() => setPreviewIndex(idx)}
-                        className={`px-2 py-1 rounded text-[11px] transition-colors ${
+                        className={`px-2 py-0.5 rounded-lg text-xs font-mono transition-colors ${
                           previewIndex === idx
                             ? "bg-cyan-500 text-black font-bold"
                             : "bg-white/[0.05] hover:bg-white/[0.1] text-slate-300"
@@ -607,371 +483,342 @@ export default function AdminCertificatesStudio() {
                       </button>
                     ))}
                   </div>
-                </div>
-              </div>
-
-              {/* Template Upload & Selection Card */}
-              <div className="bg-[#0b101b] border border-white/10 rounded-2xl p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-cyan-400" />
-                    <h3 className="text-sm font-bold text-white">Canva Template Mode</h3>
-                  </div>
-                  <span className="text-xs font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 rounded">
-                    Only writes recipient name
-                  </span>
-                </div>
-
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Aapka 5 MB Canva template background rahega. Code se sirf aur sirf recipient ka naam draw hoga.
-                  Aap yaha naya Canva image upload karenge toh wo <strong>direct server par save</strong> ho jayega taaki student bhi download kar paye:
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <label className="flex flex-col items-center justify-center p-4 rounded-xl border border-dashed border-white/20 hover:border-cyan-400/50 bg-white/[0.02] hover:bg-white/[0.05] cursor-pointer transition-all text-center group">
-                    {isUploadingTemplate ? (
-                      <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mb-1.5" />
-                    ) : (
-                      <Upload className="w-5 h-5 text-slate-400 group-hover:text-cyan-400 mb-1.5 transition-colors" />
-                    )}
-                    <span className="text-xs font-semibold text-white">
-                      {isUploadingTemplate ? "Saving to Server..." : "Upload Canva Template"}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-mono">PNG / JPG up to 10 MB (Auto-saves)</span>
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      className="hidden"
-                      disabled={isUploadingTemplate}
-                      onChange={handleCustomTemplateUpload}
-                    />
-                  </label>
-
-                  <label className="flex flex-col items-center justify-center p-4 rounded-xl border border-dashed border-white/20 hover:border-emerald-400/50 bg-white/[0.02] hover:bg-white/[0.05] cursor-pointer transition-all text-center group">
-                    {isUploadingExcel ? (
-                      <div className="w-5 h-5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin mb-1.5" />
-                    ) : (
-                      <FileSpreadsheet className="w-5 h-5 text-slate-400 group-hover:text-emerald-400 mb-1.5 transition-colors" />
-                    )}
-                    <span className="text-xs font-semibold text-white">
-                      {isUploadingExcel ? "Saving Attendees..." : "Upload Excel File"}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-mono">.xlsx or .csv (Auto-saves to server)</span>
-                    <input
-                      type="file"
-                      accept=".xlsx,.xls,.csv"
-                      className="hidden"
-                      disabled={isUploadingExcel}
-                      onChange={handleExcelUpload}
-                    />
-                  </label>
-                </div>
-
-                <div className="text-[11px] font-mono text-slate-400 flex items-center justify-between pt-1 border-t border-white/[0.05]">
-                  <span>Active Template: <strong className="text-slate-200">{customImageName}</strong></span>
-                  <span className="text-emerald-400">✓ Server Persistent</span>
-                </div>
+                )}
               </div>
             </div>
 
-            {/* ========================================================================= */}
-            {/* RIGHT SIDEBAR: Font Picker & Alignment Studio                             */}
-            {/* ========================================================================= */}
-            <div className="lg:col-span-5 space-y-6">
-              {/* Primary Save Action Banner */}
-              <div className="p-4 rounded-2xl bg-gradient-to-r from-cyan-950/60 to-blue-950/40 border border-cyan-500/30 flex items-center justify-between gap-3 shadow-lg">
-                <div>
-                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                    Final Font Decision
-                  </h4>
-                  <p className="text-[11px] text-slate-300">
-                    Aap jo font yaha final karenge, sabhi students ke liye wahi use hoga.
-                  </p>
-                </div>
-
-                <button
-                  onClick={handleSaveConfig}
-                  disabled={savingConfig}
-                  className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg transition-all shrink-0 ${
-                    saveSuccess
-                      ? "bg-emerald-500 text-black shadow-emerald-500/20"
-                      : "bg-[#00e5ff] hover:bg-[#38bdf8] text-slate-950 shadow-cyan-500/20"
-                  }`}
-                >
-                  {savingConfig ? (
-                    <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
-                  ) : saveSuccess ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      <span>Finalized!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-4 h-4" />
-                      <span>Save as Final</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* 1. Font Selection Gallery */}
-              <div className="bg-[#0b101b] border border-white/10 rounded-2xl p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Type className="w-4 h-4 text-cyan-400" />
-                    <h3 className="text-sm font-bold text-white">Choose Final Font</h3>
-                  </div>
-                  <span className="text-[11px] font-mono text-slate-400">
-                    {CERTIFICATE_FONTS.length} Curated Fonts
-                  </span>
-                </div>
-
-                {/* Font Options Grid */}
-                <div className="space-y-2 max-h-[290px] overflow-y-auto pr-1">
-                  {CERTIFICATE_FONTS.map((f) => {
-                    const isSelected = selectedFont.id === f.id;
-                    return (
-                      <div
-                        key={f.id}
-                        onClick={() => setSelectedFont(f)}
-                        className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between gap-3 ${
-                          isSelected
-                            ? "bg-cyan-500/15 border-cyan-500/60 shadow-[0_0_15px_rgba(56,189,248,0.15)]"
-                            : "bg-white/[0.02] border-white/10 hover:bg-white/[0.06] hover:border-white/20"
-                        }`}
-                      >
-                        <div className="space-y-0.5">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-white">{f.name}</span>
-                            <span
-                              className={`px-1.5 py-0.2 rounded text-[10px] font-mono uppercase ${
-                                f.category === "Academic"
-                                  ? "bg-amber-500/20 text-amber-300"
-                                  : f.category === "Calligraphy"
-                                  ? "bg-pink-500/20 text-pink-300"
-                                  : f.category === "Serif"
-                                  ? "bg-purple-500/20 text-purple-300"
-                                  : "bg-cyan-500/20 text-cyan-300"
-                              }`}
-                            >
-                              {f.category}
-                            </span>
-                          </div>
-                          <p className="text-[10px] text-slate-400 line-clamp-1">{f.description}</p>
-                        </div>
-
-                        <div className="text-right shrink-0">
-                          <span
-                            className="text-base text-cyan-300"
-                            style={{ fontFamily: f.family }}
-                          >
-                            {f.sample}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 2. Position & Alignment Sliders */}
-              <div className="bg-[#0b101b] border border-white/10 rounded-2xl p-5 space-y-5">
-                <div className="flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-cyan-400" />
-                  <h3 className="text-sm font-bold text-white">Name Position & Styling</h3>
-                </div>
-
-                {/* Vertical Position (Y %) */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="flex items-center gap-1.5 text-slate-300">
-                      <MoveVertical className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>Vertical Position (Y from Top)</span>
-                    </span>
-                    <div className="flex items-center gap-1 font-mono text-cyan-300 font-bold">
-                      <button
-                        onClick={() => setNameYPos((prev) => Math.max(0.2, prev - 0.005))}
-                        className="px-1.5 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[11px]"
-                        title="Move Up"
-                      >
-                        -
-                      </button>
-                      <span>{(nameYPos * 100).toFixed(1)}%</span>
-                      <button
-                        onClick={() => setNameYPos((prev) => Math.min(0.8, prev + 0.005))}
-                        className="px-1.5 py-0.5 bg-white/10 hover:bg-white/20 rounded text-[11px]"
-                        title="Move Down"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                  <input
-                    type="range"
-                    min="30"
-                    max="70"
-                    step="0.5"
-                    value={nameYPos * 100}
-                    onChange={(e) => setNameYPos(parseFloat(e.target.value) / 100)}
-                    className="w-full accent-cyan-400"
-                  />
-                  <p className="text-[10px] text-slate-500">
-                    Canva template me jaha naam ki khali line hai, uske theek upar set karein.
-                  </p>
-                </div>
-
-                {/* Font Size */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-300">Font Size (px)</span>
-                    <span className="font-mono text-cyan-300 font-bold">{fontSize}px</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="44"
-                    max="120"
-                    step="2"
-                    value={fontSize}
-                    onChange={(e) => setFontSize(parseInt(e.target.value))}
-                    className="w-full accent-cyan-400"
-                  />
-                </div>
-
-                {/* Text Color Presets */}
-                <div className="space-y-2">
-                  <span className="text-xs text-slate-300 block">Name Color</span>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {COLOR_PRESETS.map((c) => (
-                      <button
-                        key={c.hex}
-                        onClick={() => setFontColor(c.hex)}
-                        title={c.name}
-                        className={`w-7 h-7 rounded-full border transition-all ${c.bg} ${
-                          fontColor.toLowerCase() === c.hex.toLowerCase()
-                            ? "ring-2 ring-cyan-400 ring-offset-2 ring-offset-[#0b101b] scale-110 border-white"
-                            : "border-white/20 hover:scale-105"
-                        }`}
-                      />
-                    ))}
-                    <input
-                      type="color"
-                      value={fontColor}
-                      onChange={(e) => setFontColor(e.target.value)}
-                      className="w-7 h-7 rounded-full bg-transparent cursor-pointer border border-white/20 ml-1"
-                      title="Custom Color"
-                    />
-                  </div>
-                </div>
-
-                {/* Text Transform & Letter Spacing */}
-                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/[0.08]">
-                  <div>
-                    <label className="text-[11px] text-slate-400 block mb-1">Casing</label>
-                    <select
-                      value={textTransform}
-                      onChange={(e) => setTextTransform(e.target.value as "uppercase" | "capitalize" | "none")}
-                      className="w-full text-xs px-2.5 py-1.5 rounded-lg bg-white/[0.05] border border-white/10 text-white focus:outline-none focus:border-cyan-400"
-                    >
-                      <option value="uppercase" className="bg-[#0b101b]">UPPERCASE</option>
-                      <option value="capitalize" className="bg-[#0b101b]">Title Case</option>
-                      <option value="none" className="bg-[#0b101b]">As in Excel</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] text-slate-400 block mb-1">Font Weight</label>
-                    <select
-                      value={fontWeight}
-                      onChange={(e) => setFontWeight(e.target.value)}
-                      className="w-full text-xs px-2.5 py-1.5 rounded-lg bg-white/[0.05] border border-white/10 text-white focus:outline-none focus:border-cyan-400"
-                    >
-                      <option value="bold" className="bg-[#0b101b]">Bold</option>
-                      <option value="600" className="bg-[#0b101b]">Semi-Bold</option>
-                      <option value="normal" className="bg-[#0b101b]">Normal</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
+            {/* Quick Tip Pill */}
+            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-xs text-slate-400 flex items-center gap-3">
+              <span className="text-cyan-400 font-bold shrink-0">💡 Tip:</span>
+              <span>
+                Canva template par jaha student ke naam ki jagah khali hai, right side me <strong>Vertical Position (Y)</strong> slider se naam ko theek usi line par set karein.
+              </span>
             </div>
           </div>
-        )}
 
-        {/* ========================================================================= */}
-        {/* DIRECTORY / ATTENDEES TAB                                                */}
-        {/* ========================================================================= */}
-        {activeTab === "directory" && (
-          <div className="bg-[#0b101b] border border-white/10 rounded-2xl p-6 space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-white/[0.08]">
-              <div>
-                <h3 className="text-base font-bold text-white">
-                  Attendees Data Registry ({attendees.length} Records)
-                </h3>
-                <p className="text-xs text-slate-400 font-mono">
-                  Data sourced from local Excel / JSON in <code>data/attendees.xlsx</code>
-                </p>
+          {/* ========================================================================= */}
+          {/* RIGHT COLUMN: 3 Simple Steps                                              */}
+          {/* ========================================================================= */}
+          <div className="lg:col-span-5 space-y-5">
+            {/* ----------------------------------------------------------------------- */}
+            {/* STEP 1: Canva Template (Cloudinary)                                     */}
+            {/* ----------------------------------------------------------------------- */}
+            <div className="bg-[#0b101c] border border-white/10 rounded-3xl p-5 space-y-3.5 shadow-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-6 h-6 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold flex items-center justify-center font-mono">
+                    1
+                  </span>
+                  <h3 className="text-sm font-bold text-white">Canva Template</h3>
+                </div>
+
+                {templateUrl ? (
+                  <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    Cloudinary Live
+                  </span>
+                ) : (
+                  <span className="text-[11px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full">
+                    No Template
+                  </span>
+                )}
               </div>
 
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <label className="px-3 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-semibold cursor-pointer transition-colors flex items-center gap-2">
-                  <Upload className="w-3.5 h-3.5" />
-                  <span>Upload New Excel</span>
+              {/* Action Area */}
+              {templateUrl ? (
+                <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-400 truncate max-w-[200px]" title={templateFileName || "Active Canva Template"}>
+                      📄 {templateFileName || "Canva Template"}
+                    </span>
+                    <a
+                      href={templateUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1 text-[11px] font-mono"
+                    >
+                      <span>View CDN</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1 border-t border-white/[0.06]">
+                    <label className="flex-1 py-2 px-3 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-semibold text-center cursor-pointer transition-colors flex items-center justify-center gap-1.5">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{isUploadingTemplate ? "Uploading..." : "Replace Template"}</span>
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        className="hidden"
+                        disabled={isUploadingTemplate}
+                        onChange={handleTemplateUpload}
+                      />
+                    </label>
+
+                    <button
+                      type="button"
+                      onClick={handleDeleteTemplate}
+                      disabled={isDeletingTemplate}
+                      className="py-2 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+                      title="Delete from Cloudinary"
+                    >
+                      {isDeletingTemplate ? (
+                        <div className="w-3.5 h-3.5 border-2 border-rose-400 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Trash2 className="w-3.5 h-3.5" />
+                      )}
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center p-6 rounded-2xl border border-dashed border-cyan-500/30 hover:border-cyan-400 bg-cyan-500/[0.02] hover:bg-cyan-500/[0.05] cursor-pointer transition-all text-center group">
+                  <Upload className="w-6 h-6 text-cyan-400 group-hover:scale-110 mb-2 transition-transform" />
+                  <span className="text-xs font-bold text-white">
+                    {isUploadingTemplate ? "Uploading to Cloudinary..." : "Upload Canva Certificate Template"}
+                  </span>
+                  <span className="text-[11px] text-slate-400 mt-0.5 font-mono">PNG or JPG (Up to 15 MB)</span>
                   <input
                     type="file"
-                    accept=".xlsx,.xls,.csv"
+                    accept="image/png,image/jpeg,image/webp"
                     className="hidden"
-                    onChange={handleExcelUpload}
+                    disabled={isUploadingTemplate}
+                    onChange={handleTemplateUpload}
                   />
                 </label>
-              </div>
+              )}
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs font-mono">
-                <thead>
-                  <tr className="border-b border-white/10 text-slate-400">
-                    <th className="py-3 px-4">#</th>
-                    <th className="py-3 px-4">Recipient Name</th>
-                    <th className="py-3 px-4">Scholar Number</th>
-                    <th className="py-3 px-4">Certificate ID</th>
-                    <th className="py-3 px-4">Role / Category</th>
-                    <th className="py-3 px-4 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/[0.05]">
-                  {attendees.map((att, idx) => (
-                    <tr
-                      key={att.certificateId || idx}
-                      className="hover:bg-white/[0.02] transition-colors"
-                    >
-                      <td className="py-3 px-4 text-slate-500">{idx + 1}</td>
-                      <td className="py-3 px-4 font-bold text-white font-sans text-sm">
-                        {att.name}
-                      </td>
-                      <td className="py-3 px-4 text-cyan-300">{att.scholarNumber}</td>
-                      <td className="py-3 px-4 text-slate-400">{att.certificateId}</td>
-                      <td className="py-3 px-4">
-                        <span className="px-2 py-0.5 rounded bg-white/[0.05] text-slate-300">
-                          {att.role}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => {
-                            setPreviewIndex(idx);
-                            setActiveTab("studio");
-                          }}
-                          className="px-2.5 py-1 rounded bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs transition-colors"
-                        >
-                          Preview On Canvas
-                        </button>
-                      </td>
-                    </tr>
+            {/* ----------------------------------------------------------------------- */}
+            {/* STEP 2: Name & Typography Customizer                                    */}
+            {/* ----------------------------------------------------------------------- */}
+            <div className="bg-[#0b101c] border border-white/10 rounded-3xl p-5 space-y-4 shadow-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-6 h-6 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold flex items-center justify-center font-mono">
+                    2
+                  </span>
+                  <h3 className="text-sm font-bold text-white">Name Formatting</h3>
+                </div>
+                <span className="text-[11px] font-mono text-slate-400">Fixed for all students</span>
+              </div>
+
+              {/* 1. Font Family Dropdown */}
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-300 font-medium block">
+                  Font Style
+                </label>
+                <select
+                  value={selectedFont.id}
+                  onChange={(e) => {
+                    const match = CERTIFICATE_FONTS.find((f) => f.id === e.target.value);
+                    if (match) setSelectedFont(match);
+                  }}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-medium focus:border-cyan-400 focus:outline-none transition-all cursor-pointer"
+                >
+                  {CERTIFICATE_FONTS.map((font) => (
+                    <option key={font.id} value={font.id} className="bg-[#0b101c] text-white">
+                      {font.name} ({font.category})
+                    </option>
                   ))}
-                </tbody>
-              </table>
+                </select>
+              </div>
+
+              {/* 2. Vertical Position (Y Slider) with Precision - / + */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-300 flex items-center gap-1.5">
+                    <MoveVertical className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Vertical Position (Up / Down)</span>
+                  </span>
+                  <div className="flex items-center gap-1 font-mono text-cyan-300 font-bold">
+                    <button
+                      onClick={() => setNameYPos((prev) => Math.max(0.2, Number((prev - 0.005).toFixed(3))))}
+                      className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded-md text-xs"
+                      title="Move Up"
+                    >
+                      -
+                    </button>
+                    <span>{(nameYPos * 100).toFixed(1)}%</span>
+                    <button
+                      onClick={() => setNameYPos((prev) => Math.min(0.8, Number((prev + 0.005).toFixed(3))))}
+                      className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded-md text-xs"
+                      title="Move Down"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <input
+                  type="range"
+                  min="30"
+                  max="70"
+                  step="0.5"
+                  value={nameYPos * 100}
+                  onChange={(e) => setNameYPos(parseFloat(e.target.value) / 100)}
+                  className="w-full accent-cyan-400 cursor-pointer"
+                />
+              </div>
+
+              {/* 3. Font Size Slider */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-300 flex items-center gap-1.5">
+                    <Type className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Font Size</span>
+                  </span>
+                  <div className="flex items-center gap-1 font-mono text-cyan-300 font-bold">
+                    <button
+                      onClick={() => setFontSize((prev) => Math.max(40, prev - 2))}
+                      className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded-md text-xs"
+                    >
+                      -
+                    </button>
+                    <span>{fontSize}px</span>
+                    <button
+                      onClick={() => setFontSize((prev) => Math.min(120, prev + 2))}
+                      className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded-md text-xs"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <input
+                  type="range"
+                  min="44"
+                  max="120"
+                  step="2"
+                  value={fontSize}
+                  onChange={(e) => setFontSize(parseInt(e.target.value))}
+                  className="w-full accent-cyan-400 cursor-pointer"
+                />
+              </div>
+
+              {/* 4. Color Swatches */}
+              <div className="space-y-1.5">
+                <label className="text-xs text-slate-300 font-medium block">
+                  Name Color
+                </label>
+                <div className="flex flex-wrap items-center gap-2">
+                  {COLOR_SWATCHES.map((c) => (
+                    <button
+                      key={c.hex}
+                      type="button"
+                      onClick={() => setFontColor(c.hex)}
+                      className={`w-7 h-7 rounded-full ${c.bg} transition-all relative flex items-center justify-center border ${
+                        fontColor.toLowerCase() === c.hex.toLowerCase()
+                          ? "ring-2 ring-cyan-400 scale-110 border-white"
+                          : "border-white/20 hover:scale-105"
+                      }`}
+                      title={c.name}
+                    >
+                      {fontColor.toLowerCase() === c.hex.toLowerCase() && (
+                        <Check className={`w-3.5 h-3.5 ${c.hex === "#ffffff" ? "text-black" : "text-white"}`} />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Save Button */}
+              <button
+                type="button"
+                onClick={handleSaveDesign}
+                disabled={isSaving}
+                className={`w-full py-3 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all active:scale-98 ${
+                  saveSuccess
+                    ? "bg-emerald-500 text-black shadow-emerald-500/20"
+                    : "bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-black shadow-cyan-500/25"
+                }`}
+              >
+                {isSaving ? (
+                  <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                ) : saveSuccess ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>Design Finalized & Saved!</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    <span>Save Certificate Design</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* ----------------------------------------------------------------------- */}
+            {/* STEP 3: Attendees Registry (Excel)                                      */}
+            {/* ----------------------------------------------------------------------- */}
+            <div className="bg-[#0b101c] border border-white/10 rounded-3xl p-5 space-y-3.5 shadow-xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-6 h-6 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold flex items-center justify-center font-mono">
+                    3
+                  </span>
+                  <h3 className="text-sm font-bold text-white">Attendees Data</h3>
+                </div>
+
+                <span className="text-[11px] font-mono text-slate-300 bg-white/[0.05] border border-white/10 px-2.5 py-0.5 rounded-full">
+                  {attendees.length} Students
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Attendees ki Excel file (.xlsx) upload karein jisme <strong>Scholar Number</strong> aur <strong>Name</strong> ho:
+              </p>
+
+              <label className="flex items-center justify-center gap-2 p-3.5 rounded-2xl border border-dashed border-emerald-500/30 hover:border-emerald-400 bg-emerald-500/[0.02] hover:bg-emerald-500/[0.05] cursor-pointer transition-all text-center group">
+                <FileSpreadsheet className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+                <span className="text-xs font-bold text-white">
+                  {isUploadingExcel ? "Uploading Excel..." : "Upload Attendees Excel (.xlsx)"}
+                </span>
+                <input
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  className="hidden"
+                  disabled={isUploadingExcel}
+                  onChange={handleExcelUpload}
+                />
+              </label>
+
+              {/* Collapsible View Attendees Button */}
+              {attendees.length > 0 && (
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowAttendeesList(!showAttendeesList)}
+                    className="w-full flex items-center justify-between text-xs text-slate-400 hover:text-white transition-colors py-1"
+                  >
+                    <span>View {attendees.length} Attendees List</span>
+                    {showAttendeesList ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </button>
+
+                  {showAttendeesList && (
+                    <div className="mt-2 max-h-48 overflow-y-auto space-y-1.5 pr-1 border-t border-white/[0.08] pt-2">
+                      {attendees.map((att, idx) => (
+                        <div
+                          key={idx}
+                          onClick={() => setPreviewIndex(idx)}
+                          className={`p-2 rounded-xl text-xs flex items-center justify-between cursor-pointer transition-colors ${
+                            previewIndex === idx
+                              ? "bg-cyan-500/15 border border-cyan-500/40 text-cyan-300"
+                              : "bg-white/[0.02] hover:bg-white/[0.05] text-slate-300"
+                          }`}
+                        >
+                          <span className="font-medium truncate max-w-[150px]">{att.name}</span>
+                          <span className="text-[11px] font-mono text-slate-400">{att.scholarNumber}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
       </main>
     </div>
   );
