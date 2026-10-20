@@ -142,9 +142,6 @@ export default function Footer() {
 
             {/* Nav Column 3 */}
             <div className="flex flex-col space-y-3.5">
-              <Link href="/admin/login" className="text-slate-400 hover:text-white transition-colors">
-                Admin
-              </Link>
               <Link href="/join" className="text-slate-400 hover:text-white transition-colors">
                 Join
               </Link>
