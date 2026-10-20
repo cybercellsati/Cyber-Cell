@@ -47,7 +47,7 @@ interface TeamCarouselMember {
   github: string;
 }
 
-// 6 Core Team Members arranged: Yash -> Right: Ansh -> Right: Abhishek -> Right: Krishna
+// 7 Core Team Members: Yash -> Right: Ansh -> Right: Abhishek -> Right: Krishna -> Anubhav -> Divyansh -> Arya
 const teamCarouselMembers: TeamCarouselMember[] = [
   {
     id: "yash",
@@ -95,8 +95,8 @@ const teamCarouselMembers: TeamCarouselMember[] = [
   {
     id: "krishna",
     name: "KRISHNA",
-    role: "Technical Lead",
-    categoryBadge: "TECHNICAL LEAD",
+    role: "Co-Convenor",
+    categoryBadge: "CO-CONVENOR",
     department: "CSE, SATI Vidisha",
     email: "krishna@cybercell.in",
     image: "/images/team/krishna-mishra.png",
@@ -109,14 +109,28 @@ const teamCarouselMembers: TeamCarouselMember[] = [
   {
     id: "anubhav",
     name: "ANUBHAV",
-    role: "Operations Lead",
-    categoryBadge: "OPERATIONS LEAD",
+    role: "Technical Lead",
+    categoryBadge: "TECHNICAL LEAD",
     department: "CSE, SATI Vidisha",
     email: "anubhav@cybercell.in",
     image: "/images/team/anubhav.png",
     bio: "Leading technical infrastructure, CTF challenge design, offensive security tracks, and developer projects.",
     tags: ["Reverse Engineering", "Linux Internals", "CTFs", "Tooling"],
     quote: "Break it down to understand how to build it unbreakable.",
+    linkedin: "https://linkedin.com",
+    github: "https://github.com",
+  },
+  {
+    id: "divyansh",
+    name: "DIVYANSH CHAUREY",
+    role: "Management & Media Lead",
+    categoryBadge: "MANAGEMENT & MEDIA",
+    department: "CSE, SATI Vidisha",
+    email: "divyansh@cybercell.in",
+    image: "/images/team/divyansh-chaurey.png",
+    bio: "Heading on-ground event management, media coverage, photography, video production, and publicity campaigns.",
+    tags: ["Event Management", "Media Production", "Publicity", "Logistics"],
+    quote: "Connecting our club's energy with the wider campus through impactful storytelling.",
     linkedin: "https://linkedin.com",
     github: "https://github.com",
   },
@@ -482,18 +496,20 @@ export default function TeamPage() {
               />
             </svg>
 
-            {/* 5 Dots along the track */}
+            {/* Dots along the track for all N members */}
             <div className="absolute inset-x-8 top-3 flex items-center justify-between px-2">
-              {[0, 1, 2, 3, 4].map((dotIdx) => {
-                const isCenter = dotIdx === 2;
+              {members.map((_, dotIdx) => {
+                const isCurrent = dotIdx === activeIndex;
                 return (
-                  <div
+                  <button
                     key={dotIdx}
-                    className={`rounded-full transition-all duration-300 ${
-                      isCenter
+                    onClick={() => rotateToIndex(dotIdx)}
+                    className={`rounded-full transition-all duration-300 focus:outline-none ${
+                      isCurrent
                         ? "w-2.5 h-2.5 bg-[#00e5ff] shadow-[0_0_12px_#00e5ff] scale-125"
-                        : "w-1.5 h-1.5 bg-white/30"
+                        : "w-1.5 h-1.5 bg-white/30 hover:bg-white/60"
                     }`}
+                    aria-label={`Jump to member ${dotIdx + 1}`}
                   />
                 );
               })}
