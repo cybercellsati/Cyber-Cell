@@ -271,19 +271,24 @@ export default function CleanAdminCertificatesStudio() {
       if (data.success) {
         showToast(`✓ Excel uploaded successfully! ${data.rowCount} attendees loaded.`);
 
-        // Refresh attendees
-        const refreshRes = await fetch("/api/certificates/verify?query=0108");
-        const refreshData = await refreshRes.json();
-        if (refreshData.certificates && refreshData.certificates.length > 0) {
-          setAttendees(
-            refreshData.certificates.map((c: any) => ({
-              name: c.recipient_name,
-              scholarNumber: c.scholar_number,
-              certificateId: c.certificate_id,
-              role: c.role_or_rank || "Participant",
-            }))
-          );
+        if (data.attendees && Array.isArray(data.attendees) && data.attendees.length > 0) {
+          setAttendees(data.attendees);
           setPreviewIndex(0);
+        } else {
+          // Fallback refresh
+          const refreshRes = await fetch("/api/certificates/verify?query=0108");
+          const refreshData = await refreshRes.json();
+          if (refreshData.certificates && refreshData.certificates.length > 0) {
+            setAttendees(
+              refreshData.certificates.map((c: any) => ({
+                name: c.recipient_name,
+                scholarNumber: c.scholar_number,
+                certificateId: c.certificate_id,
+                role: c.role_or_rank || "Participant",
+              }))
+            );
+            setPreviewIndex(0);
+          }
         }
       } else {
         alert("Excel upload error: " + data.error);

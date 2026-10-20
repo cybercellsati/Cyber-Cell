@@ -203,6 +203,7 @@ export function getLocalCertificates(): CertificateRecord[] {
     const XLSX = require("xlsx");
 
     const excelPaths = [
+      path.join(require('os').tmpdir(), 'attendees.xlsx'),
       path.join(process.cwd(), "data", "certificates.xlsx"),
       path.join(process.cwd(), "data", "attendees.xlsx"),
     ];
