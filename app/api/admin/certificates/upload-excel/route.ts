@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import * as XLSX from "xlsx";
-import { CertificateRecord, batchSaveCertificateRecords } from "@/lib/certificates";
+import { CertificateRecord, batchSaveCertificateRecords, formatStudentName } from "@/lib/certificates";
 import { getTemplateById, getActiveTemplate, saveTemplateProfile } from "@/lib/certificateConfig";
 
 const MAX_EXCEL_BYTES = 10 * 1024 * 1024; // 10 MB max
@@ -160,7 +160,7 @@ export async function POST(req: NextRequest) {
         id: `excel-${idx}`,
         certificate_id: certId,
         scholar_number: scholarNo,
-        recipient_name: name || `Student ${idx + 1}`,
+        recipient_name: formatStudentName(name || `Student ${idx + 1}`),
         event_name: eventName,
         issue_date: issueDate,
         expiry_date: "2030-01-01",
@@ -259,7 +259,7 @@ export async function POST(req: NextRequest) {
       templateId: templateProfile?.id,
       fileName: file.name,
       attendees: records.map((r) => ({
-        name: r.recipient_name,
+        name: formatStudentName(r.recipient_name),
         scholarNumber: r.scholar_number,
         certificateId: r.certificate_id,
         role: r.role_or_rank || "Participant",

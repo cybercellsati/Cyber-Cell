@@ -27,6 +27,7 @@ import {
   renderCertificateToCanvas,
   CertificateConfig,
 } from "@/lib/certificateRenderer";
+import { formatStudentName } from "@/lib/certificates";
 
 interface VerifiedCertificate {
   certificate_id: string;
@@ -114,7 +115,7 @@ function CertificateModal({
       mode: "name_only",
       templateType: "custom",
       templateUrl,
-      recipientName: cert.recipient_name,
+      recipientName: formatStudentName(cert.recipient_name),
       scholarNumber: cert.scholar_number,
       certificateId: cert.certificate_id,
       issueDate: cert.issue_date,
@@ -138,10 +139,11 @@ function CertificateModal({
 
   const handleDownload = () => {
     if (!canvasRef.current) return;
+    const formatted = formatStudentName(cert.recipient_name);
     const dataUrl = canvasRef.current.toDataURL("image/png", 1.0);
     const link = document.createElement("a");
     link.href = dataUrl;
-    link.download = `CyberCell-${cert.scholar_number || cert.certificate_id}-${cert.recipient_name.replace(/\s+/g, "_")}.png`;
+    link.download = `CyberCell-${cert.scholar_number || cert.certificate_id}-${formatted.replace(/\s+/g, "_")}.png`;
     link.click();
   };
 
@@ -183,7 +185,7 @@ function CertificateModal({
         <div className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/[0.08]">
           <div>
             <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-              {cert.recipient_name}
+              {formatStudentName(cert.recipient_name)}
             </h2>
             <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-slate-400 mt-0.5">
               {cert.scholar_number && (
@@ -314,6 +316,11 @@ function VerifyContent() {
       } else if (data.certificates && Array.isArray(data.certificates)) {
         certList = data.certificates;
       }
+
+      certList = certList.map((c) => ({
+        ...c,
+        recipient_name: formatStudentName(c.recipient_name),
+      }));
 
       setResults(certList);
 
@@ -451,7 +458,7 @@ function VerifyContent() {
                       <div className="space-y-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <h3 className="text-lg sm:text-xl font-bold text-white group-hover:text-cyan-300 transition-colors">
-                            {cert.recipient_name}
+                            {formatStudentName(cert.recipient_name)}
                           </h3>
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[10px] font-mono font-semibold text-emerald-400">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />

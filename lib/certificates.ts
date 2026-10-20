@@ -42,6 +42,51 @@ export interface CertificateRecord {
 let mockCertificates: CertificateRecord[] = [];
 
 /**
+ * Formats any raw student name into clean, elegant, uniform Title Case.
+ * Corrects all variations:
+ * "AAYUSH pandey" -> "Aayush Pandey"
+ * "YASH HARFODE"  -> "Yash Harfode"
+ * "yash harfode"  -> "Yash Harfode"
+ * "MOHD. ALI"     -> "Mohd. Ali"
+ * "A.K. SHARMA"   -> "A.K. Sharma"
+ */
+export function formatStudentName(name: string): string {
+  if (!name) return "";
+  const cleaned = name.trim().replace(/\s+/g, " ");
+  if (!cleaned) return "";
+
+  return cleaned
+    .split(" ")
+    .map((word) => {
+      if (!word) return "";
+
+      // Handle hyphenated compound names like Jean-Luc or Mary-Jane
+      if (word.includes("-")) {
+        return word
+          .split("-")
+          .map((part) =>
+            part ? part.charAt(0).toUpperCase() + part.slice(1).toLowerCase() : ""
+          )
+          .join("-");
+      }
+
+      // Handle initials or honorifics with dots like "A.K." or "Mohd." or "Dr."
+      if (word.includes(".")) {
+        return word
+          .split(".")
+          .map((segment) =>
+            segment ? segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase() : ""
+          )
+          .join(".");
+      }
+
+      // Standard title case
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
+
+/**
  * Checks whether a certificate's download window has expired
  */
 export function isCertificateExpired(cert: CertificateRecord): boolean {
@@ -81,7 +126,7 @@ export async function saveCertificateRecord(cert: CertificateRecord): Promise<vo
     ...cert,
     certificate_id: cert.certificate_id.trim().toUpperCase(),
     scholar_number: cert.scholar_number.trim().toUpperCase(),
-    recipient_name: cert.recipient_name.trim(),
+    recipient_name: formatStudentName(cert.recipient_name),
     is_download_active: !isExpired,
     created_at: cert.created_at || new Date().toISOString(),
   };
@@ -116,11 +161,15 @@ export async function batchSaveCertificateRecords(certs: CertificateRecord[]): P
 
   // Always update in-memory cache as well
   certs.forEach((c) => {
-    const idx = mockCertificates.findIndex((m) => m.certificate_id === c.certificate_id);
+    const normalized = {
+      ...c,
+      recipient_name: formatStudentName(c.recipient_name),
+    };
+    const idx = mockCertificates.findIndex((m) => m.certificate_id === normalized.certificate_id);
     if (idx >= 0) {
-      mockCertificates[idx] = c;
+      mockCertificates[idx] = normalized;
     } else {
-      mockCertificates.unshift(c);
+      mockCertificates.unshift(normalized);
     }
   });
 
@@ -136,7 +185,7 @@ export async function batchSaveCertificateRecords(certs: CertificateRecord[]): P
         ...cert,
         certificate_id: cert.certificate_id.trim().toUpperCase(),
         scholar_number: cert.scholar_number.trim().toUpperCase(),
-        recipient_name: cert.recipient_name.trim(),
+        recipient_name: formatStudentName(cert.recipient_name),
         is_download_active: !isExpired,
         created_at: cert.created_at || new Date().toISOString(),
       };
@@ -160,7 +209,10 @@ export async function getAllCertificates(limitCount = 100): Promise<CertificateR
   const allInMemory = [...local, ...mockCertificates];
 
   if (!isFirebaseConfigured) {
-    return allInMemory.slice(0, limitCount);
+    return allInMemory.slice(0, limitCount).map((c) => ({
+      ...c,
+      recipient_name: formatStudentName(c.recipient_name),
+    }));
   }
 
   try {
@@ -169,12 +221,21 @@ export async function getAllCertificates(limitCount = 100): Promise<CertificateR
     const firestoreCerts: CertificateRecord[] = snap.docs.map((d) => d.data() as CertificateRecord);
 
     const certMap = new Map<string, CertificateRecord>();
-    allInMemory.forEach((c) => certMap.set(c.certificate_id, c));
-    firestoreCerts.forEach((c) => certMap.set(c.certificate_id, c));
+    allInMemory.forEach((c) => certMap.set(c.certificate_id, {
+      ...c,
+      recipient_name: formatStudentName(c.recipient_name),
+    }));
+    firestoreCerts.forEach((c) => certMap.set(c.certificate_id, {
+      ...c,
+      recipient_name: formatStudentName(c.recipient_name),
+    }));
     return Array.from(certMap.values()).slice(0, limitCount);
   } catch (e) {
     console.warn("[Firestore getAllCertificates Warning]:", e);
-    return allInMemory.slice(0, limitCount);
+    return allInMemory.slice(0, limitCount).map((c) => ({
+      ...c,
+      recipient_name: formatStudentName(c.recipient_name),
+    }));
   }
 }
 
@@ -188,12 +249,20 @@ export async function getCertificateById(certificateId: string): Promise<Certifi
   const localRecords = getLocalCertificates();
   const localMatch = localRecords.find((c) => c.certificate_id.toUpperCase() === cleanId);
   if (localMatch) {
-    return { ...localMatch, is_download_active: !isCertificateExpired(localMatch) };
+    return {
+      ...localMatch,
+      recipient_name: formatStudentName(localMatch.recipient_name),
+      is_download_active: !isCertificateExpired(localMatch),
+    };
   }
 
   const mockFound = mockCertificates.find((c) => c.certificate_id === cleanId);
   if (mockFound) {
-    return { ...mockFound, is_download_active: !isCertificateExpired(mockFound) };
+    return {
+      ...mockFound,
+      recipient_name: formatStudentName(mockFound.recipient_name),
+      is_download_active: !isCertificateExpired(mockFound),
+    };
   }
 
   if (!isFirebaseConfigured) return null;
@@ -206,6 +275,7 @@ export async function getCertificateById(certificateId: string): Promise<Certifi
     const data = snap.data() as CertificateRecord;
     return {
       ...data,
+      recipient_name: formatStudentName(data.recipient_name),
       is_download_active: !isCertificateExpired(data),
     };
   } catch (error) {
@@ -260,6 +330,7 @@ export function getLocalCertificates(): CertificateRecord[] {
             raw.forEach((c) => {
               records.push({
                 ...c,
+                recipient_name: formatStudentName(c.recipient_name),
                 is_download_active: true,
               });
             });
@@ -305,7 +376,7 @@ export function getLocalCertificates(): CertificateRecord[] {
                 id: `local-excel-${idx}`,
                 certificate_id: certId,
                 scholar_number: scholarNo,
-                recipient_name: name || `Student ${idx + 1}`,
+                recipient_name: formatStudentName(name || `Student ${idx + 1}`),
                 event_name: getRowValue(row, ["event", "event name", "workshop"]) || "National Cyber Defense Wargame 2026",
                 issue_date: getRowValue(row, ["issue date", "date"]) || new Date().toISOString().split("T")[0],
                 expiry_date: "2030-01-01",
@@ -339,16 +410,42 @@ export async function searchCertificates(searchQuery: string): Promise<Certifica
   const localRecords = getLocalCertificates();
   const allInMemory = [...localRecords, ...mockCertificates];
 
+  const queryWords = queryTerm.split(/\s+/).filter(Boolean);
+
   const inMemoryMatches = allInMemory
-    .filter(
-      (c) =>
-        c.certificate_id.toUpperCase().includes(queryTerm) ||
-        c.scholar_number.toUpperCase().includes(queryTerm) ||
-        c.recipient_name.toUpperCase().includes(queryTerm) ||
-        c.event_name.toUpperCase().includes(queryTerm)
-    )
+    .filter((c) => {
+      const certId = (c.certificate_id || "").toUpperCase();
+      const certScholar = (c.scholar_number || "").toUpperCase();
+      const certName = formatStudentName(c.recipient_name || "").toUpperCase();
+      const rawName = (c.recipient_name || "").toUpperCase();
+      const certEvent = (c.event_name || "").toUpperCase();
+
+      if (
+        certId.includes(queryTerm) ||
+        certScholar.includes(queryTerm) ||
+        certName.includes(queryTerm) ||
+        rawName.includes(queryTerm) ||
+        certEvent.includes(queryTerm)
+      ) {
+        return true;
+      }
+
+      if (queryWords.length > 1) {
+        const matchesAll = queryWords.every(
+          (w) =>
+            certName.includes(w) ||
+            rawName.includes(w) ||
+            certScholar.includes(w) ||
+            certId.includes(w)
+        );
+        if (matchesAll) return true;
+      }
+
+      return false;
+    })
     .map((c) => ({
       ...c,
+      recipient_name: formatStudentName(c.recipient_name),
       is_download_active: !isCertificateExpired(c),
     }));
 
@@ -365,7 +462,13 @@ export async function searchCertificates(searchQuery: string): Promise<Certifica
     const directDoc = await getDoc(doc(db, "certificates", queryTerm));
     if (directDoc.exists()) {
       const data = directDoc.data() as CertificateRecord;
-      return [{ ...data, is_download_active: !isCertificateExpired(data) }];
+      return [
+        {
+          ...data,
+          recipient_name: formatStudentName(data.recipient_name),
+          is_download_active: !isCertificateExpired(data),
+        },
+      ];
     }
 
     // 2. Query by Scholar Number
@@ -378,24 +481,39 @@ export async function searchCertificates(searchQuery: string): Promise<Certifica
     if (!scholarSnap.empty) {
       return scholarSnap.docs.map((d) => {
         const data = d.data() as CertificateRecord;
-        return { ...data, is_download_active: !isCertificateExpired(data) };
+        return {
+          ...data,
+          recipient_name: formatStudentName(data.recipient_name),
+          is_download_active: !isCertificateExpired(data),
+        };
       });
     }
 
-    // 3. Fallback: Query recent certificates and partial match
+    // 3. Fallback: Query recent certificates and match
     const recentQuery = query(collection(db, "certificates"), limit(100));
     const recentSnap = await getDocs(recentQuery);
     const results: CertificateRecord[] = [];
 
     recentSnap.forEach((d) => {
       const c = d.data() as CertificateRecord;
+      const certId = (c.certificate_id || "").toUpperCase();
+      const certScholar = (c.scholar_number || "").toUpperCase();
+      const certName = formatStudentName(c.recipient_name || "").toUpperCase();
+      const rawName = (c.recipient_name || "").toUpperCase();
+      const certEvent = (c.event_name || "").toUpperCase();
+
       if (
-        c.certificate_id.toUpperCase().includes(queryTerm) ||
-        c.scholar_number.toUpperCase().includes(queryTerm) ||
-        c.recipient_name.toUpperCase().includes(queryTerm) ||
-        c.event_name.toUpperCase().includes(queryTerm)
+        certId.includes(queryTerm) ||
+        certScholar.includes(queryTerm) ||
+        certName.includes(queryTerm) ||
+        rawName.includes(queryTerm) ||
+        certEvent.includes(queryTerm)
       ) {
-        results.push({ ...c, is_download_active: !isCertificateExpired(c) });
+        results.push({
+          ...c,
+          recipient_name: formatStudentName(c.recipient_name),
+          is_download_active: !isCertificateExpired(c),
+        });
       }
     });
 

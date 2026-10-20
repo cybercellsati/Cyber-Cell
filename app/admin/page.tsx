@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { formatStudentName } from "@/lib/certificates";
 import Link from "next/link";
 import {
   Shield,
@@ -85,7 +86,7 @@ export default function AdminDashboardPage() {
         if (verifyData.certificates) {
           setRecentAttendees(
             verifyData.certificates.slice(0, 5).map((c: any) => ({
-              name: c.recipient_name,
+              name: formatStudentName(c.recipient_name),
               scholarNumber: c.scholar_number,
               certificateId: c.certificate_id,
               role: c.role_or_rank || "Participant",

@@ -36,6 +36,7 @@ import {
   FontOption,
 } from "@/lib/certificateRenderer";
 import { CertificateTemplateProfile } from "@/lib/certificateConfig";
+import { formatStudentName } from "@/lib/certificates";
 
 interface AttendeeRow {
   name: string;
@@ -162,7 +163,7 @@ export default function CleanAdminCertificatesStudio() {
       if (attData.certificates && attData.certificates.length > 0) {
         setAttendees(
           attData.certificates.map((c: any) => ({
-            name: c.recipient_name,
+            name: formatStudentName(c.recipient_name),
             scholarNumber: c.scholar_number,
             certificateId: c.certificate_id,
             role: c.role_or_rank || "Participant",
@@ -308,7 +309,7 @@ export default function CleanAdminCertificatesStudio() {
       templateType: "custom",
       customTemplateImage: customImage,
       templateUrl: templateUrl || "/templates/certificate-template.png",
-      recipientName: currentAttendee.name,
+      recipientName: formatStudentName(currentAttendee.name),
       scholarNumber: currentAttendee.scholarNumber,
       certificateId: currentAttendee.certificateId,
       issueDate: new Date().toISOString().split("T")[0],
@@ -736,7 +737,7 @@ export default function CleanAdminCertificatesStudio() {
                 <div className="flex items-center gap-2 text-slate-400 font-mono">
                   <span>Testing:</span>
                   <strong className="text-white font-sans text-sm font-bold">
-                    {attendees.length > 0 ? (attendees[previewIndex]?.name || attendees[0].name) : "STUDENT FULL NAME"}
+                    {attendees.length > 0 ? formatStudentName(attendees[previewIndex]?.name || attendees[0].name) : "Student Full Name"}
                   </strong>
                 </div>
 
@@ -753,7 +754,7 @@ export default function CleanAdminCertificatesStudio() {
                             : "bg-white/[0.05] hover:bg-white/[0.1] text-slate-300"
                         }`}
                       >
-                        {att.name.split(" ")[0]}
+                        {formatStudentName(att.name).split(" ")[0]}
                       </button>
                     ))}
                   </div>
@@ -1125,7 +1126,7 @@ export default function CleanAdminCertificatesStudio() {
                               : "bg-white/[0.02] hover:bg-white/[0.05] text-slate-300"
                           }`}
                         >
-                          <span className="font-medium truncate max-w-[150px]">{att.name}</span>
+                          <span className="font-medium truncate max-w-[150px]">{formatStudentName(att.name)}</span>
                           <span className="text-[11px] font-mono text-slate-400">{att.scholarNumber}</span>
                         </div>
                       ))}

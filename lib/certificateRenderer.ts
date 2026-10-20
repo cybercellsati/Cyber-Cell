@@ -1,4 +1,5 @@
-﻿import QRCode from "qrcode";
+import QRCode from "qrcode";
+import { formatStudentName } from "./certificates";
 
 export interface FontOption {
   id: string;
@@ -142,20 +143,13 @@ export function loadImageAsync(url: string): Promise<HTMLImageElement> {
 /**
  * Formats recipient name according to chosen text transform
  */
-function formatName(name: string, transform?: "uppercase" | "capitalize" | "none"): string {
+export function formatName(name: string, transform?: "uppercase" | "capitalize" | "none"): string {
   if (!name) return "";
-  const trimmed = name.trim();
   if (transform === "uppercase") {
-    return trimmed.toUpperCase();
+    return name.trim().replace(/\s+/g, " ").toUpperCase();
   }
-  if (transform === "capitalize") {
-    return trimmed
-      .toLowerCase()
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  }
-  return trimmed;
+  // For "capitalize" or "none", ensure clean uniform Title Case across all inputs
+  return formatStudentName(name);
 }
 
 /**

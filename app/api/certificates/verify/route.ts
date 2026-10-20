@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCertificateById, searchCertificates, isCertificateExpired } from "@/lib/certificates";
+import {
+  getCertificateById,
+  searchCertificates,
+  isCertificateExpired,
+  formatStudentName,
+} from "@/lib/certificates";
 
 export async function GET(req: NextRequest) {
   try {
@@ -19,6 +24,7 @@ export async function GET(req: NextRequest) {
         found: true,
         certificate: {
           ...cert,
+          recipient_name: formatStudentName(cert.recipient_name),
           is_expired: expired,
           is_download_active: !expired,
           status_label: expired ? "VERIFIED (DOWNLOAD WINDOW EXPIRED)" : "ACTIVE & VERIFIED",
@@ -35,6 +41,7 @@ export async function GET(req: NextRequest) {
           const expired = isCertificateExpired(cert);
           return {
             ...cert,
+            recipient_name: formatStudentName(cert.recipient_name),
             is_expired: expired,
             is_download_active: !expired,
             status_label: expired ? "VERIFIED (DOWNLOAD WINDOW EXPIRED)" : "ACTIVE & VERIFIED",
