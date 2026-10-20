@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   getCertificateById,
   searchCertificates,
+  getAllCertificates,
   isCertificateExpired,
   formatStudentName,
 } from "@/lib/certificates";
@@ -11,6 +12,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
     const query = searchParams.get("query") || searchParams.get("q");
+    const all = searchParams.get("all");
 
     if (id) {
       const cert = await getCertificateById(id);
@@ -29,6 +31,24 @@ export async function GET(req: NextRequest) {
           is_download_active: !expired,
           status_label: expired ? "VERIFIED (DOWNLOAD WINDOW EXPIRED)" : "ACTIVE & VERIFIED",
         },
+      });
+    }
+
+    if (all === "true" || query === "all") {
+      const allCerts = await getAllCertificates(500);
+      return NextResponse.json({
+        found: allCerts.length > 0,
+        count: allCerts.length,
+        certificates: allCerts.map((cert) => {
+          const expired = isCertificateExpired(cert);
+          return {
+            ...cert,
+            recipient_name: formatStudentName(cert.recipient_name),
+            is_expired: expired,
+            is_download_active: !expired,
+            status_label: expired ? "VERIFIED (DOWNLOAD WINDOW EXPIRED)" : "ACTIVE & VERIFIED",
+          };
+        }),
       });
     }
 

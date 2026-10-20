@@ -42,6 +42,97 @@ export interface CertificateRecord {
 let mockCertificates: CertificateRecord[] = [];
 
 /**
+ * Normalizes a scholar number value, stripping Excel float decimals (.0) and whitespace
+ */
+export function normalizeScholarNumber(val: unknown): string {
+  if (val === undefined || val === null) return "";
+  let s = String(val).trim();
+  s = s.replace(/\.0+$/, "");
+  return s.trim();
+}
+
+/**
+ * Validates whether a cell value looks like an authentic scholar or roll number
+ * Prioritizes SATI Vidisha 5-digit scholar numbers (e.g. 22104, 21045)
+ */
+export function isScholarValue(val: unknown): boolean {
+  if (val === undefined || val === null) return false;
+  const s = normalizeScholarNumber(val);
+  if (!s || s.length < 3 || s.length > 25) return false;
+
+  // SATI 5-digit Scholar Number (e.g. 22104, 21045)
+  if (/^\d{5}$/.test(s)) return true;
+
+  // SATI RGPV enrollment format (0108...)
+  if (/^0108[A-Za-z0-9]+/i.test(s)) return true;
+
+  // Typical 4 to 10 digit student IDs
+  if (/^\d{4,10}$/.test(s)) return true;
+
+  // Alphanumeric student roll numbers
+  if (/^[A-Za-z0-9\/\-_]{5,20}$/.test(s) && /\d/.test(s)) return true;
+
+  return false;
+}
+
+/**
+ * Extracts a concise 2-4 letter uppercase event code from the event title
+ */
+export function getEventCode(eventName: string): string {
+  if (!eventName) return "EVT";
+  const clean = eventName.replace(/[^a-zA-Z0-9\s]/g, " ").trim();
+  const words = clean.split(/\s+/).filter((w) => {
+    const lower = w.toLowerCase();
+    return (
+      lower !== "the" &&
+      lower !== "and" &&
+      lower !== "of" &&
+      lower !== "for" &&
+      lower !== "in" &&
+      !/^\d{4}$/.test(lower)
+    );
+  });
+  if (words.length >= 2) {
+    return words.slice(0, 4).map((w) => w.charAt(0).toUpperCase()).join("");
+  } else if (words.length === 1 && words[0].length >= 3) {
+    return words[0].slice(0, 3).toUpperCase();
+  }
+  return "EVT";
+}
+
+/**
+ * Generates an unambiguous random salt for certificate uniqueness
+ */
+export function generateSalt(length = 4): string {
+  const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+  let res = "";
+  for (let i = 0; i < length; i++) {
+    res += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return res;
+}
+
+/**
+ * Generates a globally unique, event-specific Certificate ID:
+ * e.g., CYB-2026-NCDW-22104-7K2X
+ * Prevents ID collisions across different events and workshops
+ */
+export function generateUniqueCertificateId(
+  scholarNo: string,
+  eventName: string,
+  year: number = new Date().getFullYear()
+): string {
+  const code = getEventCode(eventName);
+  const cleanScholar = scholarNo ? scholarNo.replace(/[^a-zA-Z0-9]/g, "").toUpperCase() : "";
+  const salt = generateSalt(4);
+  if (cleanScholar) {
+    return `CYB-${year}-${code}-${cleanScholar}-${salt}`;
+  } else {
+    return `CYB-${year}-${code}-${salt}`;
+  }
+}
+
+/**
  * Formats any raw student name into clean, elegant, uniform Title Case.
  * Corrects all variations:
  * "AAYUSH pandey" -> "Aayush Pandey"
@@ -222,37 +313,36 @@ export async function batchSaveCertificateRecords(certs: CertificateRecord[]): P
  */
 export async function getAllCertificates(limitCount = 100): Promise<CertificateRecord[]> {
   const local = getLocalCertificates();
-  const allInMemory = [...local, ...mockCertificates];
+  const certMap = new Map<string, CertificateRecord>();
 
-  if (!isFirebaseConfigured) {
-    return allInMemory.slice(0, limitCount).map((c) => ({
-      ...c,
-      recipient_name: formatStudentName(c.recipient_name),
-    }));
-  }
+  local.forEach((c) => certMap.set(c.certificate_id, c));
+  mockCertificates.forEach((c) => certMap.set(c.certificate_id, c));
 
   try {
-    const q = query(collection(db, "certificates"), limit(limitCount));
-    const snap = await getDocs(q);
-    const firestoreCerts: CertificateRecord[] = snap.docs.map((d) => d.data() as CertificateRecord);
+    const cloudAttendees = await fetchCloudinaryJson<CertificateRecord[]>("attendees.json");
+    if (Array.isArray(cloudAttendees)) {
+      cloudAttendees.forEach((c) => certMap.set(c.certificate_id, c));
+    }
+  } catch {}
 
-    const certMap = new Map<string, CertificateRecord>();
-    allInMemory.forEach((c) => certMap.set(c.certificate_id, {
-      ...c,
-      recipient_name: formatStudentName(c.recipient_name),
-    }));
-    firestoreCerts.forEach((c) => certMap.set(c.certificate_id, {
-      ...c,
-      recipient_name: formatStudentName(c.recipient_name),
-    }));
-    return Array.from(certMap.values()).slice(0, limitCount);
-  } catch (e) {
-    console.warn("[Firestore getAllCertificates Warning]:", e);
-    return allInMemory.slice(0, limitCount).map((c) => ({
-      ...c,
-      recipient_name: formatStudentName(c.recipient_name),
-    }));
+  if (isFirebaseConfigured) {
+    try {
+      const q = query(collection(db, "certificates"), limit(limitCount));
+      const snap = await getDocs(q);
+      snap.docs.forEach((d) => {
+        const c = d.data() as CertificateRecord;
+        certMap.set(c.certificate_id, c);
+      });
+    } catch (e) {
+      console.warn("[Firestore getAllCertificates Warning]:", e);
+    }
   }
+
+  const list = Array.from(certMap.values());
+  return list.slice(0, limitCount).map((c) => ({
+    ...c,
+    recipient_name: formatStudentName(c.recipient_name),
+  }));
 }
 
 /**
@@ -397,50 +487,69 @@ export function getLocalCertificates(): CertificateRecord[] {
             let headerRowIndex = 0;
             let nameColIdx = -1;
             let scholarColIdx = -1;
+            let bestScore = -1;
 
+            // Score rows to find the actual table header row
             for (let r = 0; r < Math.min(rawGrid.length, 15); r++) {
               const row = rawGrid[r];
               if (!Array.isArray(row)) continue;
+
+              let nIdx = -1;
+              let sIdx = -1;
+
               for (let c = 0; c < row.length; c++) {
                 const clean = String(row[c] || "").toLowerCase().replace(/[^a-z0-9]/g, "");
                 if (
-                  nameColIdx === -1 &&
+                  nIdx === -1 &&
                   (clean.includes("name") || clean.includes("student") || clean.includes("participant")) &&
                   !clean.includes("college") &&
                   !clean.includes("father") &&
                   !clean.includes("event")
                 ) {
-                  nameColIdx = c;
-                  headerRowIndex = r;
+                  nIdx = c;
                 }
                 if (
-                  scholarColIdx === -1 &&
+                  sIdx === -1 &&
+                  !clean.includes("certificate") &&
+                  !clean.includes("certid") &&
+                  !clean.includes("school") &&
                   (clean.includes("scholar") ||
+                    clean.includes("sch") ||
                     clean.includes("enroll") ||
                     clean.includes("roll") ||
                     clean.includes("rgpv") ||
                     clean.includes("regno") ||
                     clean === "id")
                 ) {
-                  scholarColIdx = c;
-                  headerRowIndex = r;
+                  sIdx = c;
                 }
               }
-              if (nameColIdx !== -1 || scholarColIdx !== -1) break;
+
+              let score = 0;
+              if (nIdx !== -1 && sIdx !== -1) score += 100;
+              else if (nIdx !== -1 || sIdx !== -1) score += 20;
+
+              const nonEmpty = row.filter((cell) => String(cell || "").trim() !== "").length;
+              if (nonEmpty <= 1) score -= 50;
+
+              if (score > bestScore && (nIdx !== -1 || sIdx !== -1)) {
+                bestScore = score;
+                headerRowIndex = r;
+                nameColIdx = nIdx;
+                scholarColIdx = sIdx;
+              }
             }
 
             for (let r = headerRowIndex + 1; r < rawGrid.length; r++) {
               const row = rawGrid[r];
               if (!Array.isArray(row)) continue;
               let name = nameColIdx >= 0 && row[nameColIdx] ? String(row[nameColIdx]).trim() : "";
-              let scholarNo = scholarColIdx >= 0 && row[scholarColIdx] ? String(row[scholarColIdx]).trim() : "";
+              let scholarNo = scholarColIdx >= 0 && row[scholarColIdx] ? normalizeScholarNumber(row[scholarColIdx]) : "";
 
               if (!name && !scholarNo) continue;
-              if (!name) name = `Student ${scholarNo}`;
-              if (!scholarNo) scholarNo = `STU-${r}`;
+              if (!name) name = scholarNo ? `Student ${scholarNo}` : "Student";
 
-              const certId = `CYB-2026-${scholarNo.toUpperCase()}`;
-              if (records.some((rec) => rec.certificate_id === certId)) continue;
+              const certId = generateUniqueCertificateId(scholarNo, "National Cyber Defense Wargame 2026");
 
               records.push({
                 id: `local-excel-${sheetName}-${r}`,
@@ -476,23 +585,44 @@ export function getLocalCertificates(): CertificateRecord[] {
 export async function searchCertificates(searchQuery: string): Promise<CertificateRecord[]> {
   const queryTerm = searchQuery.trim().toUpperCase();
   if (!queryTerm) return [];
-
-  const localRecords = getLocalCertificates();
-  const allInMemory = [...localRecords, ...mockCertificates];
-
+  const normQuery = normalizeScholarNumber(searchQuery).toUpperCase();
   const queryWords = queryTerm.split(/\s+/).filter(Boolean);
 
-  const inMemoryMatches = allInMemory
+  const localRecords = getLocalCertificates();
+  const combinedMap = new Map<string, CertificateRecord>();
+
+  localRecords.forEach((c) => combinedMap.set(c.certificate_id, c));
+  mockCertificates.forEach((c) => combinedMap.set(c.certificate_id, c));
+
+  // Global persistent sync: fetch from Cloudinary CDN across all serverless lambdas
+  try {
+    const cloudAttendees = await fetchCloudinaryJson<CertificateRecord[]>("attendees.json");
+    if (Array.isArray(cloudAttendees) && cloudAttendees.length > 0) {
+      cloudAttendees.forEach((c) => {
+        combinedMap.set(c.certificate_id, c);
+        if (!mockCertificates.some((m) => m.certificate_id === c.certificate_id)) {
+          mockCertificates.push(c);
+        }
+      });
+    }
+  } catch (cldErr) {
+    console.warn("[Cloudinary Search Fallback Warning]:", cldErr);
+  }
+
+  const allRecords = Array.from(combinedMap.values());
+
+  const matches = allRecords
     .filter((c) => {
       const certId = (c.certificate_id || "").toUpperCase();
-      const certScholar = (c.scholar_number || "").toUpperCase();
+      const certScholar = normalizeScholarNumber(c.scholar_number || "").toUpperCase();
       const certName = formatStudentName(c.recipient_name || "").toUpperCase();
       const rawName = (c.recipient_name || "").toUpperCase();
       const certEvent = (c.event_name || "").toUpperCase();
 
       if (
         certId.includes(queryTerm) ||
-        certScholar.includes(queryTerm) ||
+        (normQuery && certScholar === normQuery) ||
+        (normQuery && certScholar.includes(normQuery)) ||
         certName.includes(queryTerm) ||
         rawName.includes(queryTerm) ||
         certEvent.includes(queryTerm)
@@ -501,16 +631,14 @@ export async function searchCertificates(searchQuery: string): Promise<Certifica
       }
 
       if (queryWords.length > 1) {
-        const matchesAll = queryWords.every(
+        return queryWords.every(
           (w) =>
             certName.includes(w) ||
             rawName.includes(w) ||
             certScholar.includes(w) ||
             certId.includes(w)
         );
-        if (matchesAll) return true;
       }
-
       return false;
     })
     .map((c) => ({
@@ -519,65 +647,12 @@ export async function searchCertificates(searchQuery: string): Promise<Certifica
       is_download_active: !isCertificateExpired(c),
     }));
 
-  if (inMemoryMatches.length > 0) {
-    return inMemoryMatches;
-  }
-
-  // 1. Try Cloudinary raw storage (Global persistent sync across all serverless lambdas)
-  try {
-    const cloudAttendees = await fetchCloudinaryJson<CertificateRecord[]>("attendees.json");
-    if (Array.isArray(cloudAttendees) && cloudAttendees.length > 0) {
-      cloudAttendees.forEach((c: CertificateRecord) => {
-        if (!mockCertificates.some((m) => m.certificate_id === c.certificate_id)) {
-          mockCertificates.push(c);
-        }
-      });
-
-      const cloudMatches = cloudAttendees
-        .filter((c: CertificateRecord) => {
-          const certId = (c.certificate_id || "").toUpperCase();
-          const certScholar = (c.scholar_number || "").toUpperCase();
-          const certName = formatStudentName(c.recipient_name || "").toUpperCase();
-          const rawName = (c.recipient_name || "").toUpperCase();
-          const certEvent = (c.event_name || "").toUpperCase();
-
-          if (
-            certId.includes(queryTerm) ||
-            certScholar.includes(queryTerm) ||
-            certName.includes(queryTerm) ||
-            rawName.includes(queryTerm) ||
-            certEvent.includes(queryTerm)
-          ) {
-            return true;
-          }
-
-          if (queryWords.length > 1) {
-            return queryWords.every(
-              (w) =>
-                certName.includes(w) ||
-                rawName.includes(w) ||
-                certScholar.includes(w) ||
-                certId.includes(w)
-            );
-          }
-          return false;
-        })
-        .map((c: CertificateRecord) => ({
-          ...c,
-          recipient_name: formatStudentName(c.recipient_name),
-          is_download_active: !isCertificateExpired(c),
-        }));
-
-      if (cloudMatches.length > 0) {
-        return cloudMatches;
-      }
-    }
-  } catch (cldErr) {
-    console.warn("[Cloudinary Search Fallback Warning]:", cldErr);
+  if (matches.length > 0) {
+    return matches;
   }
 
   if (!isFirebaseConfigured) {
-    return inMemoryMatches;
+    return matches;
   }
 
   try {
@@ -645,7 +720,7 @@ export async function searchCertificates(searchQuery: string): Promise<Certifica
     console.warn("[Firestore searchCertificates Warning]:", error);
   }
 
-  return inMemoryMatches;
+  return matches;
 }
 
 /**

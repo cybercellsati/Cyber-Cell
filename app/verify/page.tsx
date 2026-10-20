@@ -382,7 +382,7 @@ function VerifyContent() {
             <input
               type="text"
               required
-              placeholder="Enter Scholar Number (e.g. 0108CS221045) or Name..."
+              placeholder="Enter 5-digit Scholar Number (e.g. 22104), Name, or Certificate ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-12 pr-32 py-4 rounded-2xl bg-white/[0.04] border border-white/10 focus:border-cyan-400 focus:bg-white/[0.07] focus:outline-none focus:ring-1 focus:ring-cyan-400 transition-all text-white placeholder-slate-500 text-sm font-mono"

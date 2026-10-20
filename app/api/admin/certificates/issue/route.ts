@@ -5,6 +5,9 @@ import {
   calculateExpiryDate,
   getAllCertificates,
   deleteCertificate,
+  formatStudentName,
+  normalizeScholarNumber,
+  generateUniqueCertificateId,
 } from "@/lib/certificates";
 
 export async function POST(req: NextRequest) {
@@ -23,16 +26,20 @@ export async function POST(req: NextRequest) {
 
     // Process each certificate in batch (Zero-storage, on-demand canvas generated)
     for (const item of certificates) {
-      const certId = item.certificate_id.trim().toUpperCase();
+      const scholar = normalizeScholarNumber(item.scholar_number || "").toUpperCase();
+      const eventName = item.event_name || defaultEventName || "Cyber Cell Official Workshop";
+      const certId = item.certificate_id
+        ? item.certificate_id.trim().toUpperCase()
+        : generateUniqueCertificateId(scholar, eventName);
       const issueDate = item.issue_date || defaultIssueDate || new Date().toISOString().split("T")[0];
       const expiryDays = Number(item.expiry_days || defaultExpiryDays || 365);
       const expiryDate = calculateExpiryDate(issueDate, expiryDays);
 
       const record: CertificateRecord = {
         certificate_id: certId,
-        scholar_number: item.scholar_number.trim().toUpperCase(),
-        recipient_name: item.recipient_name.trim(),
-        event_name: item.event_name || defaultEventName || "Cyber Cell Official Workshop",
+        scholar_number: scholar,
+        recipient_name: formatStudentName(item.recipient_name),
+        event_name: eventName,
         issue_date: issueDate,
         expiry_date: expiryDate,
         is_download_active: true,

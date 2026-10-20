@@ -3,7 +3,14 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import * as XLSX from "xlsx";
-import { CertificateRecord, batchSaveCertificateRecords, formatStudentName } from "@/lib/certificates";
+import {
+  CertificateRecord,
+  batchSaveCertificateRecords,
+  formatStudentName,
+  normalizeScholarNumber,
+  isScholarValue,
+  generateUniqueCertificateId,
+} from "@/lib/certificates";
 import { getTemplateById, getActiveTemplate, saveTemplateProfile } from "@/lib/certificateConfig";
 import { saveJsonToCloudinary, fetchJsonFromCloudinary } from "@/lib/cloudinary";
 
@@ -50,18 +57,28 @@ function isNameHeader(h: unknown): boolean {
 
 /**
  * Checks if a column header represents a scholar number, roll number, or enrollment number
+ * Resiliently handles abbreviations like "Sch Number", "Sch No", "Sch. No.", etc.
  */
 function isScholarHeader(h: unknown): boolean {
   if (!h) return false;
   const clean = String(h).toLowerCase().replace(/[^a-z0-9]/g, "");
   if (!clean) return false;
 
-  if (clean.includes("certificate") || clean.includes("certid") || clean.includes("photo")) {
+  // Filter out negative keywords
+  if (
+    clean.includes("certificate") ||
+    clean.includes("certid") ||
+    clean.includes("photo") ||
+    clean.includes("school") ||
+    clean.includes("schedule") ||
+    clean.includes("scheme")
+  ) {
     return false;
   }
 
   return (
     clean.includes("scholar") ||
+    clean.includes("sch") || // Accurately matches "schnumber", "schno", "sch_no", "sch"
     clean.includes("enroll") ||
     clean.includes("roll") ||
     clean.includes("rgpv") ||
@@ -79,38 +96,20 @@ function isScholarHeader(h: unknown): boolean {
 }
 
 /**
- * Checks if a cell value looks like a scholar number or roll number
- */
-function isScholarValue(val: unknown): boolean {
-  if (val === undefined || val === null) return false;
-  const s = String(val).trim();
-  if (!s || s.length < 3 || s.length > 25) return false;
-
-  // SATI format (0108...) or alphanumeric university enrollment
-  if (/^0108[A-Za-z0-9]+/i.test(s)) return true;
-  // Standard alphanumeric student roll numbers (e.g. 221045, CS221045, RGPV/22/...)
-  if (/^[A-Za-z0-9\/\-_]{5,20}$/.test(s) && /\d/.test(s)) return true;
-  // Pure digits if typical roll length (4-12 digits)
-  if (/^\d{4,12}$/.test(s)) return true;
-
-  return false;
-}
-
-/**
  * Checks if a cell value looks like a person's full name
  */
 function isNameValue(val: unknown): boolean {
   if (val === undefined || val === null) return false;
   const s = String(val).trim();
-  if (!s || s.length < 3 || s.length > 50) return false;
+  if (!s || s.length < 2 || s.length > 50) return false;
 
-  // Cannot be an email, URL, timestamp, or pure digits
+  // Cannot be an email, URL, timestamp, pure digits, or scholar number
   if (s.includes("@") || s.includes("http") || /^\d+$/.test(s) || isScholarValue(s)) {
     return false;
   }
 
   // Typical name: letters, dots, spaces (e.g., "Aayush Pandey", "Yash Harfode")
-  if (/^[A-Za-z\s.\-']{3,50}$/.test(s) && s.includes(" ")) {
+  if (/^[A-Za-z\s.\-']{2,50}$/.test(s)) {
     return true;
   }
 
@@ -232,10 +231,11 @@ export async function POST(req: NextRequest) {
 
       if (!rawGrid || rawGrid.length === 0) continue;
 
-      // 1. Scan rows to find the actual table header row (inspect first 15 rows)
+      // 1. Scan rows to find the actual table header row using scoring (inspect first 15 rows)
       let headerRowIndex = -1;
       let nameColIdx = -1;
       let scholarColIdx = -1;
+      let bestScore = -1;
 
       for (let r = 0; r < Math.min(rawGrid.length, 15); r++) {
         const row = rawGrid[r];
@@ -244,12 +244,41 @@ export async function POST(req: NextRequest) {
         const nIdx = row.findIndex(isNameHeader);
         const sIdx = row.findIndex(isScholarHeader);
 
-        if (nIdx !== -1 || sIdx !== -1) {
+        let score = 0;
+        if (nIdx !== -1 && sIdx !== -1) {
+          score += 100;
+        } else if (nIdx !== -1 || sIdx !== -1) {
+          score += 20;
+        }
+
+        const otherHeadersCount = row.filter((cell) => {
+          const str = String(cell || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+          return (
+            str.includes("sno") ||
+            str.includes("serial") ||
+            str.includes("branch") ||
+            str.includes("year") ||
+            str.includes("sem") ||
+            str.includes("email") ||
+            str.includes("phone") ||
+            str.includes("contact") ||
+            str.includes("event") ||
+            str.includes("role")
+          );
+        }).length;
+        score += otherHeadersCount * 5;
+
+        const nonEmptyCount = row.filter((c) => String(c ?? "").trim() !== "").length;
+        if (nonEmptyCount <= 1) {
+          score -= 50;
+        }
+
+        if (score > bestScore && (nIdx !== -1 || sIdx !== -1)) {
+          bestScore = score;
           headerRowIndex = r;
           nameColIdx = nIdx;
           scholarColIdx = sIdx;
           detectedHeaders = row.map((cell) => String(cell || "").trim()).filter(Boolean);
-          break;
         }
       }
 
@@ -295,37 +324,64 @@ export async function POST(req: NextRequest) {
           if (!Array.isArray(row)) continue;
 
           let rawName = nameColIdx >= 0 && row[nameColIdx] !== undefined ? String(row[nameColIdx]).trim() : "";
-          let rawScholar = scholarColIdx >= 0 && row[scholarColIdx] !== undefined ? String(row[scholarColIdx]).trim() : "";
+          let rawScholar = scholarColIdx >= 0 && row[scholarColIdx] !== undefined ? normalizeScholarNumber(row[scholarColIdx]) : "";
 
-          // Skip completely empty rows
-          if (!rawName && !rawScholar) continue;
-
-          // If rawName looks like a scholar number and rawScholar is empty, swap them
-          if (!rawScholar && isScholarValue(rawName)) {
+          // Check if columns were inverted (scholar in nameCol, name in scholarCol)
+          if (isScholarValue(rawName) && isNameValue(rawScholar)) {
+            const tmp = rawName;
+            rawName = rawScholar;
+            rawScholar = tmp;
+          } else if (!rawScholar && isScholarValue(rawName)) {
             rawScholar = rawName;
             rawName = "";
           }
+
+          // If scholar is missing, look through other cells for a 5-digit scholar number or valid scholar value
+          if (!rawScholar) {
+            for (let c = 0; c < row.length; c++) {
+              if (c !== nameColIdx) {
+                const candidate = normalizeScholarNumber(row[c]);
+                if (isScholarValue(candidate)) {
+                  rawScholar = candidate;
+                  break;
+                }
+              }
+            }
+          }
+
+          // If name is missing, look through other cells for a valid name
+          if (!rawName) {
+            for (let c = 0; c < row.length; c++) {
+              if (c !== scholarColIdx) {
+                const candidate = String(row[c] || "").trim();
+                if (isNameValue(candidate)) {
+                  rawName = candidate;
+                  break;
+                }
+              }
+            }
+          }
+
+          // Skip completely empty rows
+          if (!rawName && !rawScholar) continue;
 
           // Generate student fallback if only scholar number is available
           if (!rawName && rawScholar) {
             rawName = `Student ${rawScholar}`;
           }
 
-          // Generate scholar fallback if only name is available
-          if (!rawScholar && rawName) {
-            rawScholar = `STU-${String(parsedRecords.length + 1).padStart(4, "0")}`;
-          }
-
-          const certId =
-            certIdColIdx >= 0 && row[certIdColIdx]
-              ? String(row[certIdColIdx]).trim().toUpperCase()
-              : `CYB-2026-${rawScholar.toUpperCase()}`;
-
           const eventName =
             reqEventName ||
             templateProfile?.eventName ||
             (eventColIdx >= 0 && row[eventColIdx] ? String(row[eventColIdx]).trim() : "") ||
             "National Cyber Defense Wargame 2026";
+
+          // Generate an institutional, unique Certificate ID specific to this event & scholar number
+          // Prevents certificate collisions across different events and workshops
+          const certId =
+            certIdColIdx >= 0 && row[certIdColIdx]
+              ? String(row[certIdColIdx]).trim().toUpperCase()
+              : generateUniqueCertificateId(rawScholar, eventName);
 
           const role =
             roleColIdx >= 0 && row[roleColIdx]

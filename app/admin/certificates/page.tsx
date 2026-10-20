@@ -158,7 +158,7 @@ export default function CleanAdminCertificatesStudio() {
       }
 
       // Load attendees
-      const attRes = await fetch("/api/certificates/verify?query=0108");
+      const attRes = await fetch("/api/certificates/verify?all=true");
       const attData = await attRes.json();
       if (attData.certificates && attData.certificates.length > 0) {
         setAttendees(
@@ -299,8 +299,8 @@ export default function CleanAdminCertificatesStudio() {
         ? attendees[previewIndex] || attendees[0]
         : {
             name: "STUDENT FULL NAME",
-            scholarNumber: "0108CS221001",
-            certificateId: "CYB-2026-SAMPLE",
+            scholarNumber: "22104",
+            certificateId: "CYB-2026-PREVIEW",
             role: "Participant",
           };
 
