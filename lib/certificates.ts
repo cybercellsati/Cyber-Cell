@@ -351,42 +351,79 @@ export function getLocalCertificates(): CertificateRecord[] {
         try {
           const fileBuf = fs.readFileSync(/*turbopackIgnore: true*/ filePath);
           const workbook = XLSX.read(fileBuf, { type: "buffer" });
-          const firstSheet = workbook.SheetNames[0];
-          if (firstSheet) {
-            const rawRows: Record<string, unknown>[] = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
-            rawRows.forEach((row, idx) => {
-              const name = getRowValue(row, [
-                "name", "recipient name", "student name", "full name", "participant name", "candidate name", "student"
-              ]);
-              const scholarNo = getRowValue(row, [
-                "scholar number", "scholar no", "scholar no.", "scholarno", "enrollment number", "enrollment no", "roll no", "id"
-              ]);
+          for (const sheetName of workbook.SheetNames) {
+            const sheet = workbook.Sheets[sheetName];
+            if (!sheet) continue;
+            const rawGrid: unknown[][] = XLSX.utils.sheet_to_json(sheet, {
+              header: 1,
+              blankrows: false,
+              defval: "",
+            });
+            if (!rawGrid || rawGrid.length === 0) continue;
 
-              if (!name && !scholarNo) return;
+            let headerRowIndex = 0;
+            let nameColIdx = -1;
+            let scholarColIdx = -1;
 
-              const certId = (
-                getRowValue(row, ["certificate id", "cert id", "certificate no", "id"]) ||
-                `CYB-2026-${scholarNo || idx + 1}`
-              ).trim().toUpperCase();
+            for (let r = 0; r < Math.min(rawGrid.length, 15); r++) {
+              const row = rawGrid[r];
+              if (!Array.isArray(row)) continue;
+              for (let c = 0; c < row.length; c++) {
+                const clean = String(row[c] || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+                if (
+                  nameColIdx === -1 &&
+                  (clean.includes("name") || clean.includes("student") || clean.includes("participant")) &&
+                  !clean.includes("college") &&
+                  !clean.includes("father") &&
+                  !clean.includes("event")
+                ) {
+                  nameColIdx = c;
+                  headerRowIndex = r;
+                }
+                if (
+                  scholarColIdx === -1 &&
+                  (clean.includes("scholar") ||
+                    clean.includes("enroll") ||
+                    clean.includes("roll") ||
+                    clean.includes("rgpv") ||
+                    clean.includes("regno") ||
+                    clean === "id")
+                ) {
+                  scholarColIdx = c;
+                  headerRowIndex = r;
+                }
+              }
+              if (nameColIdx !== -1 || scholarColIdx !== -1) break;
+            }
 
-              // Avoid duplicate if already loaded from JSON
-              if (records.some((r) => r.certificate_id === certId)) return;
+            for (let r = headerRowIndex + 1; r < rawGrid.length; r++) {
+              const row = rawGrid[r];
+              if (!Array.isArray(row)) continue;
+              let name = nameColIdx >= 0 && row[nameColIdx] ? String(row[nameColIdx]).trim() : "";
+              let scholarNo = scholarColIdx >= 0 && row[scholarColIdx] ? String(row[scholarColIdx]).trim() : "";
+
+              if (!name && !scholarNo) continue;
+              if (!name) name = `Student ${scholarNo}`;
+              if (!scholarNo) scholarNo = `STU-${r}`;
+
+              const certId = `CYB-2026-${scholarNo.toUpperCase()}`;
+              if (records.some((rec) => rec.certificate_id === certId)) continue;
 
               records.push({
-                id: `local-excel-${idx}`,
+                id: `local-excel-${sheetName}-${r}`,
                 certificate_id: certId,
-                scholar_number: scholarNo,
-                recipient_name: formatStudentName(name || `Student ${idx + 1}`),
-                event_name: getRowValue(row, ["event", "event name", "workshop"]) || "National Cyber Defense Wargame 2026",
-                issue_date: getRowValue(row, ["issue date", "date"]) || new Date().toISOString().split("T")[0],
+                scholar_number: scholarNo.toUpperCase(),
+                recipient_name: formatStudentName(name),
+                event_name: "National Cyber Defense Wargame 2026",
+                issue_date: new Date().toISOString().split("T")[0],
                 expiry_date: "2030-01-01",
                 image_url: "",
                 is_download_active: true,
-                role_or_rank: getRowValue(row, ["role", "rank", "position"]) || "Participant",
+                role_or_rank: "Participant",
                 issued_by: "Cyber Cell, SATI Vidisha",
                 created_at: new Date().toISOString(),
               });
-            });
+            }
           }
         } catch (e) {
           console.warn("Could not parse excel file:", filePath, e);
