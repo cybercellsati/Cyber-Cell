@@ -76,23 +76,23 @@ export default function LearningRoadmap() {
   const activeItem = roadmapItems[activeIndex];
 
   return (
-    <section id="roadmap" className="relative py-20 lg:py-28 bg-[#030508] border-b border-white/[0.08] overflow-hidden">
-      {/* Background Subtle Gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_0%,rgba(0,229,255,0.03),transparent)] pointer-events-none" />
+    <section id="roadmap" className="relative py-20 lg:py-28 bg-[#030303] border-b border-white/[0.08] overflow-hidden">
+      {/* Background Subtle Amber Gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_0%,rgba(245,158,11,0.03),transparent)] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
         <div className="mb-14">
           <div className="flex items-center gap-3 mb-4">
-            <span className="w-8 h-[2px] bg-[#00e5ff] inline-block" />
-            <span className="text-xs font-mono font-semibold tracking-[0.2em] text-[#00e5ff] uppercase">
+            <span className="w-8 h-[2px] bg-amber-400 inline-block shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+            <span className="text-xs font-mono font-semibold tracking-[0.2em] text-amber-400 uppercase">
               THE LEARNING PATH
             </span>
           </div>
 
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-3 leading-tight">
-            Learn. Build. <span className="text-[#00e5ff]">Secure.</span>
+            Learn. Build. <span className="text-amber-400">Secure.</span>
           </h2>
 
           <p className="text-sm sm:text-base text-slate-400 font-light max-w-xl">
@@ -120,12 +120,12 @@ export default function LearningRoadmap() {
                     {/* Timeline Node Ring */}
                     <div className="relative z-10 shrink-0 mt-0.5">
                       {isActive ? (
-                        <div className="w-7 h-7 rounded-full border-2 border-[#00e5ff] bg-[#030508] flex items-center justify-center shadow-[0_0_15px_rgba(0,229,255,0.5)]">
-                          <div className="w-2.5 h-2.5 rounded-full bg-[#00e5ff]" />
+                        <div className="w-7 h-7 rounded-full border-2 border-amber-400 bg-[#030303] flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.5)]">
+                          <div className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)]" />
                         </div>
                       ) : (
-                        <div className="w-7 h-7 rounded-full border border-white/20 bg-[#070b14] flex items-center justify-center group-hover:border-[#00e5ff]/50 transition-colors">
-                          <div className="w-2 h-2 rounded-full bg-slate-500 group-hover:bg-[#00e5ff] transition-colors" />
+                        <div className="w-7 h-7 rounded-full border border-white/20 bg-[#070707] flex items-center justify-center group-hover:border-amber-400/50 transition-colors">
+                          <div className="w-2 h-2 rounded-full bg-slate-500 group-hover:bg-amber-400 transition-colors" />
                         </div>
                       )}
                     </div>
@@ -155,7 +155,7 @@ export default function LearningRoadmap() {
 
           {/* Right Column: Single Glass Detail Panel */}
           <div className="lg:col-span-7">
-            <div className="relative rounded-2xl sm:rounded-3xl border border-white/[0.08] bg-[#070b14]/90 backdrop-blur-md p-7 sm:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] min-h-[380px] flex flex-col justify-between overflow-hidden group">
+            <div className="relative rounded-2xl sm:rounded-3xl border border-white/[0.08] bg-[#070707]/90 backdrop-blur-md p-7 sm:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] min-h-[380px] flex flex-col justify-between overflow-hidden group">
               
               {/* Top and Body Content */}
               <div>
@@ -173,7 +173,7 @@ export default function LearningRoadmap() {
                 </h3>
 
                 {/* Description */}
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-md mb-8">
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-md mb-8 font-light">
                   {activeItem.description}
                 </p>
 
@@ -190,8 +190,8 @@ export default function LearningRoadmap() {
                 </div>
               </div>
 
-              {/* Right Side Isometric Graphic */}
-              <div className="absolute right-4 bottom-14 sm:bottom-10 w-44 sm:w-56 h-36 sm:h-44 pointer-events-none opacity-85 group-hover:opacity-100 transition-opacity">
+              {/* Right Side Isometric Graphic (Amber) */}
+              <div className="absolute right-4 bottom-14 sm:bottom-10 w-44 sm:w-56 h-36 sm:h-44 pointer-events-none opacity-90 group-hover:opacity-100 transition-opacity">
                 <div className="relative w-full h-full">
                   <Image
                     src="/images/roadmap-isometric.png"
@@ -212,8 +212,8 @@ export default function LearningRoadmap() {
                   className="group inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-300 hover:text-white transition-colors relative pb-1 ml-auto"
                 >
                   <span>Explore learning path</span>
-                  <ArrowRight className="w-4 h-4 text-[#00e5ff] transition-transform group-hover:translate-x-1" />
-                  <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#00e5ff]/40 group-hover:bg-[#00e5ff] transition-colors" />
+                  <ArrowRight className="w-4 h-4 text-amber-400 transition-transform group-hover:translate-x-1" />
+                  <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-amber-400/40 group-hover:bg-amber-400 transition-colors" />
                 </Link>
               </div>
 

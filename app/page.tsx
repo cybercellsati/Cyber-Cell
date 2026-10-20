@@ -18,7 +18,7 @@ export const metadata = {
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#030508] text-white flex flex-col selection:bg-[#00e5ff]/25 selection:text-white">
+    <main className="min-h-screen bg-[#030303] text-white flex flex-col selection:bg-amber-400/20 selection:text-amber-300">
       {/* 1. Fixed / Sticky Glass Navbar */}
       <Navbar />
 

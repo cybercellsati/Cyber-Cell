@@ -46,7 +46,7 @@ export default function TerminalDemo() {
           type: "output",
           content: (
             <div className="space-y-1 font-mono text-xs text-slate-300">
-              <div className="text-[#00e5ff] font-semibold mb-1">Available simulated commands:</div>
+              <div className="text-amber-400 font-semibold mb-1">Available simulated commands:</div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pl-2">
                 <div><span className="text-white font-bold">about</span> : Learn about Cyber Cell SATI</div>
                 <div><span className="text-white font-bold">domains</span> : Explore 8 core security domains</div>
@@ -114,7 +114,7 @@ export default function TerminalDemo() {
         newLines.push({
           type: "output",
           content: (
-            <div className="p-3 my-1 rounded-xl bg-[#00e5ff]/10 border border-[#00e5ff]/40 text-[#00e5ff] font-mono font-bold shadow-[0_0_20px_rgba(0,229,255,0.2)]">
+            <div className="p-3 my-1 rounded-xl bg-amber-400/10 border border-amber-400/40 text-amber-300 font-mono font-bold shadow-[0_0_20px_rgba(245,158,11,0.25)]">
               FLAG FOUND: CYBER&#123;THINK_SECURE_BUILD_BETTER&#125;
             </div>
           )
@@ -161,44 +161,44 @@ export default function TerminalDemo() {
   };
 
   return (
-    <section className="relative py-20 lg:py-28 bg-[#030508] border-b border-white/[0.08] overflow-hidden">
-      {/* Background Subtle Gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(0,229,255,0.02),transparent)] pointer-events-none" />
+    <section className="relative py-20 lg:py-28 bg-[#030303] border-b border-white/[0.08] overflow-hidden">
+      {/* Background Subtle Amber Atmosphere */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(245,158,11,0.02),transparent)] pointer-events-none" />
 
       <div className="max-w-5xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-3 mb-4">
-            <span className="w-8 h-[2px] bg-[#00e5ff] inline-block" />
-            <span className="text-xs font-mono font-semibold tracking-[0.2em] text-[#00e5ff] uppercase">
+            <span className="w-8 h-[2px] bg-amber-400 inline-block shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+            <span className="text-xs font-mono font-semibold tracking-[0.2em] text-amber-400 uppercase">
               INTERACTIVE TERMINAL
             </span>
-            <span className="w-8 h-[2px] bg-[#00e5ff] inline-block" />
+            <span className="w-8 h-[2px] bg-amber-400 inline-block shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
           </div>
 
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white">
-            Simulated Security Shell<span className="text-[#00e5ff]">.</span>
+            Simulated Security Shell<span className="text-amber-400">.</span>
           </h2>
 
           <p className="text-xs sm:text-sm text-slate-400 mt-2 font-light max-w-xl mx-auto">
-            Interact with Cyber Cell&apos;s virtual system directly in your browser. Type <span className="font-mono text-[#00e5ff]">help</span> to begin.
+            Interact with Cyber Cell&apos;s virtual system directly in your browser. Type <span className="font-mono text-amber-400">help</span> to begin.
           </p>
         </div>
 
         {/* Terminal Window Box */}
         <div 
           onClick={() => inputRef.current?.focus()}
-          className="rounded-2xl sm:rounded-3xl border border-white/[0.08] bg-[#070b14]/90 backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden cursor-text"
+          className="rounded-2xl sm:rounded-3xl border border-white/[0.08] bg-[#070707]/90 backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden cursor-text"
         >
           {/* Title Bar */}
-          <div className="flex items-center justify-between px-5 py-3.5 bg-[#0a0f1c] border-b border-white/[0.06] select-none">
+          <div className="flex items-center justify-between px-5 py-3.5 bg-[#0a0a0a] border-b border-white/[0.06] select-none">
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-[#ef4444]/80" />
               <span className="w-3 h-3 rounded-full bg-[#eab308]/80" />
               <span className="w-3 h-3 rounded-full bg-[#10b981]/80" />
               <span className="ml-3 text-xs font-mono text-slate-400 flex items-center gap-2">
-                <TerminalIcon className="w-3.5 h-3.5 text-[#00e5ff]" />
+                <TerminalIcon className="w-3.5 h-3.5 text-amber-400" />
                 <span>guest@cybercell-sati:~ (simulated)</span>
               </span>
             </div>
@@ -208,7 +208,7 @@ export default function TerminalDemo() {
           {/* Terminal Console Output & Input Area */}
           <div 
             ref={terminalBodyRef}
-            className="p-5 sm:p-7 font-mono text-xs sm:text-sm min-h-[280px] max-h-[420px] overflow-y-auto space-y-2.5 selection:bg-[#00e5ff]/30 selection:text-white"
+            className="p-5 sm:p-7 font-mono text-xs sm:text-sm min-h-[280px] max-h-[420px] overflow-y-auto space-y-2.5 selection:bg-amber-400/30 selection:text-white"
           >
             {history.map((line, idx) => (
               <div key={idx} className="leading-relaxed whitespace-pre-wrap">
@@ -226,7 +226,7 @@ export default function TerminalDemo() {
 
             {/* Live Prompt Line */}
             <div className="flex items-center gap-2 pt-1 text-slate-200">
-              <span className="text-[#00e5ff] font-bold">$</span>
+              <span className="text-amber-400 font-bold">$</span>
               <input
                 ref={inputRef}
                 type="text"
@@ -243,7 +243,7 @@ export default function TerminalDemo() {
           </div>
 
           {/* Bottom Quick Command Chips */}
-          <div className="px-5 py-3 bg-[#0a0f1c] border-t border-white/[0.06] flex flex-wrap items-center gap-2 text-[11px] font-mono text-slate-400">
+          <div className="px-5 py-3 bg-[#0a0a0a] border-t border-white/[0.06] flex flex-wrap items-center gap-2 text-[11px] font-mono text-slate-400">
             <span className="text-slate-500">Quick tests:</span>
             {["help", "about", "domains", "events", "roadmap", "resources", "flag", "clear"].map((c) => (
               <button
@@ -252,7 +252,7 @@ export default function TerminalDemo() {
                   e.stopPropagation();
                   handleCommand(c);
                 }}
-                className="px-2.5 py-1 rounded-md bg-white/[0.04] hover:bg-[#00e5ff]/15 hover:text-[#00e5ff] hover:border-[#00e5ff]/30 border border-white/[0.06] transition-colors"
+                className="px-2.5 py-1 rounded-md bg-white/[0.04] hover:bg-amber-400/15 hover:text-amber-300 hover:border-amber-400/30 border border-white/[0.06] transition-colors"
               >
                 {c}
               </button>

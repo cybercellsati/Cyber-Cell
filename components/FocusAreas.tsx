@@ -11,9 +11,7 @@ import {
   Flag,
   X,
   Wrench,
-  CheckCircle2,
-  ShieldAlert,
-  Layers
+  CheckCircle2
 } from "lucide-react";
 
 // Custom SVG for Network Nodes matching reference
@@ -105,9 +103,9 @@ export default function FocusAreas() {
   ];
 
   return (
-    <section id="domains" className="relative py-20 lg:py-28 bg-[#04060a] border-b border-white/[0.08] overflow-hidden">
-      {/* Background Subtle Ambience */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,rgba(0,229,255,0.03),transparent)] pointer-events-none" />
+    <section id="domains" className="relative py-20 lg:py-28 bg-[#030303] border-b border-white/[0.08] overflow-hidden">
+      {/* Background Subtle Amber Ambience */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,rgba(245,158,11,0.03),transparent)] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
         
@@ -115,8 +113,8 @@ export default function FocusAreas() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <span className="w-8 h-[2px] bg-[#00e5ff] inline-block" />
-              <span className="text-xs font-mono font-semibold tracking-[0.2em] text-[#00e5ff] uppercase">
+              <span className="w-8 h-[2px] bg-amber-400 inline-block shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+              <span className="text-xs font-mono font-semibold tracking-[0.2em] text-amber-400 uppercase">
                 CURRICULUM / FOCUS AREAS
               </span>
             </div>
@@ -133,13 +131,13 @@ export default function FocusAreas() {
             className="group inline-flex items-center gap-2 text-sm font-medium text-slate-300 hover:text-white transition-colors relative pb-1 self-start sm:self-end"
           >
             <span>Explore all domains</span>
-            <ArrowRight className="w-4 h-4 text-[#00e5ff] transition-transform group-hover:translate-x-1" />
-            <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#00e5ff]/40 group-hover:bg-[#00e5ff] transition-colors" />
+            <ArrowRight className="w-4 h-4 text-amber-400 transition-transform group-hover:translate-x-1" />
+            <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-amber-400/40 group-hover:bg-amber-400 transition-colors" />
           </Link>
         </div>
 
         {/* Featured Domain Card: Ethical Hacking */}
-        <div className="relative rounded-2xl sm:rounded-3xl border border-white/[0.08] bg-[#070b14]/90 backdrop-blur-md overflow-hidden mb-16 shadow-[0_20px_50px_rgba(0,0,0,0.7)] group">
+        <div className="relative rounded-2xl sm:rounded-3xl border border-white/[0.08] bg-[#070707]/90 backdrop-blur-md overflow-hidden mb-16 shadow-[0_20px_50px_rgba(0,0,0,0.8)] group">
           <div className="grid grid-cols-1 md:grid-cols-12 items-center">
             
             {/* Left Content */}
@@ -150,23 +148,23 @@ export default function FocusAreas() {
               <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3">
                 Ethical Hacking
               </h3>
-              <p className="text-xs sm:text-sm text-slate-400 max-w-lg leading-relaxed mb-6">
+              <p className="text-xs sm:text-sm text-slate-400 max-w-lg leading-relaxed mb-6 font-light">
                 Learn to identify, exploit, and secure real-world vulnerabilities through hands-on practice.
               </p>
               
               <div>
                 <button
                   onClick={() => setSelectedDomain(ethicalHacking)}
-                  className="group inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-white hover:text-[#00e5ff] transition-colors relative pb-1"
+                  className="group inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-white hover:text-amber-400 transition-colors relative pb-1"
                 >
                   <span>Explore Domain</span>
-                  <ArrowRight className="w-4 h-4 text-[#00e5ff] transition-transform group-hover:translate-x-1" />
-                  <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#00e5ff]/40 group-hover:bg-[#00e5ff] transition-colors" />
+                  <ArrowRight className="w-4 h-4 text-amber-400 transition-transform group-hover:translate-x-1" />
+                  <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-amber-400/40 group-hover:bg-amber-400 transition-colors" />
                 </button>
               </div>
             </div>
 
-            {/* Right Visual: Laptop on rocky terrain with wireframe shield */}
+            {/* Right Visual: Amber Laptop on dark rocky terrain */}
             <div className="md:col-span-6 lg:col-span-5 relative w-full h-52 sm:h-64 md:h-full min-h-[220px] flex items-center justify-end overflow-hidden">
               <div className="relative w-full h-full">
                 <Image
@@ -177,8 +175,8 @@ export default function FocusAreas() {
                   sizes="(max-width: 768px) 100vw, 500px"
                 />
                 {/* Gradient fade to blend left side */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#070b14] via-transparent to-transparent hidden md:block" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#070b14] via-transparent to-transparent md:hidden" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#070707] via-transparent to-transparent hidden md:block" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#070707] via-transparent to-transparent md:hidden" />
               </div>
             </div>
 
@@ -198,19 +196,19 @@ export default function FocusAreas() {
                 {/* Outer Circular Node with Orbital Ring & Satellite Dot */}
                 <div className="relative mb-4 flex items-center justify-center">
                   {/* Subtle outer orbital ring */}
-                  <div className="absolute -inset-2.5 rounded-full border border-white/[0.08] group-hover:border-[#00e5ff]/40 transition-colors duration-500 pointer-events-none" />
+                  <div className="absolute -inset-2.5 rounded-full border border-white/[0.08] group-hover:border-amber-400/40 transition-colors duration-500 pointer-events-none" />
                   
-                  {/* Satellite cyan dot */}
-                  <div className="absolute top-0 right-1 w-2 h-2 rounded-full bg-[#00e5ff] shadow-[0_0_10px_#00e5ff] transition-transform duration-500 group-hover:scale-125" />
+                  {/* Satellite amber dot */}
+                  <div className="absolute top-0 right-1 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.9)] transition-transform duration-500 group-hover:scale-125" />
 
                   {/* Main circular glass orb */}
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border border-white/[0.12] bg-[radial-gradient(circle_at_35%_35%,rgba(0,229,255,0.12),rgba(6,10,18,0.95))] shadow-[inset_0_2px_8px_rgba(255,255,255,0.08),0_10px_30px_rgba(0,0,0,0.6)] flex items-center justify-center text-white group-hover:text-[#00e5ff] group-hover:border-[#00e5ff]/50 group-hover:shadow-[0_0_25px_rgba(0,229,255,0.25)] transition-all duration-300">
-                    <Icon className="w-8 h-8 sm:w-9 sm:h-9 text-[#00e5ff] transition-transform duration-300 group-hover:scale-110" />
+                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border border-white/[0.12] bg-[radial-gradient(circle_at_35%_35%,rgba(245,158,11,0.12),rgba(8,8,8,0.98))] shadow-[inset_0_2px_8px_rgba(255,255,255,0.08),0_10px_30px_rgba(0,0,0,0.6)] flex items-center justify-center text-white group-hover:text-amber-400 group-hover:border-amber-400/50 group-hover:shadow-[0_0_25px_rgba(245,158,11,0.25)] transition-all duration-300">
+                    <Icon className="w-8 h-8 sm:w-9 sm:h-9 text-amber-400 transition-transform duration-300 group-hover:scale-110" />
                   </div>
                 </div>
 
                 {/* Title */}
-                <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-[#00e5ff] transition-colors tracking-tight">
+                <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-amber-400 transition-colors tracking-tight">
                   {domain.name}
                 </h4>
 
@@ -219,8 +217,8 @@ export default function FocusAreas() {
                   {domain.desc}
                 </p>
 
-                {/* Subtle Cyan Underline */}
-                <span className="w-6 h-[1.5px] bg-[#00e5ff]/40 group-hover:bg-[#00e5ff] group-hover:w-10 transition-all duration-300 mt-2 block" />
+                {/* Subtle Amber Underline */}
+                <span className="w-6 h-[1.5px] bg-amber-400/40 group-hover:bg-amber-400 group-hover:w-10 transition-all duration-300 mt-2 block" />
               </button>
             );
           })}
@@ -233,17 +231,17 @@ export default function FocusAreas() {
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
           onClick={() => setSelectedDomain(null)}
         >
           <div
-            className="relative w-full max-w-2xl bg-[#090d16] border border-white/15 rounded-2xl p-6 sm:p-8 max-h-[85vh] overflow-y-auto shadow-2xl space-y-6"
+            className="relative w-full max-w-2xl bg-[#080808] border border-white/15 rounded-2xl p-6 sm:p-8 max-h-[85vh] overflow-y-auto shadow-2xl space-y-6"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
             <div className="flex items-start justify-between border-b border-white/10 pb-4">
               <div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#00e5ff]/10 text-[#00e5ff] border border-[#00e5ff]/20 font-semibold uppercase">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-400/10 text-amber-400 border border-amber-400/20 font-semibold uppercase">
                   {selectedDomain.level} Track
                 </span>
                 <h3 className="text-2xl font-bold text-white mt-2">
@@ -264,7 +262,7 @@ export default function FocusAreas() {
             {/* Core Syllabus Topics */}
             <div>
               <h4 className="text-xs font-mono uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-2">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#00e5ff]" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
                 Key Topics Covered
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -273,7 +271,7 @@ export default function FocusAreas() {
                     key={i}
                     className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.05] text-xs text-slate-300 flex items-center gap-2"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#00e5ff]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
                     <span>{t}</span>
                   </div>
                 ))}
@@ -283,7 +281,7 @@ export default function FocusAreas() {
             {/* Industry Toolchain */}
             <div>
               <h4 className="text-xs font-mono uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-2">
-                <Wrench className="w-3.5 h-3.5 text-[#00e5ff]" />
+                <Wrench className="w-3.5 h-3.5 text-amber-400" />
                 Tools & Frameworks
               </h4>
               <div className="flex flex-wrap gap-1.5">
@@ -306,7 +304,7 @@ export default function FocusAreas() {
               <Link
                 href="/domains"
                 onClick={() => setSelectedDomain(null)}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-lg bg-[#00e5ff] text-black hover:bg-[#00e5ff]/90 transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-lg bg-amber-400 text-black hover:bg-amber-300 transition-colors shadow-[0_0_15px_rgba(251,191,36,0.3)]"
               >
                 <span>Full Domain Syllabus</span>
                 <ArrowRight className="w-3.5 h-3.5" />

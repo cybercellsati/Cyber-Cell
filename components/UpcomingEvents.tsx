@@ -25,9 +25,9 @@ export default function UpcomingEvents() {
   }, []);
 
   return (
-    <section id="events" className="relative py-20 lg:py-28 bg-[#04060a] border-b border-white/[0.08] overflow-hidden">
-      {/* Background Subtle Gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_80%_30%,rgba(0,229,255,0.03),transparent)] pointer-events-none" />
+    <section id="events" className="relative py-20 lg:py-28 bg-[#030303] border-b border-white/[0.08] overflow-hidden">
+      {/* Background Subtle Amber Atmospheric Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_80%_30%,rgba(245,158,11,0.03),transparent)] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
         
@@ -35,8 +35,8 @@ export default function UpcomingEvents() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <span className="w-8 h-[2px] bg-[#00e5ff] inline-block" />
-              <span className="text-xs font-mono font-semibold tracking-[0.2em] text-[#00e5ff] uppercase">
+              <span className="w-8 h-[2px] bg-amber-400 inline-block shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+              <span className="text-xs font-mono font-semibold tracking-[0.2em] text-amber-400 uppercase">
                 MEET • LEARN • COMPETE
               </span>
             </div>
@@ -50,8 +50,8 @@ export default function UpcomingEvents() {
             className="group inline-flex items-center gap-2 text-sm font-medium text-slate-300 hover:text-white transition-colors relative pb-1 self-start sm:self-end"
           >
             <span>View All Events</span>
-            <ArrowRight className="w-4 h-4 text-[#00e5ff] transition-transform group-hover:translate-x-1" />
-            <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#00e5ff]/40 group-hover:bg-[#00e5ff] transition-colors" />
+            <ArrowRight className="w-4 h-4 text-amber-400 transition-transform group-hover:translate-x-1" />
+            <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-amber-400/40 group-hover:bg-amber-400 transition-colors" />
           </Link>
         </div>
 
@@ -60,7 +60,7 @@ export default function UpcomingEvents() {
           
           {/* Left Column: Featured Event Card */}
           <div className="lg:col-span-7">
-            <div className="relative rounded-2xl sm:rounded-3xl border border-white/[0.08] bg-[#070b14]/90 backdrop-blur-md overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] group">
+            <div className="relative rounded-2xl sm:rounded-3xl border border-white/[0.08] bg-[#070707]/90 backdrop-blur-md overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] group">
               
               {/* Event Image Banner */}
               <div className="relative w-full aspect-[16/8] sm:aspect-[16/7] overflow-hidden bg-black/50">
@@ -71,14 +71,14 @@ export default function UpcomingEvents() {
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   sizes="(max-width: 1024px) 100vw, 650px"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#070b14] via-transparent to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#070707] via-transparent to-transparent pointer-events-none" />
               </div>
 
               {/* Event Details */}
               <div className="p-6 sm:p-8">
                 {/* Meta Row: Date & Venue */}
                 <div className="flex items-center justify-between text-xs font-mono mb-3">
-                  <div className="flex items-center gap-2 text-[#00e5ff] font-semibold">
+                  <div className="flex items-center gap-2 text-amber-400 font-semibold">
                     <Calendar className="w-4 h-4" />
                     <span>16 OCT 2026</span>
                   </div>
@@ -89,7 +89,7 @@ export default function UpcomingEvents() {
                 </div>
 
                 {/* Event Title */}
-                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 group-hover:text-[#00e5ff] transition-colors">
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 group-hover:text-amber-400 transition-colors">
                   EXPLOIT — Intro to the Cyber Range
                 </h3>
 
@@ -102,26 +102,26 @@ export default function UpcomingEvents() {
                 <div className="pt-5 border-t border-white/[0.08] flex items-center justify-between">
                   <Link
                     href="/events"
-                    className="group/link inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-white hover:text-[#00e5ff] transition-colors"
+                    className="group/link inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-white hover:text-amber-400 transition-colors"
                   >
                     <span>View event</span>
-                    <ArrowRight className="w-4 h-4 text-[#00e5ff] transition-transform group-hover/link:translate-x-1" />
+                    <ArrowRight className="w-4 h-4 text-amber-400 transition-transform group-hover/link:translate-x-1" />
                   </Link>
 
                   {/* Attendee Stack Badge */}
                   <div className="flex items-center">
                     <div className="flex -space-x-2">
-                      <div className="w-7 h-7 rounded-full bg-slate-700 border-2 border-[#070b14] flex items-center justify-center text-[10px] text-white font-medium">
+                      <div className="w-7 h-7 rounded-full bg-slate-800 border-2 border-[#070707] flex items-center justify-center text-[10px] text-white font-medium">
                         AY
                       </div>
-                      <div className="w-7 h-7 rounded-full bg-slate-600 border-2 border-[#070b14] flex items-center justify-center text-[10px] text-white font-medium">
+                      <div className="w-7 h-7 rounded-full bg-slate-700 border-2 border-[#070707] flex items-center justify-center text-[10px] text-white font-medium">
                         KM
                       </div>
-                      <div className="w-7 h-7 rounded-full bg-slate-500 border-2 border-[#070b14] flex items-center justify-center text-[10px] text-white font-medium">
+                      <div className="w-7 h-7 rounded-full bg-slate-600 border-2 border-[#070707] flex items-center justify-center text-[10px] text-white font-medium">
                         YH
                       </div>
                     </div>
-                    <span className="text-[11px] font-mono font-semibold text-slate-300 ml-2 px-2 py-0.5 rounded-full bg-white/[0.05] border border-white/10">
+                    <span className="text-[11px] font-mono font-semibold text-amber-400/90 ml-2 px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20">
                       +50
                     </span>
                   </div>
@@ -137,7 +137,7 @@ export default function UpcomingEvents() {
             
             {/* Top Narrative */}
             <div className="mb-8">
-              <div className="w-10 h-[2px] bg-[#00e5ff] mb-6" />
+              <div className="w-10 h-[2px] bg-amber-400 mb-6 shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
               <h3 className="text-3xl sm:text-4xl font-bold text-white tracking-tight leading-[1.15] mb-3">
                 Learn together.<br />
                 Build something real.
@@ -147,11 +147,11 @@ export default function UpcomingEvents() {
               </p>
             </div>
 
-            {/* Calendar Widget matching Reference 4 */}
-            <div className="relative rounded-2xl border border-white/[0.08] bg-[#070b14]/70 backdrop-blur-md p-6 max-w-sm">
+            {/* Calendar Widget matching Reference 4 with Amber Highlighting */}
+            <div className="relative rounded-2xl border border-white/[0.08] bg-[#070707]/70 backdrop-blur-md p-6 max-w-sm">
               {/* Calendar Icon Top */}
               <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/[0.06]">
-                <Calendar className="w-4 h-4 text-[#00e5ff]" />
+                <Calendar className="w-4 h-4 text-amber-400" />
                 <span className="text-xs font-mono font-medium text-slate-400 uppercase tracking-wider">
                   OCTOBER 2026
                 </span>
@@ -184,16 +184,16 @@ export default function UpcomingEvents() {
                 <span className="py-1">7</span>
                 <span className="py-1">8</span>
                 <span className="py-1">9</span>
-                <span className="py-1">10</span>
+                <span className="py-10">10</span>
                 <span className="py-1">11</span>
                 <span className="py-1">12</span>
                 <span className="py-1">13</span>
                 <span className="py-1">14</span>
                 <span className="py-1">15</span>
                 
-                {/* Event Day 16 (Highlighted Glowing Cyan Circle) */}
+                {/* Event Day 16 (Highlighted Glowing Amber Circle) */}
                 <span className="py-1 flex items-center justify-center">
-                  <span className="w-6 h-6 rounded-full bg-[#00e5ff]/20 text-[#00e5ff] border border-[#00e5ff] shadow-[0_0_12px_rgba(0,229,255,0.5)] font-bold flex items-center justify-center text-[11px]">
+                  <span className="w-6 h-6 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.6)] font-bold flex items-center justify-center text-[11px]">
                     16
                   </span>
                 </span>
@@ -216,12 +216,12 @@ export default function UpcomingEvents() {
               </div>
             </div>
 
-            {/* Vertical Accent Label & Slashes on desktop */}
+            {/* Vertical Accent Label & Amber Slashes on desktop */}
             <div className="hidden xl:flex absolute -right-12 top-0 bottom-0 flex-col justify-between items-center py-2 pointer-events-none">
               <span className="text-[10px] font-mono tracking-[0.3em] text-slate-600 uppercase rotate-90 origin-center whitespace-nowrap mt-8">
                 CYBER CELL
               </span>
-              <span className="text-[#00e5ff] font-mono text-sm tracking-tighter">
+              <span className="text-amber-400 font-mono text-sm tracking-tighter">
                 ///
               </span>
             </div>

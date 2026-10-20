@@ -37,9 +37,9 @@ const curatedResources = [
 
 export default function ResourceVault() {
   return (
-    <section id="resources" className="relative py-20 lg:py-24 bg-[#04060a] border-b border-white/[0.08] overflow-hidden">
-      {/* Background Subtle Gradient */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_100%,rgba(0,229,255,0.02),transparent)] pointer-events-none" />
+    <section id="resources" className="relative py-20 lg:py-24 bg-[#030303] border-b border-white/[0.08] overflow-hidden">
+      {/* Background Subtle Amber Atmospheric Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_100%,rgba(245,158,11,0.02),transparent)] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
         
@@ -47,8 +47,8 @@ export default function ResourceVault() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-6">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <span className="w-8 h-[2px] bg-[#00e5ff] inline-block" />
-              <span className="text-xs font-mono font-semibold tracking-[0.2em] text-[#00e5ff] uppercase">
+              <span className="w-8 h-[2px] bg-amber-400 inline-block shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+              <span className="text-xs font-mono font-semibold tracking-[0.2em] text-amber-400 uppercase">
                 CURATED KNOWLEDGE
               </span>
             </div>
@@ -62,8 +62,8 @@ export default function ResourceVault() {
             className="group inline-flex items-center gap-2 text-sm font-medium text-slate-300 hover:text-white transition-colors relative pb-1 self-start sm:self-end"
           >
             <span>Browse all</span>
-            <ArrowRight className="w-4 h-4 text-[#00e5ff] transition-transform group-hover:translate-x-1" />
-            <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-[#00e5ff]/40 group-hover:bg-[#00e5ff] transition-colors" />
+            <ArrowRight className="w-4 h-4 text-amber-400 transition-transform group-hover:translate-x-1" />
+            <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-amber-400/40 group-hover:bg-amber-400 transition-colors" />
           </Link>
         </div>
 
@@ -77,17 +77,17 @@ export default function ResourceVault() {
                 href={res.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-[#070b14]/80 border border-white/[0.08] hover:border-[#00e5ff]/40 hover:bg-[#09101e] transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] focus:outline-none"
+                className="group flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-[#070707]/80 border border-white/[0.08] hover:border-amber-400/40 hover:bg-[#0c0c0c] transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)] focus:outline-none"
               >
                 <div className="flex items-center gap-3.5 min-w-0">
                   {/* Circular Icon Orb */}
-                  <div className="w-11 h-11 rounded-full border border-white/[0.1] bg-white/[0.03] group-hover:border-[#00e5ff]/40 flex items-center justify-center text-[#00e5ff] shrink-0 transition-colors shadow-[0_0_15px_rgba(0,229,255,0.05)]">
+                  <div className="w-11 h-11 rounded-full border border-white/[0.1] bg-white/[0.03] group-hover:border-amber-400/40 flex items-center justify-center text-amber-400 shrink-0 transition-colors shadow-[0_0_15px_rgba(245,158,11,0.08)]">
                     <Icon className="w-5 h-5 transition-transform group-hover:scale-110" />
                   </div>
 
                   {/* Title & Description */}
                   <div className="min-w-0">
-                    <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-[#00e5ff] transition-colors truncate">
+                    <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-400 transition-colors truncate">
                       {res.name}
                     </h4>
                     <p className="text-[11px] text-slate-400 mt-0.5 truncate font-light">
@@ -97,7 +97,7 @@ export default function ResourceVault() {
                 </div>
 
                 {/* External Link Arrow */}
-                <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-[#00e5ff] transition-colors shrink-0 ml-2" />
+                <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-amber-400 transition-colors shrink-0 ml-2" />
               </a>
             );
           })}
