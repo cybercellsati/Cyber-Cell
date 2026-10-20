@@ -12,12 +12,11 @@ import {
   Terminal,
   CheckCircle2,
   BookOpen,
-  Wrench,
-  ExternalLink,
   Sparkles,
-  ChevronDown,
+  Plus,
+  Minus,
 } from "lucide-react";
-import { motion, useScroll, useSpring, Variants } from "framer-motion";
+import { motion, useScroll, useSpring } from "framer-motion";
 
 interface DomainItem {
   index: string;
@@ -36,8 +35,8 @@ const domainsData: DomainItem[] = [
   {
     index: "01",
     title: "Penetration Testing & Red Team",
-    description: "Find and exploit vulnerabilities to make systems more secure.",
-    tags: ["Ethical Hacking", "Exploitation", "Tools"],
+    description: "Offensive adversary simulation, vulnerability discovery and exploit weaponization.",
+    tags: ["Ethical Hacking", "Exploitation", "PrivEsc"],
     image: "/images/domain-01.png",
     fullOverview:
       "The Offensive Security & Red Team track trains students to think and operate like real-world adversaries. Within strictly authorized SATI lab environments, members learn how to identify misconfigurations, exploit architectural weaknesses, conduct network pivoting, and write professional vulnerability assessment reports.",
@@ -55,7 +54,7 @@ const domainsData: DomainItem[] = [
   {
     index: "02",
     title: "Security Operations & Blue Team",
-    description: "Detect, analyze, and respond to real-world cyber threats.",
+    description: "Enterprise threat hunting, SIEM log telemetry and rapid incident containment.",
     tags: ["SOC", "Threat Detection", "Incident Response"],
     image: "/images/domain-02.png",
     fullOverview:
@@ -74,8 +73,8 @@ const domainsData: DomainItem[] = [
   {
     index: "03",
     title: "Application Security",
-    description: "Build and test secure web and mobile applications.",
-    tags: ["Web Security", "API Security", "DevSecOps"],
+    description: "Defending APIs, OWASP vulnerability remediation and DevSecOps pipelines.",
+    tags: ["Web Security", "API Testing", "DevSecOps"],
     image: "/images/domain-03.png",
     fullOverview:
       "Application Security (AppSec) bridges software development and defensive architecture. Members inspect modern full-stack web and mobile applications, audit API authentication boundaries, automate static and dynamic security scanners, and embed security tests into continuous integration (CI/CD) pipelines.",
@@ -93,8 +92,8 @@ const domainsData: DomainItem[] = [
   {
     index: "04",
     title: "Digital Forensics",
-    description: "Investigate digital evidence and analyze cyber incidents.",
-    tags: ["Forensics", "Incident Analysis", "Malware"],
+    description: "Post-breach incident reconstruction, volatile memory dumps and malware triage.",
+    tags: ["DFIR", "Memory Forensics", "Malware Analysis"],
     image: "/images/domain-04.png",
     fullOverview:
       "When security defenses are breached, Digital Forensics and Incident Response (DFIR) specialists reconstruct what happened. Students learn forensic disk imaging, volatile memory extraction, file system metadata reconstruction, timeline analysis, and malware behavior profiling.",
@@ -112,8 +111,8 @@ const domainsData: DomainItem[] = [
   {
     index: "05",
     title: "Cloud Security",
-    description: "Secure cloud infrastructure and modern deployments.",
-    tags: ["AWS", "Azure", "Cloud Attacks"],
+    description: "Hardening AWS/Azure workloads, IAM least-privilege and Kubernetes containers.",
+    tags: ["AWS Security", "Kubernetes", "IaC Hardening"],
     image: "/images/domain-05.png",
     fullOverview:
       "Modern compute runs on distributed public cloud infrastructure and containerized clusters. This track demystifies cloud threat models, misconfigured IAM roles, vulnerable S3 buckets, Kubernetes pod escapes, and immutable Infrastructure-as-Code (IaC) security auditing.",
@@ -131,8 +130,8 @@ const domainsData: DomainItem[] = [
   {
     index: "06",
     title: "Governance, Risk & Compliance",
-    description: "Understand policies, risk management and security standards.",
-    tags: ["GRC", "Risk Assessment", "Compliance"],
+    description: "Institutional policy audit, risk quantification and global regulatory standards.",
+    tags: ["GRC", "NIST CSF", "DPDP Act"],
     image: "/images/domain-06.png",
     fullOverview:
       "Cybersecurity extends beyond raw code into institutional policy, risk quantification, and legal accountability. Students learn international standards (ISO/IEC 27001, NIST CSF), the Indian Digital Personal Data Protection Act (DPDP), vulnerability disclosure governance, and enterprise risk management.",
@@ -195,14 +194,6 @@ export default function DomainsPage() {
         window.scrollTo({ top: targetY, behavior: "smooth" });
       }
     }
-  };
-
-  const handlePrev = () => {
-    if (activeDomainIndex > 0) selectDomainByIndex(activeDomainIndex - 1);
-  };
-
-  const handleNext = () => {
-    if (activeDomainIndex < domainsData.length - 1) selectDomainByIndex(activeDomainIndex + 1);
   };
 
   const scrollToDomains = () => {
@@ -295,7 +286,7 @@ export default function DomainsPage() {
                   onClick={scrollToDomains}
                   className="group inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white hover:bg-slate-200 text-black font-bold text-xs font-sans tracking-wide transition-all duration-200 shadow-md shadow-white/10 active:scale-95"
                 >
-                  <span>Find Your Domain</span>
+                  <span>Explore Tracks</span>
                   <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
                 </button>
               </div>
@@ -351,9 +342,9 @@ export default function DomainsPage() {
 
 
         {/* ========================================================
-            STICKY ACCORDION TRACK: USER STAYS IN PLACE
-            Each domain expands in place, then collapses to a short bar
-            as the next one expands sequentially!
+            EDITORIAL MINIMALIST ACCORDION TRACK (REFERENCE INSPIRED)
+            Massive geometric numbers, uppercase titles, circle bullets,
+            and +/- circle toggles with sticky scroll synchronization
            ======================================================== */}
         <div
           ref={scrollTrackRef}
@@ -363,124 +354,88 @@ export default function DomainsPage() {
           {/* Pinned Viewport Container: stays locked in view while scrolling */}
           <div className="sticky top-[72px] sm:top-[80px] w-full min-h-[calc(100vh-80px)] flex flex-col justify-center max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 select-none">
             
-            {/* Top HUD Controls of the Domain Stack */}
-            <div className="flex items-center justify-between pb-4 border-b border-white/[0.08] mb-3">
+            {/* Top Minimalist Header of the Domain Track */}
+            <div className="flex items-center justify-between pb-4 border-b border-white/[0.12] mb-1">
               <div className="flex items-center gap-3">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_rgba(251,191,36,0.9)]" />
-                <span className="text-xs font-mono tracking-widest text-slate-300 uppercase font-semibold">
-                  EXPLORING DOMAIN:{" "}
-                  <span className="text-amber-400 font-bold">
-                    {domainsData[activeDomainIndex].index} / 06
-                  </span>
-                </span>
-                <span className="hidden sm:inline-block text-slate-600">•</span>
-                <span className="hidden sm:inline-block text-xs font-mono text-slate-400">
-                  {domainsData[activeDomainIndex].title}
+                <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)]" />
+                <span className="text-xs font-mono tracking-[0.24em] text-slate-400 uppercase font-semibold">
+                  DOMAIN TRACK <span className="text-amber-400">{domainsData[activeDomainIndex].index}</span> / 06
                 </span>
               </div>
 
-              {/* Step indicator pills & Previous / Next Controls */}
-              <div className="flex items-center gap-3">
-                {/* 6 Step Pills */}
-                <div className="hidden sm:flex items-center gap-1.5 mr-1">
-                  {domainsData.map((d, i) => (
-                    <button
-                      key={d.index}
-                      type="button"
-                      onClick={() => selectDomainByIndex(i)}
-                      className={`h-1.5 rounded-full transition-all duration-300 ${
-                        activeDomainIndex === i
-                          ? "w-8 bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)]"
-                          : "w-2 bg-white/20 hover:bg-white/40"
-                      }`}
-                      title={`Jump to Domain ${d.index}: ${d.title}`}
-                    />
-                  ))}
-                </div>
-
-                <div className="flex items-center gap-1.5">
+              {/* Step indicator pills */}
+              <div className="flex items-center gap-1.5">
+                {domainsData.map((d, i) => (
                   <button
+                    key={d.index}
                     type="button"
-                    onClick={handlePrev}
-                    disabled={activeDomainIndex === 0}
-                    className="w-8 h-8 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] text-white flex items-center justify-center disabled:opacity-25 disabled:pointer-events-none transition-colors"
-                    title="Previous Domain"
-                  >
-                    <ArrowRight className="w-3.5 h-3.5 rotate-180" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleNext}
-                    disabled={activeDomainIndex === domainsData.length - 1}
-                    className="w-8 h-8 rounded-lg border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] text-white flex items-center justify-center disabled:opacity-25 disabled:pointer-events-none transition-colors"
-                    title="Next Domain"
-                  >
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                    onClick={() => selectDomainByIndex(i)}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      activeDomainIndex === i
+                        ? "w-7 bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)]"
+                        : "w-2 bg-white/20 hover:bg-white/40"
+                    }`}
+                    title={`Jump to Track ${d.index}`}
+                  />
+                ))}
               </div>
             </div>
 
-            {/* The Stacked List: Collapses to short bars, active domain expands */}
-            <div className="space-y-1.5 w-full">
+            {/* The Stacked Accordion List (Matching Reference Layout) */}
+            <div className="divide-y divide-white/[0.12] border-b border-white/[0.12] w-full">
               {domainsData.map((item, idx) => {
                 const isActive = activeDomainIndex === idx;
 
                 return (
                   <div
                     key={item.index}
-                    className={`rounded-xl transition-all duration-300 border ${
-                      isActive
-                        ? "bg-white/[0.03] border-amber-400/50 shadow-[0_8px_32px_rgba(0,0,0,0.7)]"
-                        : "bg-transparent border-white/[0.06] hover:border-white/20 hover:bg-white/[0.015]"
-                    }`}
+                    className="transition-colors duration-300"
                   >
-                    {/* Always-Visible Short Header Bar */}
+                    {/* Minimalist Row Header Bar: Always Clickable */}
                     <div
                       onClick={() => selectDomainByIndex(idx)}
-                      className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-3.5 cursor-pointer group"
+                      className="flex items-center justify-between py-4 sm:py-5 cursor-pointer group select-none"
                     >
-                      <div className="flex items-center gap-4 sm:gap-6 min-w-0">
+                      {/* Left Side: Number + Uppercase Clean Title */}
+                      <div className="flex items-center gap-5 sm:gap-10 min-w-0">
+                        {/* Geometric Display Number */}
                         <span
-                          className={`font-mono text-sm sm:text-base font-bold transition-colors ${
-                            isActive ? "text-amber-400" : "text-slate-500 group-hover:text-slate-300"
+                          className={`font-mono text-2xl sm:text-4xl font-light tracking-tighter w-10 sm:w-16 shrink-0 transition-colors ${
+                            isActive
+                              ? "text-amber-400 font-normal"
+                              : "text-slate-600 group-hover:text-slate-300"
                           }`}
                         >
                           {item.index}
                         </span>
 
+                        {/* Domain Title (Uppercase Tracked) */}
                         <h3
-                          className={`text-sm sm:text-base font-bold truncate transition-colors ${
-                            isActive ? "text-white" : "text-slate-300 group-hover:text-white"
+                          className={`text-sm sm:text-lg lg:text-xl font-bold tracking-[0.06em] uppercase truncate transition-colors ${
+                            isActive
+                              ? "text-white"
+                              : "text-slate-400 group-hover:text-white"
                           }`}
                         >
                           {item.title}
                         </h3>
                       </div>
 
-                      <div className="flex items-center gap-3 shrink-0">
-                        {/* Collapsed Tag Badge */}
-                        {!isActive && (
-                          <span className="hidden md:inline-block px-2.5 py-0.5 rounded text-[10.5px] font-mono text-slate-400 bg-white/[0.02] border border-white/[0.06]">
-                            {item.tags[0]}
-                          </span>
+                      {/* Right Side: Toggle Indicator (+ / - Circle) */}
+                      <div className="shrink-0 ml-4">
+                        {isActive ? (
+                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-amber-400 bg-amber-400 text-slate-950 flex items-center justify-center font-bold shadow-[0_0_10px_rgba(251,191,36,0.6)]">
+                            <Minus className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
+                          </div>
+                        ) : (
+                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/20 bg-white/[0.02] text-slate-400 group-hover:border-white/50 group-hover:text-white flex items-center justify-center transition-all">
+                            <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[1.5]" />
+                          </div>
                         )}
-
-                        {/* Interactive Expand Indicator */}
-                        <div
-                          className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 ${
-                            isActive
-                              ? "bg-amber-400 text-slate-950 font-bold rotate-90 shadow-[0_0_10px_rgba(251,191,36,0.6)]"
-                              : "bg-white/[0.04] text-slate-400 group-hover:text-white group-hover:bg-white/10"
-                          }`}
-                        >
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </div>
                       </div>
                     </div>
 
-                    {/* Expandable Drawer: Animates height auto when active, height 0 when collapsed */}
+                    {/* Expandable Editorial Drawer */}
                     <motion.div
                       initial={false}
                       animate={{
@@ -488,71 +443,95 @@ export default function DomainsPage() {
                         opacity: isActive ? 1 : 0,
                       }}
                       transition={{
-                        duration: 0.45,
+                        duration: 0.5,
                         ease: EASE,
                       }}
                       className="overflow-hidden"
                     >
-                      <div className="px-4 sm:px-6 pb-6 pt-1 border-t border-white/[0.06]">
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                      <div className="pt-2 pb-7 sm:pb-8 pl-0 sm:pl-16 lg:pl-26 pr-1 sm:pr-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
                           
-                          {/* Left Column (lg:col-span-7): Full Description, Tags & Curriculum Link */}
-                          <div className="lg:col-span-7 space-y-3.5">
-                            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
-                              {item.description}
-                            </p>
-
-                            <div className="flex flex-wrap gap-2 pt-0.5">
-                              {item.tags.map((tag) => (
-                                <span
-                                  key={tag}
-                                  className="px-2.5 py-1 rounded-md text-[11px] font-mono text-slate-300 bg-white/[0.04] border border-white/10"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
+                          {/* Left / Middle: Editorial Story & Spec Metadata */}
+                          <div className="lg:col-span-7 space-y-4">
+                            
+                            {/* Editorial Paragraph with ○ Bullet (Matching Reference) */}
+                            <div className="flex items-start gap-3 text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                              <span className="text-amber-400 font-bold text-sm sm:text-base leading-none select-none mt-0.5 shrink-0">
+                                ○
+                              </span>
+                              <p>{item.fullOverview.slice(0, 240)}...</p>
                             </div>
 
-                            <div className="pt-2 flex flex-wrap items-center gap-3">
+                            {/* Minimalist Spec Table (Metadata lines) */}
+                            <div className="space-y-1.5 pt-3 border-t border-white/[0.08] text-xs font-mono">
+                              <div className="flex items-baseline gap-2">
+                                <span className="text-slate-500 w-28 shrink-0 uppercase tracking-wider text-[11px]">
+                                  Focus:
+                                </span>
+                                <span className="text-slate-300">{item.description}</span>
+                              </div>
+                              <div className="flex items-baseline gap-2">
+                                <span className="text-slate-500 w-28 shrink-0 uppercase tracking-wider text-[11px]">
+                                  Key Tooling:
+                                </span>
+                                <span className="text-amber-400 font-semibold">
+                                  {item.tools.slice(0, 4).join(" • ")}
+                                </span>
+                              </div>
+                              <div className="flex items-baseline gap-2">
+                                <span className="text-slate-500 w-28 shrink-0 uppercase tracking-wider text-[11px]">
+                                  Lab Platforms:
+                                </span>
+                                <span className="text-slate-300">{item.platforms.join(" • ")}</span>
+                              </div>
+                              <div className="flex items-baseline gap-2">
+                                <span className="text-slate-500 w-28 shrink-0 uppercase tracking-wider text-[11px]">
+                                  Target Roles:
+                                </span>
+                                <span className="text-slate-300">
+                                  {item.careerRoles.slice(0, 2).join(" • ")}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Action Button: Opens Curriculum Deep-Dive Modal */}
+                            <div className="pt-2 flex items-center gap-3">
                               <button
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setSelectedDomain(item);
                                 }}
-                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition-colors shadow-sm active:scale-95"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white hover:bg-slate-200 text-slate-950 font-bold text-xs tracking-wide transition-all shadow-md active:scale-95"
                               >
-                                <BookOpen className="w-3.5 h-3.5" />
-                                <span>Curriculum Deep-Dive</span>
+                                <span>Curriculum & Lab Roadmap</span>
+                                <ArrowRight className="w-3.5 h-3.5" />
                               </button>
-
-                              <span className="text-[11px] font-mono text-slate-500">
-                                {item.careerRoles[0]} • {item.careerRoles[1]}
-                              </span>
                             </div>
+
                           </div>
 
-                          {/* Right Column (lg:col-span-5): Widescreen 16:9 Thumbnail with Click-to-Modal */}
+                          {/* Right: Widescreen Editorial Thumbnail with Click-to-Modal */}
                           <div className="lg:col-span-5">
                             <div
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setSelectedDomain(item);
                               }}
-                              className="relative w-full aspect-[16/9] rounded-xl overflow-hidden border border-white/15 bg-black/60 shadow-xl group/thumb cursor-pointer hover:border-amber-400/50 transition-all duration-300"
+                              className="relative w-full aspect-[16/9] rounded-xl overflow-hidden border border-white/15 bg-black/60 shadow-2xl group/thumb cursor-pointer hover:border-amber-400/50 transition-all duration-300"
                             >
                               <Image
                                 src={item.image}
                                 alt={item.title}
                                 fill
                                 className="object-cover group-hover/thumb:scale-105 transition-transform duration-500"
-                                sizes="(max-width: 1024px) 100vw, 420px"
+                                sizes="(max-width: 1024px) 100vw, 450px"
                               />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
                               
-                              <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-white/15 text-[10.5px] font-mono text-slate-300 flex items-center gap-1.5">
+                              <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-md bg-black/80 backdrop-blur-md border border-white/15 text-[10.5px] font-mono text-slate-300 flex items-center gap-1.5">
                                 <Sparkles className="w-3 h-3 text-amber-400" />
-                                <span>Click to View Full Syllabus</span>
+                                <span>Explore Deep-Dive</span>
                               </div>
                             </div>
                           </div>
