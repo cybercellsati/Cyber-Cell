@@ -114,6 +114,17 @@ export const facultyAdvisor: TeamMember = {
   email: "shivangijain@satiengg.in",
 };
 
+export const allTeamMembers: TeamMember[] = [
+  convenor,
+  clubSecretary,
+  coConvenors[0], // Krishna Mishra
+  coConvenors[1], // Abhishek Mahore
+  domainHeads[0], // Anubhav Vishwkarma
+  domainHeads[1], // Divyansh Chaurey
+  domainHeads[2], // Arya Mishra
+  facultyAdvisor, // Prof. Shivangi Jain
+];
+
 // Backwards-compatible export
 export const teamData = {
   founder: convenor,
@@ -121,6 +132,7 @@ export const teamData = {
   coConvenors,
   heads: domainHeads,
   faculty: facultyAdvisor,
+  all: allTeamMembers,
   // legacy aliases
   executive: coConvenors,
   core: domainHeads,
