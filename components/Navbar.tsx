@@ -93,7 +93,7 @@ export default function Navbar() {
 
                 {/* Active Page Indicator matching reference: warm amber accent */}
                 {isActive && (
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-[2px] rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)] pointer-events-none" />
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-[2px] rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.95)] pointer-events-none" />
                 )}
               </Link>
             );
