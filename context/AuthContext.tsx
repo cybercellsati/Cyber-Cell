@@ -8,9 +8,9 @@ import {
   GoogleAuthProvider, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
-  updateProfile,
-  signOut,
-  UserCredential
+  updateProfile, 
+  signOut, 
+  UserCredential 
 } from "firebase/auth";
 import { auth, isFirebaseConfigured } from "@/lib/firebase";
 import { syncUserProfile, getUserProfile, UserProfile } from "@/lib/firestore";
@@ -49,35 +49,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        try {
-          await syncUserProfile(currentUser);
-          const p = await getUserProfile(currentUser.uid);
-          setProfile(
-            p || {
-              uid: currentUser.uid,
-              email: currentUser.email,
-              displayName: currentUser.displayName,
-              photoURL: currentUser.photoURL,
-              role: "member",
-              createdAt: new Date() as unknown as UserProfile["createdAt"],
-              lastLoginAt: new Date() as unknown as UserProfile["lastLoginAt"],
-            }
-          );
-        } catch (err) {
-          console.warn("[AuthContext] Offline mode active; session profile loaded:", err);
-          setProfile({
-            uid: currentUser.uid,
-            email: currentUser.email,
-            displayName: currentUser.displayName,
-            photoURL: currentUser.photoURL,
-            role: "member",
-            createdAt: new Date() as unknown as UserProfile["createdAt"],
-            lastLoginAt: new Date() as unknown as UserProfile["lastLoginAt"],
+        // Immediate fallback profile so UI updates instantly with zero latency
+        setProfile({
+          uid: currentUser.uid,
+          email: currentUser.email,
+          displayName: currentUser.displayName,
+          photoURL: currentUser.photoURL,
+          role: "member",
+          createdAt: new Date() as unknown as UserProfile["createdAt"],
+          lastLoginAt: new Date() as unknown as UserProfile["lastLoginAt"],
+        });
+
+        // Non-blocking background sync & load from Firestore
+        syncUserProfile(currentUser)
+          .then(() => getUserProfile(currentUser.uid))
+          .then((p) => {
+            if (p) setProfile(p);
+          })
+          .catch((err) => {
+            console.warn("[AuthContext] Profile sync deferred:", err);
           });
-        }
       } else {
         setProfile(null);
       }
@@ -123,11 +117,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error("Firebase API key is not configured. Please add NEXT_PUBLIC_FIREBASE_API_KEY in .env.local.");
     }
     const provider = new GoogleAuthProvider();
-    // Prompt account selection
     provider.setCustomParameters({ prompt: "select_account" });
     const result = await signInWithPopup(auth, provider);
-    await syncUserProfile(result.user);
+
+    // Immediately trigger success and close modal with zero lag!
     handleAuthSuccess();
+
+    // Sync in background (non-blocking)
+    syncUserProfile(result.user).catch((err) =>
+      console.warn("[AuthContext] Background profile sync warning:", err)
+    );
+
     return result;
   };
 
@@ -136,8 +136,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error("Firebase API key is not configured. Please add NEXT_PUBLIC_FIREBASE_API_KEY in .env.local.");
     }
     const result = await signInWithEmailAndPassword(auth, email, pass);
-    await syncUserProfile(result.user);
+
+    // Immediately trigger success and close modal!
     handleAuthSuccess();
+
+    // Background sync
+    syncUserProfile(result.user).catch((err) =>
+      console.warn("[AuthContext] Background profile sync warning:", err)
+    );
+
     return result;
   };
 
@@ -149,8 +156,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (displayName.trim()) {
       await updateProfile(result.user, { displayName: displayName.trim() });
     }
-    await syncUserProfile(result.user, { displayName: displayName.trim() });
+
+    // Immediately trigger success and close modal!
     handleAuthSuccess();
+
+    // Background sync
+    syncUserProfile(result.user, { displayName: displayName.trim() }).catch((err) =>
+      console.warn("[AuthContext] Background profile sync warning:", err)
+    );
+
     return result;
   };
 

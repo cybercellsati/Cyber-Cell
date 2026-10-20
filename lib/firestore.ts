@@ -7,8 +7,7 @@ import {
   query, 
   where, 
   getDocs, 
-  serverTimestamp,
-  orderBy,
+  serverTimestamp, 
   Timestamp 
 } from "firebase/firestore";
 import { db, isFirebaseConfigured } from "./firebase";
@@ -26,7 +25,6 @@ export interface UserProfile {
   lastLoginAt: Timestamp | ReturnType<typeof serverTimestamp>;
 }
 
-
 export interface EventRegistration {
   id?: string;
   userId: string;
@@ -38,7 +36,7 @@ export interface EventRegistration {
 }
 
 /**
- * Creates or updates the user profile document in Firestore with offline resilience
+ * Creates or updates the user profile document in Firestore with offline resilience & 2s timeout
  */
 export async function syncUserProfile(
   user: { uid: string; email: string | null; displayName: string | null; photoURL: string | null },
@@ -48,8 +46,7 @@ export async function syncUserProfile(
 
   try {
     const userRef = doc(db, "users", user.uid);
-    // Direct upsert with merge: true avoids redundant getDoc reads that throw offline errors
-    await setDoc(
+    const writePromise = setDoc(
       userRef,
       {
         uid: user.uid,
@@ -62,9 +59,15 @@ export async function syncUserProfile(
       },
       { merge: true }
     );
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Firestore write timeout")), 2000)
+    );
+
+    await Promise.race([writePromise, timeoutPromise]);
   } catch (error: unknown) {
     const err = error as { code?: string; message?: string };
-    if (err?.code === "unavailable" || err?.message?.includes("client is offline")) {
+    if (err?.code === "unavailable" || err?.message?.includes("client is offline") || err?.message?.includes("timeout")) {
       console.warn("[Firestore] Operating in offline mode; profile sync deferred.");
     } else {
       console.warn("[Firestore] syncUserProfile warning:", err?.message || err);
@@ -73,14 +76,19 @@ export async function syncUserProfile(
 }
 
 /**
- * Fetches user profile from Firestore with offline resilience
+ * Fetches user profile from Firestore with offline resilience & 2s timeout
  */
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   if (!isFirebaseConfigured || !uid) return null;
   try {
     const userRef = doc(db, "users", uid);
-    const snap = await getDoc(userRef);
-    if (snap.exists()) {
+    const readPromise = getDoc(userRef);
+    const timeoutPromise = new Promise<null>((resolve) =>
+      setTimeout(() => resolve(null), 2000)
+    );
+
+    const snap = await Promise.race([readPromise, timeoutPromise]);
+    if (snap && snap.exists()) {
       return snap.data() as UserProfile;
     }
   } catch (error: unknown) {
@@ -93,7 +101,6 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   }
   return null;
 }
-
 
 /**
  * Registers an authenticated user for an event / hackathon

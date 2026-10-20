@@ -6,6 +6,7 @@ import { X, Mail, Lock, User, Eye, EyeOff, AlertCircle, ShieldCheck } from "luci
 
 export default function AuthModal() {
   const { 
+    user,
     isAuthModalOpen, 
     closeAuthModal, 
     authModalReason, 
@@ -34,6 +35,14 @@ export default function AuthModal() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isAuthModalOpen, closeAuthModal]);
 
+  // Auto-dismiss modal if user is authenticated
+  useEffect(() => {
+    if (user && isAuthModalOpen) {
+      setLoading(false);
+      closeAuthModal();
+    }
+  }, [user, isAuthModalOpen, closeAuthModal]);
+
   if (!isAuthModalOpen) return null;
 
   const handleGoogleSignIn = async () => {
@@ -41,6 +50,8 @@ export default function AuthModal() {
     setError(null);
     try {
       await signInWithGoogle();
+      setLoading(false);
+      closeAuthModal();
     } catch (err: any) {
       console.error(err);
       if (err.code === "auth/popup-closed-by-user") {
@@ -52,7 +63,6 @@ export default function AuthModal() {
       } else {
         setError(err.message || "Failed to sign in with Google.");
       }
-    } finally {
       setLoading(false);
     }
   };
@@ -78,6 +88,8 @@ export default function AuthModal() {
       } else {
         await signInWithEmail(email, password);
       }
+      setLoading(false);
+      closeAuthModal();
     } catch (err: any) {
       console.error(err);
       if (err.code === "auth/invalid-credential" || err.code === "auth/user-not-found" || err.code === "auth/wrong-password") {
@@ -93,7 +105,6 @@ export default function AuthModal() {
       } else {
         setError(err.message || "Authentication failed. Please try again.");
       }
-    } finally {
       setLoading(false);
     }
   };
