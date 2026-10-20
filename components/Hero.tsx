@@ -55,9 +55,9 @@ export default function Hero() {
           </h1>
         </div>
 
-        {/* Layer B (In Front of Typography): Centered 3D Cyborg Guardian with Amber Edge Glow */}
+        {/* Layer B (In Front of Typography): Centered 3D Cyborg Guardian */}
         <div className="relative z-20 w-full flex justify-center items-end pointer-events-none -mt-4 sm:-mt-8 lg:-mt-10">
-          <div className="relative w-[290px] sm:w-[420px] md:w-[540px] lg:w-[660px] xl:w-[740px] aspect-[1050/871] mx-auto animate-cyborg-glow">
+          <div className="relative w-[290px] sm:w-[420px] md:w-[540px] lg:w-[660px] xl:w-[740px] aspect-[1050/871] mx-auto">
             <Image
               src="/images/hero-cyborg-cutout.png"
               alt="Cyber Cell SATI Cyber Guardian"
