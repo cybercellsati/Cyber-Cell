@@ -2,136 +2,161 @@
 
 import React from "react";
 import Link from "next/link";
-import { Laptop, Globe, Flag, Terminal, ArrowRight } from "lucide-react";
+import { Laptop, Globe, Flag, Terminal, ArrowRight, ExternalLink, GitBranch, Shield, Cpu } from "lucide-react";
 
 export default function ProjectsSection() {
-  const projectNodes = [
+  const projects = [
     {
-      id: "tools",
-      name: "Security Tools",
-      icon: Laptop,
-      href: "/projects?cat=Security+Tools"
+      id: "sentinel-scan",
+      name: "SentinelScan",
+      tag: "CLI SECURITY TOOL",
+      status: "CAMPUS DEPLOYED",
+      desc: "Asynchronous subnet reconnaissance and open-port auditor engineered by SATI students for fast campus network auditing.",
+      stack: ["Python 3.12", "Asyncio", "Raw Sockets", "JSON Reports"],
+      icon: Terminal,
+      metrics: "Sub-second Port Sweep",
     },
     {
-      id: "web",
-      name: "Web Security",
-      icon: Globe,
-      href: "/projects?cat=Web+Security"
-    },
-    {
-      id: "ctf",
-      name: "CTF Labs",
+      id: "range-ctf",
+      name: "RangeCTF Platform",
+      tag: "WARGAME INFRASTRUCTURE",
+      status: "ACTIVE OPERATIONS",
+      desc: "Lightweight Jeopardy CTF scoring engine with dynamic flag verification, real-time leaderboard graph, and dockerized challenges.",
+      stack: ["Next.js", "TypeScript", "Docker", "PostgreSQL"],
       icon: Flag,
-      href: "/projects?cat=CTF"
-    }
+      metrics: "Live Campus Battles",
+    },
+    {
+      id: "vuln-lab",
+      name: "VulnLab Dockerized Range",
+      tag: "TRAINING ENVIRONMENT",
+      status: "INTERNAL LAB",
+      desc: "Isolated multi-container attack surface hosting intentionally vulnerable web apps for safe student penetration testing.",
+      stack: ["Docker Compose", "Nginx", "Node.js", "OWASP Bench"],
+      icon: Cpu,
+      metrics: "Zero-Risk Sandboxing",
+    },
+    {
+      id: "packet-pulse",
+      name: "PacketPulse Forensics",
+      tag: "NETWORK AUDITING",
+      status: "RESEARCH LAB",
+      desc: "Automated PCAP analyzer that flags unencrypted credentials, ARP poisoning attempts, and anomalous DNS tunneling activity.",
+      stack: ["Python", "Scapy", "Wireshark PCAP", "Tkinter/CLI"],
+      icon: Shield,
+      metrics: "Real-time Traffic Triage",
+    },
   ];
 
   return (
-    <section id="projects" className="relative py-20 lg:py-24 bg-[#030303] border-b border-white/[0.08] overflow-hidden">
+    <section id="projects" className="relative py-20 lg:py-28 bg-[#030303] border-b border-white/[0.08] overflow-hidden select-none">
+      
       {/* Background Subtle Amber Atmospheric Glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_20%_40%,rgba(245,158,11,0.02),transparent)] pointer-events-none" />
+      <div className="absolute top-1/3 right-10 w-[600px] h-[350px] bg-[radial-gradient(ellipse_at_center,rgba(245,158,11,0.025),transparent_70%)] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-14 gap-6">
-          <div>
-            <div className="flex items-center gap-3 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 sm:mb-16 gap-6">
+          <div className="space-y-3 max-w-2xl">
+            <div className="flex items-center gap-3">
               <span className="w-8 h-[2px] bg-amber-400 inline-block shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
-              <span className="text-xs font-mono font-semibold tracking-[0.2em] text-amber-400 uppercase">
-                ENGINEERING & CODE
+              <span className="text-xs font-mono font-bold tracking-[0.2em] text-amber-400 uppercase">
+                ENGINEERING &bull; TOOLS &bull; CODE
               </span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
-              Projects that<br />
-              make an impact<span className="text-amber-400">.</span>
+
+            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight text-white leading-tight">
+              Tools That Make <br className="hidden sm:inline" />
+              <span className="text-amber-400">An Impact.</span>
             </h2>
-            <p className="text-sm sm:text-base text-slate-400 mt-3 font-light">
-              Build, test, and share practical security tools.
+
+            <p className="text-xs sm:text-sm lg:text-base text-slate-400 font-light leading-relaxed">
+              Open-source security tooling, cyber range architectures, and defensive automation built by Cyber Cell SATI members.
             </p>
           </div>
 
           <Link
             href="/projects"
-            className="group inline-flex items-center gap-2 text-sm font-medium text-slate-300 hover:text-white transition-colors relative pb-1 self-start sm:self-end"
+            className="group inline-flex items-center gap-2 text-xs sm:text-sm font-mono font-bold text-white hover:text-amber-300 uppercase tracking-wider relative pb-1 self-start sm:self-end"
           >
-            <span>Project guidelines</span>
+            <span>Explore All Repositories</span>
             <ArrowRight className="w-4 h-4 text-amber-400 transition-transform group-hover:translate-x-1" />
             <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-amber-400/40 group-hover:bg-amber-400 transition-colors" />
           </Link>
         </div>
 
-        {/* Content Layout: 3 Circular Nodes on Left, Development Showcase on Right */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-          
-          {/* Left Column: 3 Category Nodes */}
-          <div className="lg:col-span-6 grid grid-cols-3 gap-2.5 sm:gap-6">
-            {projectNodes.map((node) => {
-              const Icon = node.icon;
-              return (
-                <Link
-                  key={node.id}
-                  href={node.href}
-                  className="flex flex-col items-center text-center group focus:outline-none"
-                >
-                  {/* Circular Node with Orbital Ring */}
-                  <div className="relative mb-2.5 sm:mb-3 flex items-center justify-center">
-                    {/* Outer thin orbital ring */}
-                    <div className="absolute -inset-1.5 sm:-inset-2 rounded-full border border-white/[0.08] group-hover:border-amber-400/40 transition-colors pointer-events-none" />
-                    
-                    {/* Orbital satellite amber dot */}
-                    <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)] transition-transform group-hover:scale-125" />
+        {/* 4 Luxury Minimalist Project Cards (2x2 Grid) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {projects.map((proj) => {
+            const Icon = proj.icon;
+            return (
+              <div
+                key={proj.id}
+                className="relative rounded-3xl p-6 sm:p-8 border border-white/[0.08] hover:border-amber-400/40 bg-gradient-to-b from-[#0b0905] via-[#070604] to-[#030201] hover:shadow-[0_20px_50px_rgba(245,158,11,0.08)] transition-all duration-300 group flex flex-col justify-between"
+              >
+                <div className="space-y-5">
+                  {/* Top Bar: Tag & Status */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] font-mono tracking-widest uppercase font-bold text-amber-400">
+                      {proj.tag}
+                    </span>
 
-                    {/* Central Glass Circle */}
-                    <div className="w-16 h-16 xs:w-20 xs:h-20 sm:w-24 sm:h-24 rounded-full border border-white/[0.1] bg-[radial-gradient(circle_at_35%_35%,rgba(245,158,11,0.1),rgba(8,8,8,0.98))] shadow-[0_10px_25px_rgba(0,0,0,0.5)] flex items-center justify-center text-amber-400 group-hover:border-amber-400/50 group-hover:shadow-[0_0_20px_rgba(245,158,11,0.25)] transition-all duration-300">
-                      <Icon className="w-6 h-6 sm:w-8 sm:h-8 transition-transform group-hover:scale-110" />
+                    <span className="px-2.5 py-0.5 rounded-full text-[9px] font-mono tracking-wider uppercase font-black bg-white/[0.04] border border-white/10 text-slate-300 group-hover:border-amber-400/30 group-hover:text-amber-300 transition-colors flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      <span>{proj.status}</span>
+                    </span>
+                  </div>
+
+                  {/* Icon & Title */}
+                  <div className="space-y-2 pt-1">
+                    <div className="flex items-center gap-3">
+                      <div className="w-11 h-11 rounded-2xl bg-black/60 border border-white/10 group-hover:border-amber-400/50 flex items-center justify-center text-amber-400 transition-colors shadow-inner">
+                        <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                      </div>
+
+                      <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-white group-hover:text-amber-300 transition-colors">
+                        {proj.name}
+                      </h3>
+                    </div>
+
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-light pt-1">
+                      {proj.desc}
+                    </p>
+                  </div>
+
+                  {/* Tech Stack Chips */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex flex-wrap gap-1.5">
+                      {proj.stack.map((tech, tIdx) => (
+                        <span
+                          key={tIdx}
+                          className="px-2.5 py-1 rounded-lg text-[10px] font-mono bg-white/[0.03] border border-white/[0.06] text-slate-300 group-hover:border-white/15 transition-colors"
+                        >
+                          {tech}
+                        </span>
+                      ))}
                     </div>
                   </div>
+                </div>
 
-                  <span className="text-[11px] sm:text-sm font-semibold text-white group-hover:text-amber-400 transition-colors tracking-tight">
-                    {node.name}
+                {/* Card Footer: Metrics & Link */}
+                <div className="pt-6 mt-6 border-t border-white/[0.06] flex items-center justify-between text-xs font-mono text-slate-400">
+                  <span className="text-[11px] text-amber-400/90 font-bold">
+                    {proj.metrics}
                   </span>
-                </Link>
-              );
-            })}
-          </div>
 
-          {/* Right Column: "Good work takes shape here." Panel */}
-          <div className="lg:col-span-6 flex flex-col items-center sm:items-start text-center sm:text-left">
-            <div className="flex flex-col sm:flex-row items-center gap-6 mb-4">
-              {/* Large Central Node with Terminal Symbol */}
-              <div className="relative shrink-0 flex items-center justify-center">
-                <div className="absolute -inset-3 rounded-full border border-white/[0.08] pointer-events-none" />
-                <div className="absolute top-1 right-2 w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.9)]" />
-                
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full border border-white/[0.12] bg-[radial-gradient(circle_at_35%_35%,rgba(245,158,11,0.12),rgba(8,8,8,0.98))] shadow-[0_10px_30px_rgba(0,0,0,0.6)] flex items-center justify-center">
-                  <div className="w-12 h-10 rounded-lg bg-black/60 border border-white/10 flex items-center justify-center text-amber-400">
-                    <Terminal className="w-6 h-6" />
-                  </div>
+                  <Link
+                    href={`/projects#${proj.id}`}
+                    className="inline-flex items-center gap-1.5 font-bold text-white group-hover:text-amber-400 group-hover:translate-x-0.5 transition-all"
+                  >
+                    <span>Inspect Project</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </div>
-
-              {/* Text Information */}
-              <div>
-                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-                  Good work takes shape here.
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-400 font-light mb-4">
-                  Student-led projects are in development.
-                </p>
-
-                <Link
-                  href="/projects"
-                  className="group inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-white hover:text-amber-400 transition-colors relative pb-1"
-                >
-                  <span>Explore project guidelines</span>
-                  <ArrowRight className="w-4 h-4 text-amber-400 transition-transform group-hover:translate-x-1" />
-                  <span className="absolute bottom-0 left-0 w-full h-[1.5px] bg-amber-400/40 group-hover:bg-amber-400 transition-colors" />
-                </Link>
-              </div>
-            </div>
-          </div>
-
+            );
+          })}
         </div>
 
       </div>
