@@ -1,41 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
   Shield,
-  Terminal,
   Cpu,
   Zap,
-  CheckCircle2,
   Users,
-  Compass,
-  Play,
   Flame,
-  Layers,
   Sparkles,
-  ExternalLink,
-  ChevronRight,
-  Radio,
 } from "lucide-react";
+import CinematicTelemetry from "@/components/CinematicTelemetry";
 
 export default function AboutSection() {
-  const [activeConsoleTab, setActiveConsoleTab] = useState<"logs" | "nodes">("logs");
-  const [isRunningPing, setIsRunningPing] = useState(false);
-  const [pingSuccess, setPingSuccess] = useState(false);
-
-  const handleRunPing = () => {
-    setIsRunningPing(true);
-    setTimeout(() => {
-      setIsRunningPing(false);
-      setPingSuccess(true);
-      setTimeout(() => setPingSuccess(false), 3000);
-    }, 900);
-  };
-
   // 3 Operational Pillars (Left Column of Matrix)
   const pillars = [
     {
@@ -94,249 +74,15 @@ export default function AboutSection() {
     <section id="about" className="relative w-full bg-[#030303] text-white overflow-hidden select-none">
       
       {/* =========================================================================
-          SECTION 1: TELEMETRY HUD & LIVE CONSOLE PREVIEW (Inspire by Section 2 in Ref)
+          SECTION 1: CINEMATIC 3D SATELLITE & PARTICLE TELEMETRY (1:1 with Reference)
           Features:
-          - Angled upper container with glowing golden horizon line
-          - Left: Interactive cyber console with simulated live campus telemetry
-          - Right: 4 High-contrast operational stats with glowing amber numbers
-          - Overlapping 3D Cyber Sentinel floating across section boundary
+          - Dark immersive 3D satellite & earth particle constellation backdrop
+          - Animated golden amber & electric blue canvas particle formations
+          - "OPERATIONAL" (White bold) + "TELEMETRY" (Hollow golden amber stroke)
+          - Overlaid HUD callout pins with radar pulses (SATI NETWORK, CYBER CELL)
+          - 4-column horizontal bottom telemetry metrics bar
          ========================================================================= */}
-      <div className="relative pt-16 sm:pt-20 pb-20 sm:pb-28 border-b border-white/[0.06]">
-        {/* Ambient Amber Core Glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-[radial-gradient(ellipse_at_center,rgba(245,158,11,0.035),transparent_70%)] pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          
-          {/* Eyebrow Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.5 }}
-            className="flex items-center justify-between mb-8 pb-4 border-b border-white/[0.08]"
-          >
-            <div className="flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_8px_#f59e0b]" />
-              <span className="text-[11px] font-mono font-bold tracking-[0.25em] text-amber-400 uppercase">
-                TELEMETRY // SATI CAMPUS RANGE
-              </span>
-            </div>
-            <span className="text-[10px] font-mono text-slate-400 tracking-widest hidden sm:inline-block">
-              NODE 23.53° N, 77.81° E &bull; VIDISHA
-            </span>
-          </motion.div>
-
-          {/* 2-Column Split: Console Window (Left) + Statistics Grid (Right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
-            
-            {/* Left Column: Live Terminal Window (Inspired by the Video/Interactive Player) */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:col-span-6 flex flex-col justify-between rounded-3xl bg-[#070707] border border-white/10 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.85)] relative group hover:border-amber-500/30 transition-all duration-300"
-            >
-              {/* Window Top Bar */}
-              <div className="px-5 py-3.5 bg-black/60 border-b border-white/[0.08] flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#f59e0b]/80 border border-amber-400/40" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-white/20" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-white/20" />
-                  <span className="text-[11px] font-mono text-slate-400 ml-2">cyber-range.sati.in:8080</span>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setActiveConsoleTab("logs")}
-                    className={`px-2.5 py-0.5 rounded text-[10px] font-mono transition-colors ${
-                      activeConsoleTab === "logs"
-                        ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    LOGS
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveConsoleTab("nodes")}
-                    className={`px-2.5 py-0.5 rounded text-[10px] font-mono transition-colors ${
-                      activeConsoleTab === "nodes"
-                        ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    TOPOLOGY
-                  </button>
-                </div>
-              </div>
-
-              {/* Console Body */}
-              <div className="p-5 font-mono text-xs text-slate-300 space-y-2.5 min-h-[220px] bg-gradient-to-b from-black/80 to-[#070707]">
-                {activeConsoleTab === "logs" ? (
-                  <>
-                    <div className="text-slate-500 text-[11px]">
-                      [+] Initializing SATI Defensive Sandbox v2.4 ...
-                    </div>
-                    <div className="text-emerald-400 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                      <span>[STATUS] 6/6 CTF docker challenges loaded (web, pwn, rev)</span>
-                    </div>
-                    <div className="text-amber-300 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                      <span>[EVENT] 160+ Cadets completed EXPLOIT 2026 Bootcamp</span>
-                    </div>
-                    <div className="text-slate-400">
-                      [AUTH] 300+ Verified collegiate student nodes connected
-                    </div>
-                    <div className="text-slate-500 text-[11px]">
-                      [FIREWALL] Inbound scans triaged. Zero unauthorized leaks.
-                    </div>
-                    {pingSuccess && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-amber-400 font-bold bg-amber-500/10 p-2 rounded border border-amber-500/30"
-                      >
-                        &gt; 64 bytes from range.sati.in: icmp_seq=1 ttl=64 time=1.84 ms [ALL GREEN]
-                      </motion.div>
-                    )}
-                  </>
-                ) : (
-                  <div className="space-y-2 text-slate-400 text-xs">
-                    <div className="text-white font-bold text-[11px] text-amber-400 uppercase tracking-widest">
-                      // Campus Range Topology
-                    </div>
-                    <div className="pl-2 border-l border-white/10 space-y-1 font-mono text-[11px]">
-                      <div>&bull; Gateway: <span className="text-white">10.10.23.1 (SATI Core Firewall)</span></div>
-                      <div>&bull; CTF Sandbox Cluster: <span className="text-emerald-400">ONLINE (6 Nodes)</span></div>
-                      <div>&bull; Vulnerable Benchmarks: <span className="text-amber-300">ISOLATED SUBNET</span></div>
-                      <div>&bull; Incident Triage Station: <span className="text-white">Central Computer Center</span></div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Console Footer Action Bar */}
-              <div className="px-5 py-3.5 bg-black/80 border-t border-white/[0.08] flex items-center justify-between">
-                <span className="text-[10px] font-mono text-slate-500 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  SANDBOX STATUS: READY
-                </span>
-
-                <button
-                  type="button"
-                  onClick={handleRunPing}
-                  disabled={isRunningPing}
-                  className="px-3.5 py-1.5 rounded-full bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold text-[11px] tracking-wider transition-all duration-200 active:scale-95 disabled:opacity-50 flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.3)] cursor-pointer"
-                >
-                  <Terminal className="w-3 h-3" />
-                  <span>{isRunningPing ? "PINGING RANGE..." : "EXECUTE PING"}</span>
-                </button>
-              </div>
-            </motion.div>
-
-            {/* Right Column: High-Impact Statistics Grid (Inspire by "СТАТИСТИКА НАШЕГО СЕРВИСА") */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:col-span-6 flex flex-col justify-between space-y-6"
-            >
-              <div>
-                <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white mb-2">
-                  OPERATIONAL TELEMETRY
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-400 font-light leading-relaxed">
-                  Real numbers powering the technical defense society at Samrat Ashok Technological Institute.
-                </p>
-              </div>
-
-              {/* 4 Stats in 2x2 Grid with Golden Amber Glow */}
-              <div className="grid grid-cols-2 gap-4 sm:gap-6">
-                
-                {/* Stat 1 */}
-                <div className="relative p-5 sm:p-6 rounded-2xl bg-gradient-to-b from-[#090805] to-[#040302] border border-amber-500/20 hover:border-amber-400/50 transition-colors group">
-                  <span className="absolute top-0 right-0 w-3 h-3 border-t border-r border-amber-400" />
-                  <span className="text-3xl sm:text-5xl font-black text-amber-400 tracking-tight font-sans drop-shadow-[0_0_20px_rgba(245,158,11,0.25)] group-hover:scale-105 transition-transform inline-block">
-                    300+
-                  </span>
-                  <div className="mt-2 text-xs font-mono font-bold uppercase tracking-wider text-white">
-                    Active Cadets
-                  </div>
-                  <div className="text-[11px] text-slate-500 font-mono mt-0.5">
-                    Verified SATI Network
-                  </div>
-                </div>
-
-                {/* Stat 2 */}
-                <div className="relative p-5 sm:p-6 rounded-2xl bg-gradient-to-b from-[#090805] to-[#040302] border border-white/[0.08] hover:border-amber-400/50 transition-colors group">
-                  <span className="absolute top-0 right-0 w-3 h-3 border-t border-r border-amber-400" />
-                  <span className="text-3xl sm:text-5xl font-black text-white tracking-tight font-sans group-hover:text-amber-300 group-hover:scale-105 transition-all inline-block">
-                    100%
-                  </span>
-                  <div className="mt-2 text-xs font-mono font-bold uppercase tracking-wider text-white">
-                    Hands-on Labs
-                  </div>
-                  <div className="text-[11px] text-slate-500 font-mono mt-0.5">
-                    Zero Passive Slides
-                  </div>
-                </div>
-
-                {/* Stat 3 */}
-                <div className="relative p-5 sm:p-6 rounded-2xl bg-gradient-to-b from-[#090805] to-[#040302] border border-white/[0.08] hover:border-amber-400/50 transition-colors group">
-                  <span className="absolute top-0 right-0 w-3 h-3 border-t border-r border-amber-400" />
-                  <span className="text-3xl sm:text-5xl font-black text-amber-400 tracking-tight font-sans drop-shadow-[0_0_20px_rgba(245,158,11,0.25)] group-hover:scale-105 transition-transform inline-block">
-                    160+
-                  </span>
-                  <div className="mt-2 text-xs font-mono font-bold uppercase tracking-wider text-white">
-                    Workshop Cadets
-                  </div>
-                  <div className="text-[11px] text-slate-500 font-mono mt-0.5">
-                    EXPLOIT 2026 Batch
-                  </div>
-                </div>
-
-                {/* Stat 4 */}
-                <div className="relative p-5 sm:p-6 rounded-2xl bg-gradient-to-b from-[#090805] to-[#040302] border border-amber-500/20 hover:border-amber-400/50 transition-colors group">
-                  <span className="absolute top-0 right-0 w-3 h-3 border-t border-r border-amber-400" />
-                  <span className="text-3xl sm:text-5xl font-black text-white tracking-tight font-sans group-hover:text-amber-300 group-hover:scale-105 transition-all inline-block">
-                    24/7
-                  </span>
-                  <div className="mt-2 text-xs font-mono font-bold uppercase tracking-wider text-white">
-                    CTF Cyber Range
-                  </div>
-                  <div className="text-[11px] text-slate-500 font-mono mt-0.5">
-                    Live Sandboxes
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Sub-bar link */}
-              <div className="pt-1 flex items-center justify-between text-xs font-mono text-slate-400">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                  Audited by CSE Department
-                </span>
-                <Link
-                  href="/events"
-                  className="text-amber-400 hover:text-amber-300 flex items-center gap-1 font-bold group"
-                >
-                  <span>Inspect Event Archive</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
-
-            </motion.div>
-
-          </div>
-
-        </div>
-      </div>
-
+      <CinematicTelemetry />
 
       {/* =========================================================================
           SECTION 2: SLASHED ANGLED MISSION BANNER (Inspire by Section 3 "О НАШЕМ ПРОЕКТЕ")
@@ -399,7 +145,6 @@ export default function AboutSection() {
         </div>
       </div>
 
-
       {/* =========================================================================
           SECTION 3: THE 3-COLUMN PILLAR MATRIX (Inspire by Thanos Section 4 in Ref)
           Features:
@@ -448,7 +193,7 @@ export default function AboutSection() {
                 // 3-STAGE PROGRESSION
               </div>
 
-              {pillars.map((step, idx) => (
+              {pillars.map((step) => (
                 <div
                   key={step.num}
                   className="relative p-5 rounded-2xl bg-[#070707] border border-white/[0.08] hover:border-amber-400/40 transition-all duration-300 group"
@@ -522,7 +267,7 @@ export default function AboutSection() {
                 // WHY CYBER CELL?
               </div>
 
-              {capabilities.map((item, idx) => {
+              {capabilities.map((item) => {
                 const Icon = item.icon;
                 return (
                   <div
