@@ -566,17 +566,8 @@ export default function TeamPage() {
 
               {/* Scroll Tip Indicator */}
               <div className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 border border-white/20 backdrop-blur-md text-[11px] font-mono text-slate-300 shadow-lg">
-                {activeIndex === N - 1 ? (
-                  <>
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-                    <span className="text-amber-300 font-medium">Returning to Convenor in 5s...</span>
-                  </>
-                ) : (
-                  <>
-                    <MousePointer className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Scroll wheel to flip cards</span>
-                  </>
-                )}
+                <MousePointer className="w-3.5 h-3.5 text-amber-400" />
+                <span>Scroll wheel to flip cards</span>
               </div>
             </div>
 
