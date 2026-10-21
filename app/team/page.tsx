@@ -461,7 +461,8 @@ export default function TeamPage() {
                   const parts = member.name.split(" ");
                   const cardFirstName = parts[0] || "";
                   const cardLastName = parts.slice(1).join(" ") || "";
-                  const isLongName = member.name.length > 13;
+                  const isLongLastName = cardLastName.length >= 8;
+                  const isLongName = member.name.length >= 12 || isLongLastName;
 
                   return (
                     <div
@@ -507,7 +508,7 @@ export default function TeamPage() {
                       )}
 
                       {/* Bottom Info: Category Bar & Clean 2-Line Name */}
-                      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 z-10 flex flex-col justify-end text-left pointer-events-none">
+                      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 pr-5 sm:pr-6 z-10 flex flex-col justify-end text-left pointer-events-none">
                         <div className="flex items-center gap-1.5 mb-1.5">
                           <span className="w-3.5 h-[1.5px] bg-amber-400 shrink-0" />
                           <span className="text-[9.5px] sm:text-[10px] font-mono uppercase tracking-[0.18em] text-amber-400 font-bold truncate">
@@ -515,16 +516,24 @@ export default function TeamPage() {
                           </span>
                         </div>
 
-                        {/* 2-line clean editorial name layout */}
+                        {/* 2-line clean editorial name layout with safe scaling for long surnames like Kushwaha & Vishwkarma */}
                         <h3
                           className={`font-black uppercase tracking-tight leading-[1.08] drop-shadow-md ${
                             isLongName
-                              ? "text-[15px] sm:text-base lg:text-[17px]"
+                              ? "text-[14px] sm:text-[15px] lg:text-[16px]"
                               : "text-base sm:text-lg lg:text-xl"
                           }`}
                         >
                           <span className="block text-white truncate">{cardFirstName}</span>
-                          <span className="block text-slate-200 truncate">{cardLastName}</span>
+                          <span
+                            className={`block truncate ${
+                              isLongLastName
+                                ? "text-[12.5px] sm:text-[13.5px] lg:text-[14.5px] text-slate-200 tracking-normal"
+                                : "text-slate-200"
+                            }`}
+                          >
+                            {cardLastName}
+                          </span>
                         </h3>
 
                         <p className="text-[10.5px] sm:text-[11px] text-slate-400 font-mono mt-1 drop-shadow-sm truncate">
