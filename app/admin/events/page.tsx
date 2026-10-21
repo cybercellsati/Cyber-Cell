@@ -24,6 +24,10 @@ import {
   Star,
   Eye,
   Laptop,
+  GripVertical,
+  ChevronLeft,
+  ChevronRight,
+  Move,
 } from "lucide-react";
 
 const CATEGORIES: CyberEvent["category"][] = [
@@ -84,6 +88,10 @@ export default function AdminEventsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+
+  // Drag-and-Drop state for rearranging photo positions
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -272,6 +280,77 @@ export default function AdminEventsPage() {
     setFormData((prev) => ({
       ...prev,
       image: url,
+    }));
+  };
+
+  // Drag and Drop arrangement handlers for image positions
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const currentImages = [...(formData.images || [])];
+    const itemToMove = currentImages[draggedIndex];
+    currentImages.splice(draggedIndex, 1);
+    currentImages.splice(dropIndex, 0, itemToMove);
+
+    // If primary image was moved or unset, ensure valid primary image
+    let updatedPrimary = formData.image;
+    if (!updatedPrimary || updatedPrimary === "") {
+      updatedPrimary = currentImages[0] || "";
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      images: currentImages,
+      image: updatedPrimary,
+    }));
+
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  // Move image position left or right via button
+  const handleMoveImage = (fromIndex: number, direction: "left" | "right") => {
+    const toIndex = direction === "left" ? fromIndex - 1 : fromIndex + 1;
+    const currentImages = [...(formData.images || [])];
+    if (toIndex < 0 || toIndex >= currentImages.length) return;
+
+    const item = currentImages[fromIndex];
+    currentImages.splice(fromIndex, 1);
+    currentImages.splice(toIndex, 0, item);
+
+    let updatedPrimary = formData.image;
+    if (!updatedPrimary || updatedPrimary === "") {
+      updatedPrimary = currentImages[0] || "";
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      images: currentImages,
+      image: updatedPrimary,
     }));
   };
 
@@ -777,15 +856,15 @@ export default function AdminEventsPage() {
             <form onSubmit={handleSaveEvent} className="space-y-6">
               
               {/* ========================================================================= */}
-              {/* 1. UP TO 10 IMAGES GALLERY UPLOADER                                       */}
+              {/* 1. UP TO 10 IMAGES GALLERY UPLOADER (DRAG & DROP REORDERING)               */}
               {/* ========================================================================= */}
-              <div className="space-y-3 p-4 rounded-2xl bg-black/40 border border-cyan-500/20">
+              <div className="space-y-3 p-4 rounded-2xl bg-black/50 border border-amber-400/25">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-mono text-cyan-400 uppercase tracking-wider font-bold">
-                      Event Photos & Posters Gallery
+                    <label className="text-xs font-mono text-amber-400 uppercase tracking-wider font-bold">
+                      Event Photos &amp; Posters Gallery
                     </label>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/15 border border-cyan-500/30 text-cyan-300">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-amber-400/15 border border-amber-400/30 text-amber-300">
                       {imagesList.length} / 10 Images
                     </span>
                   </div>
@@ -795,7 +874,7 @@ export default function AdminEventsPage() {
                       type="button"
                       disabled={isUploading}
                       onClick={() => fileInputRef.current?.click()}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs font-mono transition-colors disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs font-mono transition-colors disabled:opacity-50 cursor-pointer shadow-md"
                     >
                       <Upload className="w-3.5 h-3.5" />
                       <span>{isUploading ? "Uploading..." : "Upload Photos"}</span>
@@ -813,62 +892,151 @@ export default function AdminEventsPage() {
                   className="hidden"
                 />
 
-                {/* Thumbnails Grid (Up to 10 images) */}
+                {/* Thumbnails Grid with Drag & Drop Reordering */}
                 {imagesList.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1">
-                    {imagesList.map((imgUrl, idx) => {
-                      const isCover = formData.image === imgUrl;
-                      return (
-                        <div
-                          key={idx}
-                          className={`relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-900 border group ${
-                            isCover
-                              ? "border-cyan-400 ring-2 ring-cyan-400/50"
-                              : "border-white/15 hover:border-white/30"
-                          }`}
-                        >
-                          <Image src={imgUrl} alt={`Uploaded ${idx}`} fill className="object-cover" />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 p-1">
-                            {!isCover && (
-                              <button
-                                type="button"
-                                onClick={() => handleSetPrimary(imgUrl)}
-                                className="p-1.5 rounded-lg bg-cyan-500 text-slate-950 hover:bg-cyan-400 transition-colors"
-                                title="Set as Primary Cover"
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 px-1">
+                      <span className="flex items-center gap-1.5 text-amber-300 font-medium">
+                        <Move className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Photos ko drag &amp; drop karke ya arrows se arrange karein (Position #1 main cover banegi)</span>
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1">
+                      {imagesList.map((imgUrl, idx) => {
+                        const isCover = formData.image === imgUrl;
+                        const isDragging = draggedIndex === idx;
+                        const isDragOver = dragOverIndex === idx && draggedIndex !== idx;
+
+                        return (
+                          <div
+                            key={idx}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, idx)}
+                            onDragOver={(e) => handleDragOver(e, idx)}
+                            onDrop={(e) => handleDrop(e, idx)}
+                            onDragEnd={handleDragEnd}
+                            className={`relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-900 border transition-all duration-200 group select-none cursor-grab active:cursor-grabbing ${
+                              isDragging
+                                ? "opacity-30 scale-95 border-amber-400 border-dashed"
+                                : isDragOver
+                                ? "border-amber-400 ring-4 ring-amber-400/40 scale-105 z-20 shadow-xl shadow-amber-400/25"
+                                : isCover
+                                ? "border-amber-400 ring-2 ring-amber-400/50 shadow-md shadow-amber-400/10"
+                                : "border-white/15 hover:border-amber-400/50"
+                            }`}
+                          >
+                            <Image
+                              src={imgUrl}
+                              alt={`Uploaded ${idx + 1}`}
+                              fill
+                              className="object-cover pointer-events-none"
+                            />
+
+                            {/* Position Badge & Drag Handle */}
+                            <div className="absolute top-1.5 left-1.5 right-1.5 flex items-center justify-between z-10 pointer-events-none">
+                              <span className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-black/85 font-black border border-white/20 text-amber-300 shadow">
+                                #{idx + 1}
+                              </span>
+
+                              <div
+                                className="p-1 rounded-md bg-black/80 text-amber-400 shadow flex items-center justify-center"
+                                title="Drag to rearrange"
                               >
-                                <Star className="w-3.5 h-3.5 fill-current" />
-                              </button>
+                                <GripVertical className="w-3.5 h-3.5" />
+                              </div>
+                            </div>
+
+                            {/* Hover Overlay Controls */}
+                            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-between p-2 z-20">
+                              {/* Top Bar: Delete button */}
+                              <div className="w-full flex justify-end">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveImage(idx);
+                                  }}
+                                  className="p-1.5 rounded-lg bg-red-500/80 hover:bg-red-500 text-white transition-colors cursor-pointer"
+                                  title="Delete Image"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+
+                              {/* Center: Make Primary Cover */}
+                              <div>
+                                {!isCover ? (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleSetPrimary(imgUrl);
+                                    }}
+                                    className="px-2.5 py-1 rounded-lg bg-amber-400 text-black font-mono font-bold text-[10px] flex items-center gap-1 hover:bg-amber-300 transition-colors shadow-md cursor-pointer"
+                                    title="Set as Primary Cover"
+                                  >
+                                    <Star className="w-3 h-3 fill-current" />
+                                    <span>Make Cover</span>
+                                  </button>
+                                ) : (
+                                  <span className="px-2 py-1 rounded-lg bg-amber-400 text-black font-mono font-black text-[10px] uppercase shadow">
+                                    ★ Cover Photo
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Bottom: Move Left & Move Right Arrow Buttons */}
+                              <div className="w-full flex items-center justify-between pt-1">
+                                <button
+                                  type="button"
+                                  disabled={idx === 0}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleMoveImage(idx, "left");
+                                  }}
+                                  className="p-1.5 rounded-lg bg-white/15 hover:bg-amber-400 hover:text-black text-white text-xs disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
+                                  title="Move Left (Earlier position)"
+                                >
+                                  <ChevronLeft className="w-3.5 h-3.5" />
+                                </button>
+
+                                <span className="text-[9px] font-mono text-slate-300 font-semibold select-none">
+                                  Drag / Shift
+                                </span>
+
+                                <button
+                                  type="button"
+                                  disabled={idx === imagesList.length - 1}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleMoveImage(idx, "right");
+                                  }}
+                                  className="p-1.5 rounded-lg bg-white/15 hover:bg-amber-400 hover:text-black text-white text-xs disabled:opacity-20 disabled:pointer-events-none transition-colors cursor-pointer"
+                                  title="Move Right (Later position)"
+                                >
+                                  <ChevronRight className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Cover Badge on bottom */}
+                            {isCover && (
+                              <span className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded text-[8px] font-mono bg-amber-400 text-black font-black uppercase tracking-wider shadow">
+                                COVER
+                              </span>
                             )}
-
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveImage(idx)}
-                              className="p-1.5 rounded-lg bg-red-500/80 hover:bg-red-500 text-white transition-colors"
-                              title="Delete Image"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
                           </div>
-
-                          {isCover && (
-                            <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-mono bg-cyan-500 text-slate-950 font-black">
-                              COVER
-                            </span>
-                          )}
-
-                          <span className="absolute top-1 left-1 px-1 py-0.5 rounded text-[8px] font-mono bg-black/70 text-slate-300">
-                            #{idx + 1}
-                          </span>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 ) : (
                   <div
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-6 rounded-xl border border-dashed border-white/20 hover:border-cyan-400/50 text-center cursor-pointer transition-colors"
+                    className="p-6 rounded-xl border border-dashed border-white/20 hover:border-amber-400/50 text-center cursor-pointer transition-colors"
                   >
-                    <Upload className="w-7 h-7 text-cyan-400/60 mx-auto mb-1.5" />
+                    <Upload className="w-7 h-7 text-amber-400/60 mx-auto mb-1.5" />
                     <p className="text-xs font-mono text-slate-300 font-semibold">
                       Click to choose up to 10 images from your device
                     </p>
@@ -886,12 +1054,12 @@ export default function AdminEventsPage() {
                       placeholder="Or paste external image URL (https://...)"
                       value={urlInput}
                       onChange={(e) => setUrlInput(e.target.value)}
-                      className="flex-1 px-3 py-1.5 rounded-xl bg-[#060910] border border-white/10 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400/50"
+                      className="flex-1 px-3 py-1.5 rounded-xl bg-[#060910] border border-white/10 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-400/50"
                     />
                     <button
                       type="button"
                       onClick={handleAddImageUrl}
-                      className="px-3 py-1.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] border border-white/15 text-xs font-mono text-slate-200 transition-colors"
+                      className="px-3 py-1.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] border border-white/15 text-xs font-mono text-slate-200 transition-colors cursor-pointer"
                     >
                       Add URL
                     </button>

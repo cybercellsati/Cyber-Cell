@@ -281,7 +281,7 @@ export default function EventsPage() {
 
                 {/* ========================================================
                     COUNTDOWN VISUAL (EXACT IMAGE 01 MATCH):
-                    Giant bold number + [ DAYS TO GO ] + [ NOV. 2026 ]
+                    Giant bold number + [ DAYS TO GO ]
                    ======================================================== */}
                 <div className="relative flex items-center justify-center my-2 sm:my-4 select-none">
                   
@@ -295,13 +295,6 @@ export default function EventsPage() {
                   {/* Giant Hero Number (e.g. 38) */}
                   <div className="relative text-[110px] sm:text-[180px] lg:text-[220px] font-black text-white leading-none tracking-tight drop-shadow-[0_15px_45px_rgba(245,158,11,0.2)] select-none font-sans">
                     {daysToGo}
-                  </div>
-
-                  {/* Glowing Pill Bottom-Left: [ NOV. 2026 ] */}
-                  <div className="absolute bottom-4 -left-6 sm:-left-14 z-20">
-                    <div className="px-4 py-1.5 rounded-full bg-amber-500 border border-amber-300 text-black font-black text-xs sm:text-sm tracking-wider uppercase shadow-[0_0_25px_rgba(245,158,11,0.6)]">
-                      {eventMonth}
-                    </div>
                   </div>
 
                 </div>
