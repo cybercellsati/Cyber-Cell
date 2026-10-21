@@ -15,6 +15,8 @@ import {
   Briefcase,
   Award,
   Sparkles,
+  Play,
+  Pause,
 } from "lucide-react";
 
 // Social SVG Icons
@@ -192,6 +194,12 @@ export default function TeamPage() {
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Auto-rotation states
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
+  const isInitialRef = useRef(true);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
   // Drag interaction state
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartX, setDragStartX] = useState(0);
@@ -222,11 +230,45 @@ export default function TeamPage() {
     setTilt({ x: 0, y: 0 });
   }, [N]);
 
+  // Auto-advance logic: 10 seconds for initial Convenor card, 5 seconds for subsequent cards
+  useEffect(() => {
+    if (!isPlaying || isHovered) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      return;
+    }
+
+    // 10s for initial card, 5s for subsequent cards
+    const duration = isInitialRef.current ? 10000 : 5000;
+
+    timerRef.current = setTimeout(() => {
+      isInitialRef.current = false;
+      nextCard();
+    }, duration);
+
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [activeIndex, isPlaying, isHovered, nextCard]);
+
+  // Handle card click: pause auto-play & center if side card
+  const handleCardClick = (i: number) => {
+    setIsPlaying(false); // Pause auto-rotation when user clicks any card
+    if (i !== activeIndex) {
+      setActiveIndex(i);
+      setTilt({ x: 0, y: 0 });
+    }
+  };
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") prevCard();
-      else if (e.key === "ArrowRight") nextCard();
+      if (e.key === "ArrowLeft") {
+        prevCard();
+        setIsPlaying(false);
+      } else if (e.key === "ArrowRight") {
+        nextCard();
+        setIsPlaying(false);
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -246,6 +288,7 @@ export default function TeamPage() {
 
     const deltaX = e.clientX - dragStartX;
     if (Math.abs(deltaX) > 40) {
+      setIsPlaying(false); // User gesture pauses auto-play
       if (deltaX < 0) nextCard();
       else prevCard();
     }
@@ -284,26 +327,59 @@ export default function TeamPage() {
           
           {/* Left Arrow Button */}
           <button
-            onClick={prevCard}
+            onClick={() => {
+              prevCard();
+              setIsPlaying(false);
+            }}
             aria-label="Previous member"
             className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/10 hover:border-amber-400/40 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-md backdrop-blur-md"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
 
-          {/* Centered Editorial Title */}
-          <div className="text-center">
+          {/* Centered Editorial Title with Play/Pause Pill Button */}
+          <div className="text-center flex flex-col items-center">
             <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white uppercase">
               Core Leadership
             </h1>
-            <p className="text-xs font-mono tracking-[0.2em] text-amber-400 uppercase mt-0.5 font-semibold">
-              Cyber Cell &bull; SATI Vidisha
-            </p>
+
+            <div className="flex items-center gap-2 sm:gap-2.5 mt-1.5">
+              <p className="text-[11px] sm:text-xs font-mono tracking-[0.2em] text-amber-400 uppercase font-semibold">
+                Cyber Cell &bull; SATI Vidisha
+              </p>
+              
+              <span className="text-slate-600 hidden xs:inline">&bull;</span>
+
+              {/* Play / Pause Toggle Button */}
+              <button
+                type="button"
+                onClick={() => setIsPlaying((p) => !p)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-amber-400/40 text-[10.5px] font-mono text-slate-300 hover:text-white transition-all shadow-sm active:scale-95 cursor-pointer"
+                title={isPlaying ? "Click to pause auto-scroll" : "Click to resume auto-scroll"}
+              >
+                {isPlaying ? (
+                  <>
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                    <Pause className="w-3 h-3 text-amber-400" />
+                    <span>Auto: {isInitialRef.current ? "10s" : "5s"}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
+                    <Play className="w-3 h-3 text-amber-400 fill-current ml-0.5" />
+                    <span className="text-amber-300 font-medium">Paused</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Right Arrow Button */}
           <button
-            onClick={nextCard}
+            onClick={() => {
+              nextCard();
+              setIsPlaying(false);
+            }}
             aria-label="Next member"
             className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/10 hover:border-amber-400/40 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-md backdrop-blur-md"
           >
@@ -374,14 +450,17 @@ export default function TeamPage() {
               return (
                 <div
                   key={member.id}
-                  onClick={() => {
-                    if (!isCenter) {
-                      setActiveIndex(i);
-                      setTilt({ x: 0, y: 0 });
+                  onClick={() => handleCardClick(i)}
+                  onMouseEnter={() => {
+                    if (isCenter) setIsHovered(true);
+                  }}
+                  onMouseLeave={() => {
+                    if (isCenter) {
+                      setIsHovered(false);
+                      handleCenterMouseLeave();
                     }
                   }}
                   onMouseMove={isCenter ? handleCenterMouseMove : undefined}
-                  onMouseLeave={isCenter ? handleCenterMouseLeave : undefined}
                   style={{
                     width: `${cardWidth}px`,
                     height: `${cardHeight}px`,
@@ -447,8 +526,28 @@ export default function TeamPage() {
             3. PILL HUD DOCK (MATCHING REFERENCE MOCKUP BELOW TABLE)
             e.g. [ 115km ] [ 2347m ] [ -10 ] [ 113cm ]
            ======================================================== */}
-        <div className="relative w-full max-w-2xl mx-auto flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 mt-4 sm:mt-6 mb-12 px-3 z-20">
+        <div className="relative w-full max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 mt-4 sm:mt-6 mb-12 px-3 z-20">
           
+          {/* Pause / Resume Button in HUD Dock */}
+          <button
+            type="button"
+            onClick={() => setIsPlaying((p) => !p)}
+            className="px-3.5 py-1.5 rounded-full bg-black/70 border border-white/15 hover:border-amber-400/50 backdrop-blur-xl text-[11px] font-mono text-slate-200 hover:text-white flex items-center gap-2 shadow-lg transition-colors cursor-pointer"
+            title={isPlaying ? "Click to pause auto-advance" : "Click to resume auto-advance"}
+          >
+            {isPlaying ? (
+              <>
+                <Pause className="w-3.5 h-3.5 text-amber-400" />
+                <span>Pause Auto-Play</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-3.5 h-3.5 text-amber-400 fill-current ml-0.5" />
+                <span className="text-amber-300 font-semibold">Resume Auto-Play</span>
+              </>
+            )}
+          </button>
+
           {/* Badge 1: Role */}
           <div className="px-3.5 py-1.5 rounded-full bg-black/70 border border-white/15 backdrop-blur-xl text-[11px] font-mono text-slate-200 flex items-center gap-2 shadow-lg">
             <Shield className="w-3.5 h-3.5 text-amber-400 shrink-0" />
