@@ -47,14 +47,14 @@
     "longDescription": "This workshop is designed to give first-year students a practical introduction to cybersecurity. You will explore real-world concepts, see live demonstrations, and get hands-on experience through interactive activities in a guided and friendly environment.\n\nPhase 01 — Explore Cybersecurity\nGet introduced to cybersecurity, discover its major domains and career paths, and learn which foundational skills to develop as a first-year student.\n\nPhase 02 — Think Like an Attacker\nExperience cybersecurity through practical demonstrations and understand how security weaknesses can be identified, why they matter, and how systems can be better protected.\n\nPhase 03 — Your First Cyber Challenge\nPut your thinking skills to the test through beginner-friendly cybersecurity challenges. Learn by exploring, solving problems, and discovering new concepts.",
     "image": "/images/events/event_1792524059137_2swvdc.jpg",
     "images": [
-      "/images/events/event_1792561669408_kvq6dp.jpg",
       "/images/events/event_1792524059137_2swvdc.jpg",
-      "/images/events/event_1792561674432_ngg70j.jpg",
-      "https://res.cloudinary.com/qtfezfsf/image/upload/v1792561677/cybercell/events/fgwnlhca7irmq6u6fgz5.jpg",
+      "https://res.cloudinary.com/qtfezfsf/image/upload/v1792561715/cybercell/events/derxwlhfm0e9dn3jw5t2.png",
       "/images/events/event_1792561735498_z6d91j.jpg",
-      "https://res.cloudinary.com/qtfezfsf/image/upload/v1792561715/cybercell/events/derxwlhfm0e9dn3jw5t2.png"
+      "https://res.cloudinary.com/qtfezfsf/image/upload/v1792561677/cybercell/events/fgwnlhca7irmq6u6fgz5.jpg",
+      "/images/events/event_1792561674432_ngg70j.jpg",
+      "/images/events/event_1792561669408_kvq6dp.jpg"
     ],
-    "organizer": "Cyber Cell SATI",
+    "organizer": "Cyber Cell",
     "registrationLink": "https://luma.com/sph445ld",
     "status": "Completed",
     "category": "Workshop",
@@ -71,17 +71,12 @@
     "agenda": "10:30 AM: Keynote & Core Concepts | 11:30 AM: Live Cyber Range Attack/Defend Demo | 12:30 PM: Interactive CTF Mini-Wargame",
     "speakers": [
       {
-        "name": "Yash Harfode",
-        "role": "Founder & Convenor",
-        "org": "Cyber Cell SATI"
-      },
-      {
-        "name": "Krishna Mishra",
-        "role": "Co-Convenor & Security Lead",
-        "org": "Cyber Cell SATI"
+        "name": "Cyber Cell",
+        "role": "Official Cybersecurity Body",
+        "org": "SATI Vidisha"
       }
     ],
     "createdAt": "2026-10-20T19:22:18.107Z",
-    "updatedAt": "2026-10-21T05:49:59.127Z"
+    "updatedAt": "2026-10-21T06:48:08.249Z"
   }
 ]

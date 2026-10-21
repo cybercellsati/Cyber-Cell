@@ -317,6 +317,11 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                   {event.category}
                 </span>
 
+                <span className="px-3 py-1 rounded-full text-[11px] font-mono uppercase tracking-wider font-bold bg-amber-400/10 border border-amber-400/30 text-amber-300 flex items-center gap-1.5 shadow-sm">
+                  <Shield className="w-3 h-3 text-amber-400" />
+                  <span>Conducted by Cyber Cell</span>
+                </span>
+
                 {event.tags && event.tags.length > 0 ? (
                   event.tags.slice(0, 3).map((tag, idx) => (
                     <span

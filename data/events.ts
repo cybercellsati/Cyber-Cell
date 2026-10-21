@@ -91,7 +91,7 @@ export const pastEvents: CyberEvent[] = [
       "/images/events/event_1792561735498_z6d91j.jpg",
       "https://res.cloudinary.com/qtfezfsf/image/upload/v1792561715/cybercell/events/derxwlhfm0e9dn3jw5t2.png"
     ],
-    organizer: "Cyber Cell SATI",
+    organizer: "Cyber Cell",
     registrationLink: "https://luma.com/sph445ld",
     status: "Completed",
     category: "Workshop",
@@ -108,14 +108,9 @@ export const pastEvents: CyberEvent[] = [
     agenda: "10:30 AM: Keynote & Core Concepts | 11:30 AM: Live Cyber Range Attack/Defend Demo | 12:30 PM: Interactive CTF Mini-Wargame",
     speakers: [
       {
-        name: "Yash Harfode",
-        role: "Founder & Convenor",
-        org: "Cyber Cell SATI"
-      },
-      {
-        name: "Krishna Mishra",
-        role: "Co-Convenor & Security Lead",
-        org: "Cyber Cell SATI"
+        name: "Cyber Cell",
+        role: "Official Cybersecurity Body",
+        org: "SATI Vidisha"
       }
     ],
     createdAt: "2026-10-20T19:22:18.107Z",

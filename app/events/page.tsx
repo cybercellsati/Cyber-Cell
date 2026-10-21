@@ -705,21 +705,14 @@ export default function EventsPage() {
                           </div>
                         </div>
 
-                        {/* Speakers & Mentors */}
-                        {evt.speakers && evt.speakers.length > 0 && (
-                          <div className="pt-2 border-t border-white/[0.08] flex flex-wrap items-center gap-2">
-                            <span className="text-[11px] font-mono text-slate-400 mr-1">Conducted By:</span>
-                            {evt.speakers.map((spk, sIdx) => (
-                              <span
-                                key={sIdx}
-                                className="px-3 py-1 rounded-full text-xs font-mono bg-white/[0.04] border border-white/10 text-slate-200"
-                              >
-                                <span className="font-bold text-amber-400">{spk.name}</span>
-                                {spk.role && <span className="text-slate-400 text-[11px] ml-1">({spk.role})</span>}
-                              </span>
-                            ))}
-                          </div>
-                        )}
+                        {/* Conducted By */}
+                        <div className="pt-2 border-t border-white/[0.08] flex flex-wrap items-center gap-2">
+                          <span className="text-[11px] font-mono text-slate-400 mr-1">Conducted By:</span>
+                          <span className="px-3 py-1 rounded-full text-xs font-mono bg-amber-400/10 border border-amber-400/30 text-amber-300 font-bold flex items-center gap-1.5 shadow-sm">
+                            <Shield className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Cyber Cell</span>
+                          </span>
+                        </div>
 
                         {/* Action buttons & stats */}
                         <div className="pt-3 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-4">
