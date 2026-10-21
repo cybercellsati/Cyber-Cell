@@ -1,8 +1,45 @@
 [
   {
+    "id": "evt_dummy_preview_01",
+    "title": "[DUMMY] Cyber Range CTF & Defense Drill 2026",
+    "date": "2026-11-28",
+    "time": "10:00 AM - 04:00 PM",
+    "venue": "Central Computer Center (CCC), SATI Campus [DUMMY VENUE]",
+    "mode": "On-Campus",
+    "description": "⚠️ DUMMY UPCOMING EVENT (SAMPLE DEMO PREVIEW ONLY)\nThis is a sample dummy event created strictly for demonstration and UI preview purposes. It is NOT an officially scheduled event. Official club events will be posted upon administrative confirmation.",
+    "longDescription": "⚠️ PLEASE NOTE: THIS IS A DUMMY UPCOMING EVENT\nThis event entry is a placeholder demo to showcase the countdown poster and event schedule UI. No actual session will be held on this date unless officially announced by Cyber Cell SATI.",
+    "image": "/images/event-exploit-workshop.png",
+    "images": [
+      "/images/event-exploit-workshop.png"
+    ],
+    "organizer": "Cyber Cell SATI (Demo)",
+    "registrationLink": "#dummy-event",
+    "status": "Upcoming",
+    "category": "CTF",
+    "featured": true,
+    "tags": [
+      "DUMMY EVENT",
+      "SAMPLE PREVIEW",
+      "DEMO ONLY"
+    ],
+    "capacity": "150 (Sample)",
+    "prerequisites": "None (Dummy Preview)",
+    "toolsRequired": "Laptop (Dummy)",
+    "agenda": "Demo Timeline & Sample Challenges",
+    "speakers": [
+      {
+        "name": "Sample Instructor",
+        "role": "Security Specialist (Demo)",
+        "org": "Cyber Cell SATI"
+      }
+    ],
+    "createdAt": "2026-10-21T05:50:00.000Z",
+    "updatedAt": "2026-10-21T05:50:00.000Z"
+  },
+  {
     "id": "evt_1792524138107",
     "title": "EXPLOIT: Intro to the Cyber Range",
-    "date": "2026-10-25",
+    "date": "2026-10-16",
     "time": "10:00 AM - 01:00 PM",
     "venue": "Central Computer Center (CCC), SATI Campus",
     "mode": "On-Campus",
@@ -10,7 +47,12 @@
     "longDescription": "Phase 01 — Explore Cybersecurity\nGet introduced to cybersecurity, discover its major domains and career paths, and learn which foundational skills to develop as a first-year student.\n\nPhase 02 — Think Like an Attacker\nExperience cybersecurity through practical demonstrations and understand how security weaknesses can be identified, why they matter, and how systems can be better protected.\n\nPhase 03 — Your First Cyber Challenge\nPut your thinking skills to the test through beginner-friendly cybersecurity challenges. Learn by exploring, solving problems, and discovering new concepts.\n\nThe session focuses on practical learning, audience participation, and building a strong starting point for your cybersecurity journey—not just theory.",
     "image": "/images/events/event_1792524059137_2swvdc.jpg",
     "images": [
-      "/images/events/event_1792524059137_2swvdc.jpg"
+      "/images/events/event_1792524059137_2swvdc.jpg",
+      "/images/events/event_1792561669408_kvq6dp.jpg",
+      "/images/events/event_1792561674432_ngg70j.jpg",
+      "https://res.cloudinary.com/qtfezfsf/image/upload/v1792561677/cybercell/events/fgwnlhca7irmq6u6fgz5.jpg",
+      "https://res.cloudinary.com/qtfezfsf/image/upload/v1792561715/cybercell/events/derxwlhfm0e9dn3jw5t2.png",
+      "/images/events/event_1792561735498_z6d91j.jpg"
     ],
     "organizer": "Cyber Cell SATI",
     "registrationLink": "https://luma.com/sph445ld",
@@ -38,6 +80,6 @@
       }
     ],
     "createdAt": "2026-10-20T19:22:18.107Z",
-    "updatedAt": "2026-10-21T05:42:43.268Z"
+    "updatedAt": "2026-10-21T05:49:59.127Z"
   }
 ]

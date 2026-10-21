@@ -32,37 +32,91 @@ export interface CyberEvent {
   updatedAt?: string;
 }
 
-// Real club event created via admin portal:
 export const upcomingEvents: CyberEvent[] = [
   {
-    id: "evt_1792524138107",
-    title: "EXPLOIT: Intro to the Cyber Range",
-    date: "2026-10-25",
-    time: "10:00 AM - 01:00 PM",
-    venue: "Central Computer Center (CCC), SATI Campus",
+    id: "evt_dummy_preview_01",
+    title: "[DUMMY] Cyber Range CTF & Defense Drill 2026",
+    date: "2026-11-28",
+    time: "10:00 AM - 04:00 PM",
+    venue: "Central Computer Center (CCC), SATI Campus [DUMMY VENUE]",
     mode: "On-Campus",
-    description: "Curious about cybersecurity and ethical hacking? EXPLOIT is a beginner-friendly, practical cybersecurity workshop organised by Cyber Cell, SATI Vidisha, exclusively for first-year students.",
-    longDescription: "Phase 01: Explore Cybersecurity — Get introduced to cybersecurity and major domains. Phase 02: Think Like an Attacker — Experience practical demonstrations. Phase 03: Your First Cyber Challenge — Put your thinking skills to the test.",
-    image: "/images/events/event_1792524059137_2swvdc.jpg",
-    images: ["/images/events/event_1792524059137_2swvdc.jpg"],
-    organizer: "Cyber Cell SATI",
-    registrationLink: "https://luma.com/sph445ld",
-    status: "Upcoming",
-    category: "Workshop",
-    featured: true,
-    tags: ["Live Demo", "Try Hack Me"],
-    capacity: "160",
-    prerequisites: "None (Curiosity & Passion for Tech)",
-    toolsRequired: "Laptop",
-    agenda: "10:00 AM: Keynote | 11:15 AM: Live Cyber Range Attack/Defend Demo | 12:15 PM: Interactive CTF Mini-Wargame",
-    speakers: [
-      { name: "Yash Harfode", role: "Founder & Convenor", org: "Cyber Cell SATI" },
-      { name: "Krishna Mishra", role: "Co-Convenor & Security Lead", org: "Cyber Cell SATI" }
+    description: "⚠️ DUMMY UPCOMING EVENT (SAMPLE DEMO PREVIEW ONLY)\nThis is a sample dummy event created strictly for demonstration and UI preview purposes. It is NOT an officially scheduled event. Official club events will be posted upon administrative confirmation.",
+    longDescription: "⚠️ PLEASE NOTE: THIS IS A DUMMY UPCOMING EVENT\nThis event entry is a placeholder demo to showcase the countdown poster and event schedule UI. No actual session will be held on this date unless officially announced by Cyber Cell SATI.",
+    image: "/images/event-exploit-workshop.png",
+    images: [
+      "/images/event-exploit-workshop.png"
     ],
-    createdAt: "2026-10-20T19:22:18.107Z",
-    updatedAt: "2026-10-21T05:30:00.000Z"
+    organizer: "Cyber Cell SATI (Demo)",
+    registrationLink: "#dummy-event",
+    status: "Upcoming",
+    category: "CTF",
+    featured: true,
+    tags: [
+      "DUMMY EVENT",
+      "SAMPLE PREVIEW",
+      "DEMO ONLY"
+    ],
+    capacity: "150 (Sample)",
+    prerequisites: "None (Dummy Preview)",
+    toolsRequired: "Laptop (Dummy)",
+    agenda: "Demo Timeline & Sample Challenges",
+    speakers: [
+      {
+        name: "Sample Instructor",
+        role: "Security Specialist (Demo)",
+        org: "Cyber Cell SATI"
+      }
+    ],
+    createdAt: "2026-10-21T05:50:00.000Z",
+    updatedAt: "2026-10-21T05:50:00.000Z"
   }
 ];
 
-// Real past event archive will be populated as events conclude
-export const pastEvents: CyberEvent[] = [];
+export const pastEvents: CyberEvent[] = [
+  {
+    id: "evt_1792524138107",
+    title: "EXPLOIT: Intro to the Cyber Range",
+    date: "2026-10-16",
+    time: "10:00 AM - 01:00 PM",
+    venue: "Central Computer Center (CCC), SATI Campus",
+    mode: "On-Campus",
+    description: "EXPLOIT: Intro to the Cyber Range\n\nCurious about cybersecurity and ethical hacking? EXPLOIT is a beginner-friendly, practical cybersecurity workshop organised by Cyber Cell, SATI Vidisha, exclusively for first-year students interested in cybersecurity.",
+    longDescription: "Phase 01 — Explore Cybersecurity\nGet introduced to cybersecurity, discover its major domains and career paths...\n\nPhase 02 — Think Like an Attacker\nExperience cybersecurity through practical demonstrations...\n\nPhase 03 — Your First Cyber Challenge\nPut your thinking skills to the test through beginner-friendly cybersecurity challenges.",
+    image: "/images/events/event_1792524059137_2swvdc.jpg",
+    images: [
+      "/images/events/event_1792524059137_2swvdc.jpg",
+      "/images/events/event_1792561669408_kvq6dp.jpg",
+      "/images/events/event_1792561674432_ngg70j.jpg",
+      "https://res.cloudinary.com/qtfezfsf/image/upload/v1792561677/cybercell/events/fgwnlhca7irmq6u6fgz5.jpg",
+      "https://res.cloudinary.com/qtfezfsf/image/upload/v1792561715/cybercell/events/derxwlhfm0e9dn3jw5t2.png",
+      "/images/events/event_1792561735498_z6d91j.jpg"
+    ],
+    organizer: "Cyber Cell SATI",
+    registrationLink: "https://luma.com/sph445ld",
+    status: "Completed",
+    category: "Workshop",
+    featured: true,
+    tags: [
+      "Live Demo",
+      "Try Hack Me"
+    ],
+    capacity: "160",
+    prerequisites: "None (Curiosity & Passion for Tech)",
+    toolsRequired: "Laptop",
+    agenda: "10:00 AM: Keynote & Core Concepts | 11:15 AM: Live Cyber Range Attack/Defend Demo | 12:15 PM: Interactive CTF Mini-Wargame",
+    speakers: [
+      {
+        name: "Yash Harfode",
+        role: "Founder & Convenor",
+        org: "Cyber Cell SATI"
+      },
+      {
+        name: "Krishna Mishra",
+        role: "Co-Convenor & Security Lead",
+        org: "Cyber Cell SATI"
+      }
+    ],
+    createdAt: "2026-10-20T19:22:18.107Z",
+    updatedAt: "2026-10-21T05:49:59.127Z"
+  }
+];

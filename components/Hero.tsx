@@ -191,7 +191,7 @@ export default function Hero() {
 
             {/* TryHackMe */}
             <div className="flex items-center gap-2 group hover:text-white transition-colors">
-              <svg viewBox="0 0 24 24" className="w-5 h-5 text-red-400 shrink-0" fill="currentColor">
+              <svg viewBox="0 0 24 24" className="w-5 h-5 text-amber-400 shrink-0" fill="currentColor">
                 <path d="M10.74 0c-.26 0-.52.08-.73.23L1.08 6.55A1.33 1.33 0 0 0 .4 7.68v8.64c0 .46.24.88.64 1.12l8.93 5.34c.4.24.9.24 1.3 0l8.93-5.34c.4-.24.64-.66.64-1.12V7.68c0-.46-.24-.88-.64-1.13L11.47.23a1.36 1.36 0 0 0-.73-.23zm-.06 2.65l6.76 4.7-6.76 4.7-6.76-4.7 6.76-4.7zm-7.6 6.32l6.28 4.36v7.38l-6.28-3.76V8.97zm15.2 0v7.98l-6.28 3.76v-7.38l6.28-4.36z" />
               </svg>
               <span className="font-semibold text-xs sm:text-sm tracking-wide">TryHackMe</span>

@@ -96,11 +96,11 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#06080d] text-white flex flex-col font-sans">
+      <div className="min-h-screen bg-[#030303] text-white flex flex-col font-sans selection:bg-amber-400/20 selection:text-amber-300">
         <Navbar />
         <main className="flex-1 flex items-center justify-center pt-28">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
             <span className="text-xs font-mono text-slate-400">Loading Event Details...</span>
           </div>
         </main>
@@ -111,10 +111,10 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
 
   if (!event) {
     return (
-      <div className="min-h-screen bg-[#06080d] text-white flex flex-col font-sans">
+      <div className="min-h-screen bg-[#030303] text-white flex flex-col font-sans selection:bg-amber-400/20 selection:text-amber-300">
         <Navbar />
         <main className="flex-1 flex flex-col items-center justify-center pt-32 pb-16 px-4 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4">
+          <div className="w-16 h-16 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 mb-4">
             <Calendar className="w-8 h-8" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-2">Event Not Found</h1>
@@ -123,7 +123,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
           </p>
           <Link
             href="/events"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs font-mono transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs font-mono transition-colors shadow-md"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Return to Events Schedule</span>
@@ -133,6 +133,13 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
       </div>
     );
   }
+
+  const isDummy = Boolean(
+    event.id?.toLowerCase().includes("dummy") ||
+    event.title?.toLowerCase().includes("dummy") ||
+    event.tags?.some((t) => t.toLowerCase().includes("dummy")) ||
+    event.description?.toLowerCase().includes("dummy")
+  );
 
   // Aggregate all photos (primary + gallery, deduplicated, up to 10)
   const allImages: string[] = [];
@@ -146,7 +153,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
   const displayImages = allImages.slice(0, 10);
 
   return (
-    <div className="min-h-screen bg-[#06080d] text-white flex flex-col font-sans selection:bg-cyan-500/20 selection:text-cyan-300">
+    <div className="min-h-screen bg-[#030303] text-white flex flex-col font-sans selection:bg-amber-400/20 selection:text-amber-300">
       <Navbar />
 
       <main className="flex-1 pt-28 pb-20 px-4 sm:px-6 lg:px-8 cyber-grid">
@@ -156,7 +163,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
           <div className="flex items-center justify-between gap-4 pt-2">
             <Link
               href="/events"
-              className="inline-flex items-center gap-2 text-xs font-mono text-slate-400 hover:text-cyan-300 transition-colors group"
+              className="inline-flex items-center gap-2 text-xs font-mono text-slate-400 hover:text-amber-300 transition-colors group"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
               <span>Back to All Events</span>
@@ -181,25 +188,47 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
             </button>
           </div>
 
+          {/* Dummy Event Notice Banner */}
+          {isDummy && (
+            <div className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-amber-500/15 border-2 border-dashed border-amber-400/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left backdrop-blur-md">
+              <div className="flex items-center gap-3">
+                <span className="px-3 py-1 rounded-full bg-amber-400 text-black text-xs font-mono font-black uppercase tracking-wider shrink-0 shadow-sm">
+                  ⚠️ DUMMY EVENT
+                </span>
+                <div>
+                  <p className="text-xs sm:text-sm font-mono font-extrabold text-amber-200 uppercase tracking-wide">
+                    SAMPLE PREVIEW ONLY &bull; YEH EK DUMMY EVENT HAI
+                  </p>
+                  <p className="text-[11px] font-sans text-slate-300 font-normal">
+                    Yeh entry keval website UI aur poster testing ke liye hai. Koi actual session is date par schedule nahi hai.
+                  </p>
+                </div>
+              </div>
+              <span className="px-3 py-1.5 rounded-xl bg-black/80 border border-amber-400/40 text-amber-300 text-[10px] font-mono font-extrabold uppercase tracking-widest shrink-0">
+                SAMPLE PREVIEW
+              </span>
+            </div>
+          )}
+
           {/* Event Header & Badges */}
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2.5">
-              <span className="px-3 py-1 rounded-full text-xs font-mono tracking-wider uppercase font-bold bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 shadow-sm">
+              <span className="px-3 py-1 rounded-full text-xs font-mono tracking-wider uppercase font-bold bg-amber-400/10 border border-amber-400/30 text-amber-300 shadow-sm">
                 {event.category}
               </span>
 
               <span
                 className={`px-3 py-1 rounded-full text-xs font-mono tracking-wider uppercase font-bold ${
                   event.status === "Live"
-                    ? "bg-red-500/20 text-red-300 border border-red-500/40 animate-pulse"
+                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse"
                     : event.status === "Upcoming"
-                    ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
+                    ? "bg-amber-400/15 text-amber-300 border border-amber-400/35"
                     : event.status === "Completed"
                     ? "bg-slate-700/40 text-slate-400 border border-slate-600/30"
                     : "bg-amber-500/20 text-amber-300 border border-amber-500/40"
                 }`}
               >
-                {event.status}
+                {isDummy ? "DUMMY PREVIEW" : event.status}
               </span>
 
               <span className="px-2.5 py-1 rounded-full text-xs font-mono bg-white/[0.04] border border-white/10 text-slate-300">
@@ -207,7 +236,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
               </span>
 
               {displayImages.length > 1 && (
-                <span className="px-2.5 py-1 rounded-full text-xs font-mono bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 flex items-center gap-1">
+                <span className="px-2.5 py-1 rounded-full text-xs font-mono bg-amber-950/60 border border-amber-500/30 text-amber-300 flex items-center gap-1">
                   <span>📷</span>
                   <span>{displayImages.length} Photos</span>
                 </span>
@@ -228,10 +257,10 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
           {/* Quick Info & Registration Grid */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
             {/* Left Quick Facts Card (8 cols) */}
-            <div className="md:col-span-8 p-6 rounded-3xl bg-[#0b101c] border border-white/10 space-y-4">
+            <div className="md:col-span-8 p-6 rounded-3xl bg-[#0a0a0a] border border-white/10 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
                 <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
-                  <Calendar className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
+                  <Calendar className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                   <div>
                     <span className="text-slate-400 block text-[10px] uppercase">Date & Schedule</span>
                     <span className="font-bold text-white text-sm">{event.date}</span>
@@ -240,7 +269,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                 </div>
 
                 <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
-                  <MapPin className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
+                  <MapPin className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                   <div>
                     <span className="text-slate-400 block text-[10px] uppercase">Venue & Campus</span>
                     <span className="font-bold text-white text-sm">{event.venue}</span>
@@ -249,7 +278,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                 </div>
 
                 <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
-                  <Building className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
+                  <Building className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                   <div>
                     <span className="text-slate-400 block text-[10px] uppercase">Organized By</span>
                     <span className="font-bold text-white text-sm">{event.organizer || "Cyber Cell SATI"}</span>
@@ -258,7 +287,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                 </div>
 
                 <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
-                  <Users className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
+                  <Users className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                   <div>
                     <span className="text-slate-400 block text-[10px] uppercase">Eligibility / Capacity</span>
                     <span className="font-bold text-white text-sm">
@@ -276,7 +305,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                   {event.tags.map((tag, tIdx) => (
                     <span
                       key={tIdx}
-                      className="px-2.5 py-0.5 rounded-lg text-xs font-mono bg-cyan-500/[0.06] border border-cyan-500/20 text-cyan-300"
+                      className="px-2.5 py-0.5 rounded-lg text-xs font-mono bg-amber-400/10 border border-amber-400/25 text-amber-300"
                     >
                       #{tag}
                     </span>
@@ -286,16 +315,22 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
             </div>
 
             {/* Right Action CTA Card (4 cols) */}
-            <div className="md:col-span-4 p-6 rounded-3xl bg-gradient-to-b from-[#0c1424] to-[#070b14] border-2 border-cyan-500/30 flex flex-col justify-between space-y-4 shadow-xl">
+            <div className="md:col-span-4 p-6 rounded-3xl bg-gradient-to-b from-[#140f06] to-[#090703] border-2 border-amber-400/30 flex flex-col justify-between space-y-4 shadow-xl">
               <div className="space-y-2">
-                <span className="text-[10px] font-mono uppercase tracking-widest text-cyan-400 block font-semibold">
+                <span className="text-[10px] font-mono uppercase tracking-widest text-amber-400 block font-semibold">
                   CANDIDATE ADMISSION
                 </span>
                 <h3 className="text-lg font-black text-white tracking-tight">
-                  {event.status === "Completed" ? "Event Concluded" : "Register For Event"}
+                  {isDummy
+                    ? "Dummy Event Preview"
+                    : event.status === "Completed"
+                    ? "Event Concluded"
+                    : "Register For Event"}
                 </h3>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  {event.status === "Completed"
+                  {isDummy
+                    ? "This is a placeholder dummy event to demonstrate event page layouts. Registration is closed."
+                    : event.status === "Completed"
                     ? "This event has concluded. Check out our upcoming schedule or archive photos below."
                     : event.registrationLink
                     ? "Fill the official registration form to reserve your seat and lab workstation."
@@ -304,12 +339,16 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
               </div>
 
               <div className="space-y-2 pt-2">
-                {event.registrationLink && event.status !== "Completed" ? (
+                {isDummy ? (
+                  <div className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-amber-400/15 border border-amber-400/30 text-amber-300 font-mono font-bold text-xs uppercase tracking-wider cursor-default">
+                    <span>⚠️ Dummy Event (Sample)</span>
+                  </div>
+                ) : event.registrationLink && event.status !== "Completed" ? (
                   <a
                     href={event.registrationLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-sm font-mono shadow-lg shadow-cyan-500/25 active:scale-95 transition-all"
+                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-sm font-mono shadow-lg shadow-amber-400/25 active:scale-95 transition-all"
                   >
                     <span>Register Now</span>
                     <ExternalLink className="w-4 h-4" />
@@ -337,7 +376,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
             <div className="space-y-4 pt-4">
               <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
                 <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-cyan-400" />
+                  <Sparkles className="w-5 h-5 text-amber-400" />
                   <span>Event Posters & Photo Gallery</span>
                 </h2>
                 <span className="text-xs font-mono text-slate-400">
@@ -363,7 +402,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
 
                   <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs font-mono text-white pointer-events-none">
-                    <span className="px-3 py-1 rounded-xl bg-black/70 backdrop-blur border border-white/20 text-cyan-300">
+                    <span className="px-3 py-1 rounded-xl bg-black/70 backdrop-blur border border-white/20 text-amber-300">
                       Primary Poster
                     </span>
                     <span className="px-3 py-1 rounded-xl bg-black/70 backdrop-blur border border-white/20 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -381,8 +420,8 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                         onClick={() => setLightboxIndex(idx)}
                         className={`relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-900 border cursor-pointer group transition-all ${
                           idx === 0
-                            ? "border-cyan-400/50 ring-1 ring-cyan-400/30"
-                            : "border-white/10 hover:border-cyan-400/50"
+                            ? "border-amber-400/60 ring-1 ring-amber-400/40"
+                            : "border-white/10 hover:border-amber-400/50"
                         }`}
                       >
                         <Image
@@ -395,7 +434,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
 
                         {idx === 0 && (
-                          <span className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-mono bg-black/70 border border-white/20 text-cyan-300 font-bold">
+                          <span className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded text-[9px] font-mono bg-black/70 border border-white/20 text-amber-300 font-bold">
                             COVER
                           </span>
                         )}
@@ -417,9 +456,9 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
           <div className="space-y-8 pt-6 border-t border-white/[0.08]">
             {/* Long Description / In-Depth Details */}
             {event.longDescription && (
-              <div className="p-6 sm:p-8 rounded-3xl bg-[#0a0e16] border border-white/10 space-y-4">
+              <div className="p-6 sm:p-8 rounded-3xl bg-[#090703] border border-white/10 space-y-4">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-cyan-400" />
+                  <Layers className="w-5 h-5 text-amber-400" />
                   <span>About This Session</span>
                 </h2>
                 <div className="text-sm text-slate-300 leading-relaxed whitespace-pre-line font-sans space-y-3">
@@ -432,7 +471,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
             {(event.prerequisites || event.toolsRequired) && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {event.prerequisites && (
-                  <div className="p-6 rounded-3xl bg-[#0a0e16] border border-white/10 space-y-3">
+                  <div className="p-6 rounded-3xl bg-[#090703] border border-white/10 space-y-3">
                     <h3 className="text-base font-bold text-white flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                       <span>Prerequisites</span>
@@ -444,9 +483,9 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                 )}
 
                 {event.toolsRequired && (
-                  <div className="p-6 rounded-3xl bg-[#0a0e16] border border-white/10 space-y-3">
+                  <div className="p-6 rounded-3xl bg-[#090703] border border-white/10 space-y-3">
                     <h3 className="text-base font-bold text-white flex items-center gap-2">
-                      <Laptop className="w-4 h-4 text-cyan-400" />
+                      <Laptop className="w-4 h-4 text-amber-400" />
                       <span>Tools & Software Required</span>
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-line">
@@ -465,12 +504,12 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
             <div className="space-y-4 pt-10 border-t border-white/[0.08]">
               <div className="flex items-center justify-between pb-2">
                 <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-cyan-400" />
+                  <Calendar className="w-5 h-5 text-amber-400" />
                   <span>More Events on Campus</span>
                 </h2>
                 <Link
                   href="/events"
-                  className="text-xs font-mono text-cyan-400 hover:text-cyan-300"
+                  className="text-xs font-mono text-amber-400 hover:text-amber-300"
                 >
                   View All &rarr;
                 </Link>
@@ -481,15 +520,15 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                   <Link
                     key={evt.id}
                     href={`/events/${evt.id}`}
-                    className="p-5 rounded-2xl bg-[#0a0e16] border border-white/[0.08] hover:border-cyan-500/40 transition-colors group space-y-2 block"
+                    className="p-5 rounded-2xl bg-[#090703] border border-white/[0.08] hover:border-amber-400/40 transition-colors group space-y-2 block"
                   >
-                    <div className="flex items-center justify-between text-xs font-mono text-cyan-400">
+                    <div className="flex items-center justify-between text-xs font-mono text-amber-400">
                       <span>{evt.date}</span>
                       <span className="px-2 py-0.5 rounded bg-white/[0.05] text-[10px] text-slate-300">
                         {evt.category}
                       </span>
                     </div>
-                    <h4 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors line-clamp-1">
+                    <h4 className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors line-clamp-1">
                       {evt.title}
                     </h4>
                     <p className="text-xs text-slate-400 line-clamp-2">
@@ -518,7 +557,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
           >
             {/* Top Bar */}
             <div className="w-full flex items-center justify-between text-xs font-mono text-slate-400 pb-3">
-              <span className="px-3 py-1 rounded-full bg-white/[0.08] border border-white/15 text-cyan-300">
+              <span className="px-3 py-1 rounded-full bg-white/[0.08] border border-white/15 text-amber-300">
                 Photo {lightboxIndex + 1} of {displayImages.length}
               </span>
 
@@ -583,7 +622,7 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                     onClick={() => setLightboxIndex(idx)}
                     className={`relative w-14 h-10 rounded-xl overflow-hidden shrink-0 border transition-all ${
                       idx === lightboxIndex
-                        ? "border-cyan-400 ring-2 ring-cyan-400/50 scale-105"
+                        ? "border-amber-400 ring-2 ring-amber-400/50 scale-105"
                         : "border-white/20 opacity-60 hover:opacity-100"
                     }`}
                   >
