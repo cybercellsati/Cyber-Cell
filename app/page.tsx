@@ -2,9 +2,9 @@ import React from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import AboutSection from "@/components/AboutSection";
-import FocusAreas from "@/components/FocusAreas";
-import LearningRoadmap from "@/components/LearningRoadmap";
 import ProjectsSection from "@/components/ProjectsSection";
+import LearningRoadmap from "@/components/LearningRoadmap";
+import FocusAreas from "@/components/FocusAreas";
 import ResourceVault from "@/components/ResourceVault";
 import TerminalDemo from "@/components/TerminalDemo";
 import Footer from "@/components/Footer";
@@ -24,25 +24,25 @@ export default function Home() {
       {/* 2. Hero Section (UNTOUCHED & PRESERVED) */}
       <Hero />
 
-      {/* 3. About Cyber Cell */}
+      {/* 3. Reference-Inspired Telemetry, Angled Charter, & 3-Column Sentinel Matrix */}
       <AboutSection />
 
-      {/* 4. Specialized Focus Areas */}
-      <FocusAreas />
-
-      {/* 5. Cybersecurity Learning Roadmap */}
-      <LearningRoadmap />
-
-      {/* 6. Engineering & Projects */}
+      {/* 4. Leadership Spotlight & Operational Field Reports (Reviews & News Split) */}
       <ProjectsSection />
 
-      {/* 8. Curated Resource Vault */}
+      {/* 5. 6-Stage Security Mastery Tiers (Row of Shield / Ribbon Cards) */}
+      <LearningRoadmap />
+
+      {/* 6. Specialized Trending Top 5 Focus Areas (Horizontal Scroll Deck) */}
+      <FocusAreas />
+
+      {/* 7. Curated Resource Vault */}
       <ResourceVault />
 
-      {/* 9. Interactive Simulated Shell */}
+      {/* 8. Interactive Simulated Shell */}
       <TerminalDemo />
 
-      {/* 10. Comprehensive Official Footer */}
+      {/* 9. Comprehensive Official Footer */}
       <Footer />
     </main>
   );
