@@ -13,17 +13,16 @@ import {
   Shield,
   Award,
   Sparkles,
-  Play,
-  Pause,
   Layers,
   ArrowDown,
+  MousePointer,
 } from "lucide-react";
 
 // Social SVG Icons
 function LinkedInIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
     <svg className={`${className} fill-current`} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45c-.91 0-1.64.73-1.64 1.64s.73 1.64 1.64 1.64 1.64-.73 1.64-1.64Z" />
+      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45c-.91 0-1.64.73-1.64 1.64s.73 1.64 1.64 1.64 1.64-.73 1.64-1.64-.73-1.64-1.64-1.64Z" />
     </svg>
   );
 }
@@ -191,15 +190,13 @@ const teamMembers: TeamMember[] = [
 
 export default function TeamPage() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [progress, setProgress] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-  // References for timing & gestures
-  const isInitialRef = useRef(true);
-  const elapsedRef = useRef(0);
-  const lastTimeRef = useRef<number | null>(null);
+  // Reference for sticky scroll track container
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const touchStartXRef = useRef<number | null>(null);
+  const touchStartYRef = useRef<number | null>(null);
 
   const N = teamMembers.length;
   const activeMember = teamMembers[activeIndex];
@@ -209,7 +206,7 @@ export default function TeamPage() {
   const firstName = nameParts[0] || "";
   const lastName = nameParts.slice(1).join(" ") || "";
 
-  // Responsive step calculation
+  // Responsive check
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 1024);
@@ -219,112 +216,100 @@ export default function TeamPage() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Helper to change member and reset timer
-  const selectMember = useCallback((index: number, pause: boolean = true) => {
-    if (pause) setIsPlaying(false);
-    isInitialRef.current = false;
-    elapsedRef.current = 0;
-    setProgress(0);
-    lastTimeRef.current = null;
-    setActiveIndex(index);
-  }, []);
-
-  const nextMember = useCallback(() => {
-    selectMember((activeIndex + 1) % N, true);
-  }, [activeIndex, N, selectMember]);
-
-  const prevMember = useCallback(() => {
-    selectMember((activeIndex - 1 + N) % N, true);
-  }, [activeIndex, N, selectMember]);
-
-  const togglePlay = () => {
-    setIsPlaying((prev) => {
-      const nextState = !prev;
-      if (nextState) {
-        lastTimeRef.current = null;
+  // Smoothly scroll window to target member's scroll section
+  const scrollToMember = useCallback(
+    (idx: number) => {
+      if (!scrollContainerRef.current) {
+        setActiveIndex(idx);
+        return;
       }
-      return nextState;
-    });
-  };
+      const container = scrollContainerRef.current;
+      const rect = container.getBoundingClientRect();
+      const currentScrollY = window.scrollY;
+      const containerTop = currentScrollY + rect.top;
+      const scrollableDistance = container.offsetHeight - window.innerHeight;
+      if (scrollableDistance <= 0) {
+        setActiveIndex(idx);
+        return;
+      }
+      const targetProgress = (idx + 0.35) / N;
+      const targetY = containerTop + targetProgress * scrollableDistance;
+      window.scrollTo({ top: targetY, behavior: "smooth" });
+    },
+    [N]
+  );
+
+  const handleNext = useCallback(() => {
+    scrollToMember(Math.min(N - 1, activeIndex + 1));
+  }, [activeIndex, N, scrollToMember]);
+
+  const handlePrev = useCallback(() => {
+    scrollToMember(Math.max(0, activeIndex - 1));
+  }, [activeIndex, scrollToMember]);
 
   const scrollToDossier = (e: React.MouseEvent) => {
     e.preventDefault();
     document.getElementById("dossier")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Touch Swipe Gesture Handlers
+  // Scroll listener: Drives active card and progress directly via native scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!scrollContainerRef.current) return;
+      const rect = scrollContainerRef.current.getBoundingClientRect();
+      const scrollableDistance = scrollContainerRef.current.offsetHeight - window.innerHeight;
+      if (scrollableDistance <= 0) return;
+
+      // Fraction of scroll inside pinned track (0 to 1)
+      const rawProgress = -rect.top / scrollableDistance;
+      const progress = Math.min(Math.max(rawProgress, 0), 1);
+      setScrollProgress(progress);
+
+      // Map progress to active member index (0 to N-1)
+      const targetIndex = Math.min(Math.floor(progress * N), N - 1);
+      setActiveIndex(targetIndex);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [N]);
+
+  // Touch Swipe Gesture Handlers for mobile horizontal flick
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartXRef.current = e.touches[0].clientX;
+    touchStartYRef.current = e.touches[0].clientY;
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartXRef.current === null) return;
+    if (touchStartXRef.current === null || touchStartYRef.current === null) return;
     const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
+    const deltaY = e.changedTouches[0].clientY - touchStartYRef.current;
     touchStartXRef.current = null;
-    if (Math.abs(deltaX) > 40) {
+    touchStartYRef.current = null;
+
+    // Only trigger horizontal step if horizontal motion exceeds vertical
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.4) {
       if (deltaX < 0) {
-        nextMember();
+        handleNext();
       } else {
-        prevMember();
+        handlePrev();
       }
     }
   };
 
-  // Auto-advance loop with requestAnimationFrame
-  // 10,000ms (10s) for initial Convenor view, 5,000ms (5s) for all subsequent cards
-  useEffect(() => {
-    let animId: number;
-
-    if (!isPlaying) {
-      lastTimeRef.current = null;
-      return;
-    }
-
-    const currentDuration = isInitialRef.current && activeIndex === 0 ? 10000 : 5000;
-
-    const step = (now: number) => {
-      if (lastTimeRef.current === null) {
-        lastTimeRef.current = now;
-      }
-      const delta = now - lastTimeRef.current;
-      lastTimeRef.current = now;
-
-      elapsedRef.current += delta;
-      const pct = Math.min(100, (elapsedRef.current / currentDuration) * 100);
-      setProgress(pct);
-
-      if (elapsedRef.current >= currentDuration) {
-        isInitialRef.current = false;
-        elapsedRef.current = 0;
-        lastTimeRef.current = null;
-        setProgress(0);
-        setActiveIndex((prev) => (prev + 1) % N);
-      } else {
-        animId = requestAnimationFrame(step);
-      }
-    };
-
-    animId = requestAnimationFrame(step);
-    return () => {
-      cancelAnimationFrame(animId);
-    };
-  }, [isPlaying, activeIndex, N]);
-
-  // Keyboard arrow navigation
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") {
-        prevMember();
-      } else if (e.key === "ArrowRight") {
-        nextMember();
-      } else if (e.key === " ") {
-        e.preventDefault();
-        togglePlay();
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        handlePrev();
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        handleNext();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [nextMember, prevMember]);
+  }, [handleNext, handlePrev]);
 
   // Card slide translation step
   const cardStep = isMobile ? 230 : 280;
@@ -334,272 +319,249 @@ export default function TeamPage() {
       {/* Sticky Glass Navbar */}
       <Navbar />
 
-      <main className="flex-1 flex flex-col w-full select-none relative pt-16 sm:pt-20">
+      <main className="flex-1 flex flex-col w-full select-none relative">
         {/* ========================================================
-            1. CINEMATIC SPLIT HERO SLIDER (AWWWARDS / EDITORIAL)
-            Matching media_1792557984653_89df2771.png
+            1. PINNED SCROLL HERO TRACK (SCROLL-DRIVEN CARDS)
+            Auto-change removed; scrolling drives the cards seamlessly!
            ======================================================== */}
-        <section
-          className="relative w-full min-h-[740px] sm:min-h-[780px] lg:h-[88vh] lg:min-h-[640px] lg:max-h-[950px] overflow-hidden flex flex-col justify-between"
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
-          {/* Background Cross-Fade Portals */}
-          <div className="absolute inset-0 z-0 overflow-hidden">
-            {teamMembers.map((member, idx) => (
-              <div
-                key={member.id}
-                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                  idx === activeIndex
-                    ? "opacity-100 scale-100"
-                    : "opacity-0 scale-105 pointer-events-none"
-                } transition-transform duration-1000`}
-              >
-                <Image
-                  src={member.image}
-                  alt={member.name}
-                  fill
-                  priority={idx === 0}
-                  sizes="100vw"
-                  className="object-cover object-top lg:object-center filter brightness-[0.32] contrast-[1.12] blur-[1px]"
-                />
-              </div>
-            ))}
-
-            {/* Cinematic Gradient Scrims for Text Legibility */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 lg:via-black/70 to-black/30 pointer-events-none" />
-            <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#030303] via-[#030303]/80 to-transparent pointer-events-none" />
-            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/80 to-transparent pointer-events-none" />
-            <div className="absolute -top-24 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-[140px] pointer-events-none" />
-          </div>
-
-          {/* Main Two-Column Split Content Area */}
-          <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-10 lg:px-14 flex-1 flex flex-col lg:flex-row items-center justify-center lg:justify-between pt-6 pb-24 sm:pb-20">
+        <div ref={scrollContainerRef} className="relative h-[340vh]">
+          {/* Pinned Viewport Container */}
+          <div className="sticky top-0 h-[100dvh] w-full overflow-hidden flex flex-col justify-between pt-16 sm:pt-20">
             
-            {/* ========================================================
-                LEFT COLUMN: Active Member Hero Story
-               ======================================================== */}
-            <div className="w-full lg:w-[48%] flex flex-col justify-center text-left py-4 z-20">
-              
-              {/* Eyebrow with horizontal line: e.g. — FOUNDER & CONVENOR */}
-              <div className="flex items-center gap-3 mb-3 sm:mb-4">
-                <span className="w-8 sm:w-12 h-[2px] bg-amber-400" />
-                <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-amber-400 font-bold">
-                  {activeMember.role}
-                </span>
-              </div>
-
-              {/* Giant Condensed Editorial Typography */}
-              <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-8xl xl:text-9xl font-black uppercase tracking-tight text-white leading-[0.88] drop-shadow-2xl">
-                <span className="block text-white tracking-tight">{firstName}</span>
-                <span className="block text-slate-200 tracking-tight">{lastName}</span>
-              </h1>
-
-              {/* Concise Narrative Bio Snippet */}
-              <p className="text-xs sm:text-sm lg:text-base text-slate-300 font-light leading-relaxed max-w-md mt-4 sm:mt-5 drop-shadow-md line-clamp-3 sm:line-clamp-none">
-                {activeMember.bio}
-              </p>
-
-              {/* Action Buttons Row */}
-              <div className="flex items-center gap-3 sm:gap-4 mt-6 sm:mt-8">
-                {/* Shield / Bookmark pill */}
-                <a
-                  href={activeMember.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 hover:border-amber-400/80 backdrop-blur-md flex items-center justify-center text-white hover:text-amber-400 transition-all active:scale-95 shadow-lg group cursor-pointer"
-                  title="View LinkedIn Profile"
+            {/* Background Cross-Fade Portals */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+              {teamMembers.map((member, idx) => (
+                <div
+                  key={member.id}
+                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                    idx === activeIndex
+                      ? "opacity-100 scale-100"
+                      : "opacity-0 scale-105 pointer-events-none"
+                  } transition-transform duration-700`}
                 >
-                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 group-hover:scale-110 transition-transform" />
-                </a>
+                  <Image
+                    src={member.image}
+                    alt={member.name}
+                    fill
+                    priority={idx === 0}
+                    sizes="100vw"
+                    className="object-cover object-top lg:object-center filter brightness-[0.32] contrast-[1.12] blur-[1px]"
+                  />
+                </div>
+              ))}
 
-                {/* Primary Explore Dossier Button */}
-                <button
-                  type="button"
-                  onClick={scrollToDossier}
-                  className="inline-flex items-center gap-2.5 sm:gap-3 px-5 sm:px-7 py-3 sm:py-3.5 rounded-full bg-white text-black hover:bg-amber-400 hover:text-black font-mono font-bold text-[11px] sm:text-xs uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.15)] group cursor-pointer"
-                >
-                  <span>Explore Dossier</span>
-                  <ArrowDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-y-0.5 transition-transform" />
-                </button>
+              {/* Cinematic Gradient Scrims for Text Legibility */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 lg:via-black/70 to-black/30 pointer-events-none" />
+              <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#030303] via-[#030303]/80 to-transparent pointer-events-none" />
+              <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/80 to-transparent pointer-events-none" />
+              <div className="absolute -top-24 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-[140px] pointer-events-none" />
+            </div>
 
-                {/* Mobile Hint Pill */}
-                <div className="lg:hidden ml-auto">
-                  <span className="text-[10px] font-mono text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/20">
-                    {activeMember.categoryBadge}
+            {/* Main Two-Column Split Content Area */}
+            <div
+              className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-10 lg:px-14 flex-1 flex flex-col lg:flex-row items-center justify-center lg:justify-between pt-4 pb-20 sm:pb-24"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
+              {/* ========================================================
+                  LEFT COLUMN: Active Member Hero Story
+                 ======================================================== */}
+              <div className="w-full lg:w-[48%] flex flex-col justify-center text-left py-4 z-20">
+                {/* Eyebrow with horizontal line: e.g. — FOUNDER & CONVENOR */}
+                <div className="flex items-center gap-3 mb-3 sm:mb-4">
+                  <span className="w-8 sm:w-12 h-[2px] bg-amber-400" />
+                  <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-amber-400 font-bold">
+                    {activeMember.role}
                   </span>
+                </div>
+
+                {/* Giant Condensed Editorial Typography */}
+                <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-8xl xl:text-9xl font-black uppercase tracking-tight text-white leading-[0.88] drop-shadow-2xl">
+                  <span className="block text-white tracking-tight">{firstName}</span>
+                  <span className="block text-slate-200 tracking-tight">{lastName}</span>
+                </h1>
+
+                {/* Concise Narrative Bio Snippet */}
+                <p className="text-xs sm:text-sm lg:text-base text-slate-300 font-light leading-relaxed max-w-md mt-4 sm:mt-5 drop-shadow-md line-clamp-3 sm:line-clamp-none">
+                  {activeMember.bio}
+                </p>
+
+                {/* Action Buttons Row */}
+                <div className="flex items-center gap-3 sm:gap-4 mt-6 sm:mt-8">
+                  {/* Shield / Bookmark pill */}
+                  <a
+                    href={activeMember.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 hover:border-amber-400/80 backdrop-blur-md flex items-center justify-center text-white hover:text-amber-400 transition-all active:scale-95 shadow-lg group cursor-pointer"
+                    title="View LinkedIn Profile"
+                  >
+                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 group-hover:scale-110 transition-transform" />
+                  </a>
+
+                  {/* Primary Explore Dossier Button */}
+                  <button
+                    type="button"
+                    onClick={scrollToDossier}
+                    className="inline-flex items-center gap-2.5 sm:gap-3 px-5 sm:px-7 py-3 sm:py-3.5 rounded-full bg-white text-black hover:bg-amber-400 hover:text-black font-mono font-bold text-[11px] sm:text-xs uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.15)] group cursor-pointer"
+                  >
+                    <span>Explore Dossier</span>
+                    <ArrowDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-y-0.5 transition-transform" />
+                  </button>
+
+                  {/* Mobile Hint Pill */}
+                  <div className="lg:hidden ml-auto">
+                    <span className="text-[10px] font-mono text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/20">
+                      {activeMember.categoryBadge}
+                    </span>
+                  </div>
                 </div>
               </div>
 
+              {/* ========================================================
+                  RIGHT COLUMN: Floating Cards Strip
+                  Driven smoothly as user scrolls or clicks!
+                 ======================================================== */}
+              <div className="w-full lg:w-[52%] h-full flex items-center mt-6 lg:mt-0 relative overflow-hidden pl-0 lg:pl-6">
+                {/* Horizontal Slider Track with smooth offset */}
+                <div
+                  className="flex items-center gap-4 sm:gap-5 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] py-4"
+                  style={{
+                    transform: `translateX(-${activeIndex * cardStep}px)`,
+                  }}
+                >
+                  {teamMembers.map((member, i) => {
+                    const isCurrent = i === activeIndex;
+                    return (
+                      <div
+                        key={member.id}
+                        onClick={() => scrollToMember(i)}
+                        className={`relative w-[210px] sm:w-[260px] h-[310px] sm:h-[390px] rounded-[24px] sm:rounded-[28px] overflow-hidden shrink-0 cursor-pointer transition-all duration-500 group select-none ${
+                          isCurrent
+                            ? "ring-2 ring-amber-400 border-transparent shadow-[0_20px_50px_rgba(245,158,11,0.25)] scale-[1.02]"
+                            : "border border-white/10 hover:border-white/35 opacity-70 hover:opacity-100 hover:scale-[1.01] bg-[#080808]"
+                        }`}
+                      >
+                        {/* Member Portrait */}
+                        <Image
+                          src={member.image}
+                          alt={member.name}
+                          fill
+                          sizes="(max-width: 640px) 210px, 260px"
+                          className="object-cover object-top transition-transform duration-700 group-hover:scale-105 pointer-events-none"
+                        />
+
+                        {/* Scrim Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
+
+                        {/* Top Right Index Badge: e.g. 01 / 07 */}
+                        <div className="absolute top-3 right-3 z-10">
+                          <div className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-mono font-bold tracking-wider text-white shadow-sm flex items-center gap-1">
+                            <span className={isCurrent ? "text-amber-400" : "text-white"}>
+                              {String(i + 1).padStart(2, "0")}
+                            </span>
+                            <span className="text-slate-500">/</span>
+                            <span className="text-slate-400">{String(N).padStart(2, "0")}</span>
+                          </div>
+                        </div>
+
+                        {/* Active Status Badge */}
+                        {isCurrent && (
+                          <div className="absolute top-3 left-3 z-10">
+                            <span className="px-2 py-0.5 rounded-full bg-amber-400 text-black font-mono font-bold text-[9px] tracking-wider uppercase flex items-center gap-1 shadow-sm">
+                              <span className="w-1.5 h-1.5 rounded-full bg-black animate-ping" />
+                              Active
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Bottom Info: Category Bar & Bold Name */}
+                        <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 z-10 flex flex-col justify-end text-left pointer-events-none">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <span className="w-3.5 h-[1.5px] bg-amber-400" />
+                            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-400 font-bold">
+                              {member.categoryBadge}
+                            </span>
+                          </div>
+
+                          <h3 className="text-lg sm:text-xl font-black text-white tracking-tight uppercase leading-snug drop-shadow-md">
+                            {member.name}
+                          </h3>
+
+                          <p className="text-[11px] text-slate-300 font-mono mt-0.5 drop-shadow-sm truncate">
+                            {member.role}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
 
             {/* ========================================================
-                RIGHT COLUMN: Floating Cards Strip
-                Matching reference mockup: Rounded cards with thumb, category, name
+                BOTTOM CONTROLS & SCROLL PROGRESS DOCK
+                Auto-play removed; user scroll drives the indicator!
                ======================================================== */}
-            <div className="w-full lg:w-[52%] h-full flex items-center mt-6 lg:mt-0 relative overflow-hidden pl-0 lg:pl-6">
-              
-              {/* Horizontal Slider Track with smooth offset */}
-              <div
-                className="flex items-center gap-4 sm:gap-5 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] py-4"
-                style={{
-                  transform: `translateX(-${activeIndex * cardStep}px)`,
-                }}
-              >
-                {teamMembers.map((member, i) => {
-                  const isCurrent = i === activeIndex;
-                  return (
-                    <div
-                      key={member.id}
-                      onClick={() => selectMember(i, true)}
-                      className={`relative w-[210px] sm:w-[260px] h-[310px] sm:h-[390px] rounded-[24px] sm:rounded-[28px] overflow-hidden shrink-0 cursor-pointer transition-all duration-500 group select-none ${
-                        isCurrent
-                          ? "ring-2 ring-amber-400 border-transparent shadow-[0_20px_50px_rgba(245,158,11,0.25)] scale-[1.02]"
-                          : "border border-white/10 hover:border-white/35 opacity-70 hover:opacity-100 hover:scale-[1.01] bg-[#080808]"
-                      }`}
-                    >
-                      {/* Member Portrait */}
-                      <Image
-                        src={member.image}
-                        alt={member.name}
-                        fill
-                        sizes="(max-width: 640px) 210px, 260px"
-                        className="object-cover object-top transition-transform duration-700 group-hover:scale-105 pointer-events-none"
-                      />
+            <div className="absolute bottom-4 sm:bottom-6 inset-x-0 px-4 sm:px-10 lg:px-14 z-30 flex items-center justify-between">
+              {/* Left Controls: Prev, Next & Scroll Guide Badge */}
+              <div className="flex items-center gap-2 sm:gap-3">
+                {/* Prev Button */}
+                <button
+                  type="button"
+                  onClick={handlePrev}
+                  aria-label="Previous member"
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 hover:border-amber-400 text-white hover:text-amber-400 flex items-center justify-center backdrop-blur-md transition-all active:scale-95 shadow-lg cursor-pointer"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
 
-                      {/* Scrim Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
+                {/* Next Button */}
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  aria-label="Next member"
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 hover:border-amber-400 text-white hover:text-amber-400 flex items-center justify-center backdrop-blur-md transition-all active:scale-95 shadow-lg cursor-pointer"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
 
-                      {/* Top Right Index Badge: e.g. 01 / 07 */}
-                      <div className="absolute top-3 right-3 z-10">
-                        <div className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-mono font-bold tracking-wider text-white shadow-sm flex items-center gap-1">
-                          <span className={isCurrent ? "text-amber-400" : "text-white"}>
-                            {String(i + 1).padStart(2, "0")}
-                          </span>
-                          <span className="text-slate-500">/</span>
-                          <span className="text-slate-400">{String(N).padStart(2, "0")}</span>
-                        </div>
-                      </div>
-
-                      {/* Active Status Badge */}
-                      {isCurrent && (
-                        <div className="absolute top-3 left-3 z-10">
-                          <span className="px-2 py-0.5 rounded-full bg-amber-400 text-black font-mono font-bold text-[9px] tracking-wider uppercase flex items-center gap-1 shadow-sm">
-                            <span className="w-1.5 h-1.5 rounded-full bg-black animate-ping" />
-                            Active
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Bottom Info: Category Bar & Bold Name */}
-                      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 z-10 flex flex-col justify-end text-left pointer-events-none">
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <span className="w-3.5 h-[1.5px] bg-amber-400" />
-                          <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-400 font-bold">
-                            {member.categoryBadge}
-                          </span>
-                        </div>
-
-                        <h3 className="text-lg sm:text-xl font-black text-white tracking-tight uppercase leading-snug drop-shadow-md">
-                          {member.name}
-                        </h3>
-
-                        <p className="text-[11px] text-slate-300 font-mono mt-0.5 drop-shadow-sm truncate">
-                          {member.role}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
+                {/* Scroll Guide Indicator */}
+                <div className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 border border-white/20 backdrop-blur-md text-[11px] font-mono text-slate-300 shadow-lg">
+                  <MousePointer className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Scroll down to navigate</span>
+                </div>
               </div>
 
-            </div>
+              {/* Center: Linear Scroll Progress Bar Indicator */}
+              <div className="flex-1 max-w-[100px] sm:max-w-xs md:max-w-md mx-3 sm:mx-8">
+                <div className="relative w-full h-[2px] sm:h-[3px] bg-white/20 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.9)] transition-all duration-150 ease-out"
+                    style={{ width: `${Math.max(8, scrollProgress * 100)}%` }}
+                  />
+                </div>
+              </div>
 
-          </div>
-
-          {/* ========================================================
-              BOTTOM CONTROLS & LINEAR PROGRESS DOCK
-              Matching reference mockup: < > buttons, progress bar, counter
-             ======================================================== */}
-          <div className="absolute bottom-4 sm:bottom-6 inset-x-0 px-4 sm:px-10 lg:px-14 z-30 flex items-center justify-between">
-            
-            {/* Left Controls: Prev, Next & Pause/Play */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              {/* Prev Button */}
-              <button
-                type="button"
-                onClick={prevMember}
-                aria-label="Previous member"
-                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 hover:border-amber-400 text-white hover:text-amber-400 flex items-center justify-center backdrop-blur-md transition-all active:scale-95 shadow-lg cursor-pointer"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-
-              {/* Next Button */}
-              <button
-                type="button"
-                onClick={nextMember}
-                aria-label="Next member"
-                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 hover:border-amber-400 text-white hover:text-amber-400 flex items-center justify-center backdrop-blur-md transition-all active:scale-95 shadow-lg cursor-pointer"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
-
-              {/* Play / Pause Toggle Button */}
-              <button
-                type="button"
-                onClick={togglePlay}
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 hover:border-amber-400 backdrop-blur-md text-[11px] sm:text-xs font-mono text-slate-300 hover:text-white transition-all active:scale-95 shadow-lg cursor-pointer"
-                title={isPlaying ? "Click to pause auto-scroll" : "Click to resume auto-scroll"}
-              >
-                {isPlaying ? (
-                  <>
-                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                    <Pause className="w-3.5 h-3.5 text-amber-400" />
-                    <span className="hidden sm:inline">
-                      Auto: {isInitialRef.current && activeIndex === 0 ? "10s" : "5s"}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span className="w-2 h-2 rounded-full bg-slate-500" />
-                    <Play className="w-3.5 h-3.5 text-amber-400 fill-current ml-0.5" />
-                    <span className="text-amber-300 font-semibold">Paused</span>
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Center: Linear Progress Bar Indicator */}
-            <div className="flex-1 max-w-[100px] sm:max-w-xs md:max-w-md mx-3 sm:mx-8">
-              <div className="relative w-full h-[2px] sm:h-[3px] bg-white/20 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.9)] transition-none"
-                  style={{ width: `${progress}%` }}
-                />
+              {/* Right: Counter e.g. 01 / 07 */}
+              <div className="flex items-baseline font-mono text-white">
+                <span className="text-xl sm:text-2xl lg:text-3xl font-black tracking-wider text-amber-400">
+                  {String(activeIndex + 1).padStart(2, "0")}
+                </span>
+                <span className="text-xs sm:text-sm font-semibold text-slate-400 ml-1.5">
+                  / {String(N).padStart(2, "0")}
+                </span>
               </div>
             </div>
 
-            {/* Right: Counter e.g. 01 / 07 */}
-            <div className="flex items-baseline font-mono text-white">
-              <span className="text-xl sm:text-2xl lg:text-3xl font-black tracking-wider text-amber-400">
-                {String(activeIndex + 1).padStart(2, "0")}
-              </span>
-              <span className="text-xs sm:text-sm font-semibold text-slate-400 ml-1.5">
-                / {String(N).padStart(2, "0")}
-              </span>
-            </div>
-
           </div>
-
-        </section>
+        </div>
 
         {/* ========================================================
             2. QUICK HUD PILLS DOCK
             Showing key quick attributes for the active leader
            ======================================================== */}
-        <section className="relative w-full max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 -mt-4 mb-16 px-4 z-20">
-          
+        <section className="relative w-full max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 mt-8 mb-16 px-4 z-20">
           {/* Badge 1: Role */}
           <div className="px-3.5 py-1.5 rounded-full bg-black/80 border border-white/15 backdrop-blur-xl text-[11px] font-mono text-slate-200 flex items-center gap-2 shadow-lg">
             <Shield className="w-3.5 h-3.5 text-amber-400 shrink-0" />
@@ -626,7 +588,6 @@ export default function TeamPage() {
             <Mail className="w-3.5 h-3.5 text-amber-400 shrink-0" />
             <span className="truncate max-w-[140px] sm:max-w-none">{activeMember.email}</span>
           </a>
-
         </section>
 
         {/* ========================================================
@@ -634,13 +595,31 @@ export default function TeamPage() {
             Smooth scroll target from hero CTA button
            ======================================================== */}
         <section id="dossier" className="w-full max-w-6xl mx-auto px-4 mb-20 scroll-mt-24">
-          
-          {/* Header Title */}
-          <div className="flex items-center gap-2 mb-6">
-            <Layers className="w-4 h-4 text-amber-400" />
-            <span className="text-xs font-mono uppercase tracking-[0.25em] text-amber-400 font-bold">
-              Leadership Dossier &bull; Full Profile
-            </span>
+          {/* Header Title with Direct Member Selector Tabs */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-2">
+              <Layers className="w-4 h-4 text-amber-400" />
+              <span className="text-xs font-mono uppercase tracking-[0.25em] text-amber-400 font-bold">
+                Leadership Dossier &bull; Full Profile
+              </span>
+            </div>
+
+            {/* Quick Member Filter Tabs inside Dossier */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+              {teamMembers.map((m, idx) => (
+                <button
+                  key={m.id}
+                  onClick={() => setActiveIndex(idx)}
+                  className={`px-3 py-1 rounded-full text-[11px] font-mono transition-all shrink-0 cursor-pointer ${
+                    idx === activeIndex
+                      ? "bg-amber-400 text-black font-bold shadow-md shadow-amber-400/20"
+                      : "bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10"
+                  }`}
+                >
+                  {m.name.split(" ")[0]}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="relative rounded-3xl border border-white/10 bg-[#070707]/90 backdrop-blur-md p-6 sm:p-8 lg:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden transition-all duration-500">
@@ -648,7 +627,6 @@ export default function TeamPage() {
             <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-              
               {/* Left Column: Member Overview & Tags */}
               <div className="lg:col-span-5 space-y-4">
                 <span className="inline-block px-3 py-1 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold bg-amber-400/10 text-amber-400 border border-amber-400/30 shadow-sm">
@@ -727,7 +705,6 @@ export default function TeamPage() {
                 </div>
                 <div className="w-10 h-[2px] bg-amber-400/50 mt-4" />
               </div>
-
             </div>
           </div>
         </section>
@@ -737,7 +714,6 @@ export default function TeamPage() {
            ======================================================== */}
         <section className="w-full max-w-6xl mx-auto px-4 pt-8 pb-16 border-t border-white/[0.08]">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
             {/* Left Column: Heading & Mission */}
             <div className="lg:col-span-5 space-y-3">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-400 text-xs font-mono uppercase tracking-wider font-semibold">
@@ -757,7 +733,6 @@ export default function TeamPage() {
             {/* Right Column: Mentor Card */}
             <div className="lg:col-span-7">
               <div className="relative rounded-2xl border border-white/10 bg-[#070707]/90 backdrop-blur-md p-6 sm:p-7 shadow-2xl overflow-hidden flex flex-col sm:flex-row items-center sm:items-start gap-6 group">
-                
                 {/* Academic Mentorship Emblem */}
                 <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-b from-[#121008] to-[#06080d] border border-amber-400/25 flex flex-col items-center justify-center shrink-0 shadow-xl text-amber-400">
                   <GraduationCap className="w-9 h-9 mb-1 text-amber-400" />
@@ -801,13 +776,10 @@ export default function TeamPage() {
                 >
                   <ArrowUpRight className="w-4 h-4" />
                 </a>
-
               </div>
             </div>
-
           </div>
         </section>
-
       </main>
 
       {/* Global Comprehensive Footer */}
