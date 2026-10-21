@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import AdminNav from "@/components/admin/AdminNav";
 import {
   ArrowLeft,
   Upload,
@@ -51,7 +52,7 @@ const COLOR_SWATCHES = [
   { name: "Pure Black", hex: "#000000", bg: "bg-black" },
   { name: "Dark Navy", hex: "#0f172a", bg: "bg-[#0f172a]" },
   { name: "Pure White", hex: "#ffffff", bg: "bg-white" },
-  { name: "Cyber Cyan", hex: "#00e5ff", bg: "bg-[#00e5ff]" },
+  { name: "Amber Gold", hex: "#f59e0b", bg: "bg-[#f59e0b]" },
 ];
 
 export default function CleanAdminCertificatesStudio() {
@@ -354,112 +355,88 @@ export default function CleanAdminCertificatesStudio() {
     };
     reader.readAsDataURL(file);
 
+    // 2. Direct upload to Cloudinary CDN
     try {
-      // 2. Request upload signature from server with template-specific public ID
-      const safeTmplId = selectedTemplateId || `tmpl_${Date.now()}`;
       const signRes = await fetch("/api/admin/cloudinary/sign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          folder: "cybercell/templates",
-          public_id: `certificate-template-${safeTmplId}`,
-          overwrite: true,
-        }),
+        body: JSON.stringify({ folder: "cyber-cell/certificates" }),
       });
-
       const signData = await signRes.json();
-      if (!signRes.ok || !signData.success) {
-        throw new Error(
-          signData.error ||
-          "Cloudinary credentials missing. Please check CLOUDINARY_URL in environment variables."
-        );
+
+      if (!signRes.ok || !signData.signature) {
+        throw new Error(signData.error || "Failed to get Cloudinary signature");
       }
 
-      // 3. Direct client-to-Cloudinary upload
-      const cldFormData = new FormData();
-      cldFormData.append("file", file);
-      cldFormData.append("api_key", signData.apiKey);
-      cldFormData.append("timestamp", String(signData.timestamp));
-      cldFormData.append("signature", signData.signature);
-      cldFormData.append("folder", signData.folder);
-      cldFormData.append("public_id", `certificate-template-${safeTmplId}`);
-      cldFormData.append("overwrite", "true");
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("api_key", signData.apiKey);
+      formData.append("timestamp", signData.timestamp.toString());
+      formData.append("signature", signData.signature);
+      formData.append("folder", signData.folder);
 
+      const cloudName = signData.cloudName;
       const uploadRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${signData.cloudName}/image/upload`,
-        {
-          method: "POST",
-          body: cldFormData,
-        }
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        { method: "POST", body: formData }
       );
-
       const uploadData = await uploadRes.json();
+
       if (!uploadRes.ok || !uploadData.secure_url) {
-        throw new Error(uploadData.error?.message || "Cloudinary direct upload failed.");
+        throw new Error(uploadData.error?.message || "Cloudinary direct upload failed");
       }
 
-      const finalUrl = uploadData.secure_url;
-      setTemplateUrl(finalUrl);
+      const secureUrl = uploadData.secure_url;
+      setTemplateUrl(secureUrl);
 
-      // 4. Save template URL into this specific template profile
+      // Auto-save to current template profile
       await fetch("/api/admin/certificates/templates", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: selectedTemplateId,
-          templateUrl: finalUrl,
+          templateUrl: secureUrl,
           templateFileName: file.name,
-          cloudinaryPublicId: uploadData.public_id,
         }),
       });
 
-      showToast(`✓ Canva template saved to Cloudinary for "${templateDisplayName}"!`);
-    } catch (err) {
-      console.error("Template upload error:", err);
-      alert("Upload error: " + (err as Error).message);
+      showToast(`✓ Canva Template uploaded and attached to "${templateDisplayName}"!`);
+    } catch (err: any) {
+      console.error("Direct upload error:", err);
+      alert(`Upload error: ${err.message || "Failed to upload to Cloudinary."}`);
     } finally {
       setIsUploadingTemplate(false);
     }
   };
 
-  // Delete Canva Template from Cloudinary
+  // Delete Canva Template from profile
   const handleDeleteTemplate = async () => {
-    if (!confirm("Are you sure you want to remove this Canva image?")) {
-      return;
-    }
-
+    if (!confirm("Remove Canva template from this profile?")) return;
     setIsDeletingTemplate(true);
     try {
-      const res = await fetch("/api/admin/certificates/upload-template", { method: "DELETE" });
-      const data = await res.json();
-      if (data.success) {
-        setTemplateUrl("");
-        setCustomImage(null);
-        setTemplateFileName("");
+      setCustomImage(null);
+      setTemplateUrl("");
+      setTemplateFileName("");
 
-        // Also update template profile
-        await fetch("/api/admin/certificates/templates", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id: selectedTemplateId,
-            templateUrl: "",
-            templateFileName: "",
-          }),
-        });
+      await fetch("/api/admin/certificates/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: selectedTemplateId,
+          templateUrl: "",
+          templateFileName: "",
+        }),
+      });
 
-        showToast("✓ Template image cleared.");
-      } else {
-        alert("Delete error: " + data.error);
-      }
+      showToast("✓ Template cleared.");
     } catch {
-      alert("Network error while deleting template.");
+      alert("Error clearing template.");
     } finally {
       setIsDeletingTemplate(false);
     }
   };
 
-  // Upload Attendees Excel File for this specific template/event
+  // Upload Excel Roster
   const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -468,32 +445,33 @@ export default function CleanAdminCertificatesStudio() {
     try {
       const formData = new FormData();
       formData.append("excel", file);
-      formData.append("templateId", selectedTemplateId);
-      formData.append("eventName", eventTitle || templateDisplayName);
 
       const res = await fetch("/api/admin/certificates/upload-excel", {
         method: "POST",
         body: formData,
       });
-
       const data = await res.json();
+
       if (data.success) {
-        showToast(`✓ Excel uploaded successfully! ${data.rowCount} attendees added to "${templateDisplayName}".`);
-
-        if (data.attendees && Array.isArray(data.attendees) && data.attendees.length > 0) {
-          setAttendees(data.attendees);
-          setPreviewIndex(0);
+        showToast(`✓ Excel uploaded! ${data.count} attendees loaded.`);
+        // Reload attendees
+        const attRes = await fetch("/api/certificates/verify?all=true");
+        const attData = await attRes.json();
+        if (attData.certificates) {
+          setAttendees(
+            attData.certificates.map((c: any) => ({
+              name: formatStudentName(c.recipient_name),
+              scholarNumber: c.scholar_number,
+              certificateId: c.certificate_id,
+              role: c.role_or_rank || "Participant",
+            }))
+          );
         }
-
-        // Refresh template list to update attendee count badges
-        const tmplRes = await fetch("/api/admin/certificates/templates");
-        const tmplData = await tmplRes.json();
-        if (tmplData.templates) setTemplates(tmplData.templates);
       } else {
-        alert("Excel upload error: " + data.error);
+        alert("Excel upload failed: " + (data.error || "Unknown error"));
       }
-    } catch {
-      alert("Network error while uploading Excel.");
+    } catch (err) {
+      alert("Network error uploading Excel.");
     } finally {
       setIsUploadingExcel(false);
     }
@@ -546,78 +524,47 @@ export default function CleanAdminCertificatesStudio() {
     link.click();
   };
 
-  // Logout
-  const handleLogout = async () => {
-    await fetch("/api/admin/auth", { method: "DELETE" });
-    router.push("/admin/login");
-  };
-
   return (
-    <div className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-black">
-      {/* ========================================================================= */}
-      {/* Header Bar                                                                */}
-      {/* ========================================================================= */}
-      <header className="border-b border-white/[0.08] bg-[#090e1a]/80 backdrop-blur-xl sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/admin"
-              className="w-9 h-9 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
-              title="Back to Admin Dashboard"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
-            <div>
-              <h1 className="text-sm font-bold text-white tracking-wide flex items-center gap-2">
-                <span>Certificate Studio</span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
-                  Multi-Event Engine
-                </span>
-              </h1>
-              <p className="text-[11px] text-slate-400">
-                Design Canva templates and issue certificates per event
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5">
-            <Link
-              href="/verify"
-              target="_blank"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs text-slate-300 hover:text-white transition-colors font-medium"
-            >
-              <Eye className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="hidden sm:inline">View Public Portal</span>
-            </Link>
-
-            <button
-              onClick={handleLogout}
-              className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
-              title="Logout"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#030303] text-slate-100 flex flex-col font-sans selection:bg-amber-400/25 selection:text-white">
+      
+      {/* Top Header via Unified AdminNav */}
+      <AdminNav
+        currentTab="certificates"
+        extraActions={
+          <button
+            type="button"
+            onClick={handleSaveDesign}
+            disabled={isSaving}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs uppercase tracking-wider shadow-md shadow-amber-400/20 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+          >
+            {isSaving ? (
+              <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+            ) : saveSuccess ? (
+              <Check className="w-3.5 h-3.5" />
+            ) : (
+              <Save className="w-3.5 h-3.5" />
+            )}
+            <span className="hidden sm:inline">{saveSuccess ? "Saved" : "Save Profile"}</span>
+          </button>
+        }
+      />
 
       {/* Main Studio Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 w-full flex-1 space-y-6">
+        
         {/* Floating Toast Notification */}
         {toastMessage && (
-          <div className="p-3.5 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-mono flex items-center gap-2.5 shadow-xl animate-fadeIn">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="p-3.5 rounded-2xl bg-amber-400/15 border border-amber-400/40 text-amber-200 text-xs font-mono flex items-center gap-2.5 shadow-xl animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />
             <span>{toastMessage}</span>
           </div>
         )}
 
-        {/* ========================================================================= */}
-        {/* EVENT & TEMPLATE SELECTOR BAR (MULTI-EVENT PRESETS)                       */}
-        {/* ========================================================================= */}
-        <div className="bg-[#0b101c] border border-white/10 rounded-2xl p-4 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* EVENT & TEMPLATE SELECTOR BAR (MULTI-EVENT PRESETS) */}
+        <div className="bg-[#080808] border border-white/[0.08] rounded-3xl p-4 sm:p-5 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-400">
-              <Layers className="w-4 h-4 text-cyan-400" />
+            <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-slate-400 font-semibold">
+              <Layers className="w-4 h-4 text-amber-400" />
               <span>Event Template:</span>
             </div>
 
@@ -625,10 +572,10 @@ export default function CleanAdminCertificatesStudio() {
             <select
               value={selectedTemplateId}
               onChange={(e) => handleSelectTemplate(e.target.value)}
-              className="px-3.5 py-2 rounded-xl bg-white/[0.06] border border-white/15 text-white text-xs font-medium focus:border-cyan-400 focus:outline-none transition-all cursor-pointer min-w-[220px]"
+              className="px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/[0.12] text-white text-xs font-medium focus:border-amber-400 focus:outline-none transition-all cursor-pointer min-w-[220px]"
             >
               {templates.map((t) => (
-                <option key={t.id} value={t.id} className="bg-[#0b101c] text-white">
+                <option key={t.id} value={t.id} className="bg-[#0c0c0c] text-white">
                   {t.name} {t.id === activePortalTemplateId ? "★ (Active on Portal)" : ""}
                 </option>
               ))}
@@ -636,7 +583,7 @@ export default function CleanAdminCertificatesStudio() {
 
             {/* Active Status Badge */}
             {selectedTemplateId === activePortalTemplateId ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-[11px] font-mono font-semibold text-emerald-400">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-[11px] font-mono font-semibold text-emerald-400 self-start sm:self-auto">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 Active on /verify Portal
               </span>
@@ -644,7 +591,7 @@ export default function CleanAdminCertificatesStudio() {
               <button
                 type="button"
                 onClick={handleSetActivePortalTemplate}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-[11px] font-mono text-cyan-300 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 text-[11px] font-mono text-amber-300 transition-colors cursor-pointer self-start sm:self-auto"
                 title="Make this template the default for the public verification portal"
               >
                 <span>Set as Active on Portal</span>
@@ -657,17 +604,17 @@ export default function CleanAdminCertificatesStudio() {
             <button
               type="button"
               onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-bold text-xs transition-all shadow-md active:scale-95"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>+ Create Template for Next Event</span>
+              <span>+ New Event Template</span>
             </button>
 
             {templates.length > 1 && (
               <button
                 type="button"
                 onClick={handleDeleteTemplateProfile}
-                className="p-2 rounded-xl bg-white/[0.04] hover:bg-rose-500/20 border border-white/10 hover:border-rose-500/30 text-slate-400 hover:text-rose-300 transition-colors"
+                className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-amber-400/10 border border-white/10 hover:border-amber-400/30 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
                 title="Delete this template profile"
               >
                 <Trash2 className="w-4 h-4" />
@@ -677,32 +624,33 @@ export default function CleanAdminCertificatesStudio() {
         </div>
 
         {/* 2-Column Responsive Studio Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* ========================================================================= */}
-          {/* LEFT COLUMN: Large Live Canvas Preview                                    */}
-          {/* ========================================================================= */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+          
+          {/* LEFT COLUMN: Large Live Canvas Preview */}
           <div className="lg:col-span-7 space-y-4">
-            <div className="bg-[#0b101c] border border-white/10 rounded-3xl p-5 shadow-2xl relative">
+            <div className="bg-[#080808] border border-white/[0.08] rounded-3xl p-4 sm:p-6 shadow-2xl relative">
+              
               {/* Canvas Header */}
               <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/[0.08]">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-xs font-mono font-semibold text-slate-300 uppercase tracking-wider">
-                    Live A4 Landscape Preview ({templateDisplayName || "Event Template"})
+                  <span className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider truncate max-w-[200px] sm:max-w-none">
+                    Preview: {templateDisplayName || "Event Template"}
                   </span>
                 </div>
 
                 <button
+                  type="button"
                   onClick={handleDownloadTestPng}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-semibold transition-all active:scale-95 shadow-sm"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 text-amber-300 text-xs font-semibold transition-all active:scale-95 shadow-sm cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Download Test PNG</span>
+                  <span>Test PNG</span>
                 </button>
               </div>
 
-              {/* A4 Landscape Canvas Viewport */}
-              <div className="relative aspect-[297/210] w-full rounded-2xl overflow-hidden border border-white/10 bg-[#050811] flex items-center justify-center shadow-inner group">
+              {/* A4 Landscape Canvas Viewport (Mobile Responsive) */}
+              <div className="relative aspect-[297/210] w-full rounded-2xl overflow-hidden border border-white/[0.08] bg-black flex items-center justify-center shadow-inner group">
                 <canvas
                   ref={previewCanvasRef}
                   className="w-full h-full object-contain"
@@ -710,13 +658,13 @@ export default function CleanAdminCertificatesStudio() {
 
                 {/* Overlay if No Template is uploaded yet */}
                 {!templateUrl && !customImage && (
-                  <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                  <div className="absolute inset-0 bg-black/75 backdrop-blur-[2px] flex flex-col items-center justify-center p-6 text-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400">
                       <Sparkles className="w-6 h-6" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-white">No Canva Template Uploaded for this Event</p>
-                      <p className="text-xs text-slate-400 mt-1 max-w-sm">
+                      <p className="text-sm font-bold text-white uppercase tracking-wider">No Canva Template Uploaded</p>
+                      <p className="text-xs text-slate-400 mt-1 max-w-sm font-light">
                         Upload your Canva certificate design below. It will save to Cloudinary and attach to &quot;{templateDisplayName}&quot;.
                       </p>
                     </div>
@@ -725,8 +673,8 @@ export default function CleanAdminCertificatesStudio() {
 
                 {/* Uploading Spinner Overlay */}
                 {isUploadingTemplate && (
-                  <div className="absolute inset-0 bg-black/75 backdrop-blur-xs flex flex-col items-center justify-center gap-2 text-cyan-300 text-xs font-mono">
-                    <div className="w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                  <div className="absolute inset-0 bg-black/80 backdrop-blur-xs flex flex-col items-center justify-center gap-2 text-amber-300 text-xs font-mono">
+                    <div className="w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
                     <span>Uploading Canva Template to Cloudinary CDN...</span>
                   </div>
                 )}
@@ -747,11 +695,12 @@ export default function CleanAdminCertificatesStudio() {
                     {attendees.slice(0, 3).map((att, idx) => (
                       <button
                         key={idx}
+                        type="button"
                         onClick={() => setPreviewIndex(idx)}
-                        className={`px-2 py-0.5 rounded-lg text-xs font-mono transition-colors ${
+                        className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-colors cursor-pointer ${
                           previewIndex === idx
-                            ? "bg-cyan-500 text-black font-bold"
-                            : "bg-white/[0.05] hover:bg-white/[0.1] text-slate-300"
+                            ? "bg-amber-400 text-black font-bold shadow"
+                            : "bg-white/[0.04] hover:bg-white/[0.08] text-slate-300"
                         }`}
                       >
                         {formatStudentName(att.name).split(" ")[0]}
@@ -763,28 +712,25 @@ export default function CleanAdminCertificatesStudio() {
             </div>
 
             {/* Quick Tip Pill */}
-            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.06] text-xs text-slate-400 flex items-center gap-3">
-              <span className="text-cyan-400 font-bold shrink-0">💡 Event Tip:</span>
-              <span>
+            <div className="p-4 rounded-2xl bg-[#080808] border border-white/[0.08] text-xs text-slate-400 flex items-center gap-3">
+              <span className="text-amber-400 font-bold shrink-0">💡 Event Tip:</span>
+              <span className="font-light">
                 Aap har event ke liye alag Canva template upload kar sakte hain. Student jab apna naam / scholar number /verify par search karega, use usi event ka certificate milega!
               </span>
             </div>
           </div>
 
-          {/* ========================================================================= */}
-          {/* RIGHT COLUMN: Event Info, Canva Template, Typography & Excel               */}
-          {/* ========================================================================= */}
+          {/* RIGHT COLUMN: Event Info, Canva Template, Typography & Excel */}
           <div className="lg:col-span-5 space-y-5">
-            {/* ----------------------------------------------------------------------- */}
-            {/* STEP 1: Template & Event Identity                                       */}
-            {/* ----------------------------------------------------------------------- */}
-            <div className="bg-[#0b101c] border border-white/10 rounded-3xl p-5 space-y-3.5 shadow-xl">
+            
+            {/* STEP 1: Template & Event Identity */}
+            <div className="bg-[#080808] border border-white/[0.08] rounded-3xl p-5 space-y-3.5 shadow-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-6 h-6 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold flex items-center justify-center font-mono">
+                  <span className="w-6 h-6 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-400 text-xs font-bold flex items-center justify-center font-mono">
                     1
                   </span>
-                  <h3 className="text-sm font-bold text-white">Event Details</h3>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">Event Details</h3>
                 </div>
                 <span className="text-[11px] font-mono text-slate-400">Template Profile</span>
               </div>
@@ -799,7 +745,7 @@ export default function CleanAdminCertificatesStudio() {
                     value={templateDisplayName}
                     onChange={(e) => setTemplateDisplayName(e.target.value)}
                     placeholder="e.g. National Cyber Defense 2026"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-medium focus:border-cyan-400 focus:outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-medium focus:border-amber-400 focus:outline-none transition-all"
                   />
                 </div>
 
@@ -812,31 +758,29 @@ export default function CleanAdminCertificatesStudio() {
                     value={eventTitle}
                     onChange={(e) => setEventTitle(e.target.value)}
                     placeholder="e.g. Workshop on Ethical Hacking 2026"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-medium focus:border-cyan-400 focus:outline-none transition-all"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-medium focus:border-amber-400 focus:outline-none transition-all"
                   />
                 </div>
               </div>
             </div>
 
-            {/* ----------------------------------------------------------------------- */}
-            {/* STEP 2: Canva Template (Cloudinary)                                     */}
-            {/* ----------------------------------------------------------------------- */}
-            <div className="bg-[#0b101c] border border-white/10 rounded-3xl p-5 space-y-3.5 shadow-xl">
+            {/* STEP 2: Canva Template (Cloudinary) */}
+            <div className="bg-[#080808] border border-white/[0.08] rounded-3xl p-5 space-y-3.5 shadow-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-6 h-6 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold flex items-center justify-center font-mono">
+                  <span className="w-6 h-6 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-400 text-xs font-bold flex items-center justify-center font-mono">
                     2
                   </span>
-                  <h3 className="text-sm font-bold text-white">Canva Template Image</h3>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">Canva Template Image</h3>
                 </div>
 
                 {templateUrl ? (
-                  <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full flex items-center gap-1.5">
+                  <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-full flex items-center gap-1.5 font-semibold">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                     Cloudinary Live
                   </span>
                 ) : (
-                  <span className="text-[11px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full">
+                  <span className="text-[11px] font-mono text-amber-400 bg-amber-400/10 border border-amber-400/30 px-2.5 py-0.5 rounded-full font-semibold">
                     No Template
                   </span>
                 )}
@@ -844,16 +788,16 @@ export default function CleanAdminCertificatesStudio() {
 
               {/* Action Area */}
               {templateUrl ? (
-                <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] space-y-3">
+                <div className="p-3.5 rounded-2xl bg-black/40 border border-white/[0.08] space-y-3">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-400 truncate max-w-[200px]" title={templateFileName || "Canva Template"}>
+                    <span className="text-slate-300 truncate max-w-[200px] font-mono" title={templateFileName || "Canva Template"}>
                       📄 {templateFileName || "Canva Template"}
                     </span>
                     <a
                       href={templateUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1 text-[11px] font-mono"
+                      className="text-amber-400 hover:text-amber-300 inline-flex items-center gap-1 text-[11px] font-mono"
                     >
                       <span>View CDN</span>
                       <ExternalLink className="w-3 h-3" />
@@ -861,7 +805,7 @@ export default function CleanAdminCertificatesStudio() {
                   </div>
 
                   <div className="flex items-center gap-2 pt-1 border-t border-white/[0.06]">
-                    <label className="flex-1 py-2 px-3 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-semibold text-center cursor-pointer transition-colors flex items-center justify-center gap-1.5">
+                    <label className="flex-1 py-2 px-3 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 text-amber-300 text-xs font-bold text-center cursor-pointer transition-colors flex items-center justify-center gap-1.5">
                       <Upload className="w-3.5 h-3.5" />
                       <span>{isUploadingTemplate ? "Uploading..." : "Replace Template"}</span>
                       <input
@@ -877,11 +821,11 @@ export default function CleanAdminCertificatesStudio() {
                       type="button"
                       onClick={handleDeleteTemplate}
                       disabled={isDeletingTemplate}
-                      className="py-2 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+                      className="py-2 px-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-400 hover:text-amber-300 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                       title="Clear image"
                     >
                       {isDeletingTemplate ? (
-                        <div className="w-3.5 h-3.5 border-2 border-rose-400 border-t-transparent rounded-full animate-spin" />
+                        <div className="w-3.5 h-3.5 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
                       ) : (
                         <Trash2 className="w-3.5 h-3.5" />
                       )}
@@ -890,9 +834,9 @@ export default function CleanAdminCertificatesStudio() {
                   </div>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center p-6 rounded-2xl border border-dashed border-cyan-500/30 hover:border-cyan-400 bg-cyan-500/[0.02] hover:bg-cyan-500/[0.05] cursor-pointer transition-all text-center group">
-                  <Upload className="w-6 h-6 text-cyan-400 group-hover:scale-110 mb-2 transition-transform" />
-                  <span className="text-xs font-bold text-white">
+                <label className="flex flex-col items-center justify-center p-6 rounded-2xl border border-dashed border-amber-400/30 hover:border-amber-400 bg-amber-400/[0.02] hover:bg-amber-400/[0.05] cursor-pointer transition-all text-center group">
+                  <Upload className="w-6 h-6 text-amber-400 group-hover:scale-110 mb-2 transition-transform" />
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">
                     {isUploadingTemplate ? "Uploading to Cloudinary..." : "Upload Canva Certificate Template"}
                   </span>
                   <span className="text-[11px] text-slate-400 mt-0.5 font-mono">PNG or JPG (Up to 15 MB)</span>
@@ -907,16 +851,14 @@ export default function CleanAdminCertificatesStudio() {
               )}
             </div>
 
-            {/* ----------------------------------------------------------------------- */}
-            {/* STEP 3: Typography & Name Alignment                                     */}
-            {/* ----------------------------------------------------------------------- */}
-            <div className="bg-[#0b101c] border border-white/10 rounded-3xl p-5 space-y-4 shadow-xl">
+            {/* STEP 3: Typography & Name Alignment */}
+            <div className="bg-[#080808] border border-white/[0.08] rounded-3xl p-5 space-y-4 shadow-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-6 h-6 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold flex items-center justify-center font-mono">
+                  <span className="w-6 h-6 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-400 text-xs font-bold flex items-center justify-center font-mono">
                     3
                   </span>
-                  <h3 className="text-sm font-bold text-white">Name Formatting</h3>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">Name Formatting</h3>
                 </div>
                 <span className="text-[11px] font-mono text-slate-400">Position & Style</span>
               </div>
@@ -932,10 +874,10 @@ export default function CleanAdminCertificatesStudio() {
                     const match = CERTIFICATE_FONTS.find((f) => f.id === e.target.value);
                     if (match) setSelectedFont(match);
                   }}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-white text-xs font-medium focus:border-cyan-400 focus:outline-none transition-all cursor-pointer"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/10 text-white text-xs font-medium focus:border-amber-400 focus:outline-none transition-all cursor-pointer"
                 >
                   {CERTIFICATE_FONTS.map((font) => (
-                    <option key={font.id} value={font.id} className="bg-[#0b101c] text-white">
+                    <option key={font.id} value={font.id} className="bg-[#0c0c0c] text-white">
                       {font.name} ({font.category})
                     </option>
                   ))}
@@ -946,21 +888,23 @@ export default function CleanAdminCertificatesStudio() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-300 flex items-center gap-1.5">
-                    <MoveVertical className="w-3.5 h-3.5 text-cyan-400" />
+                    <MoveVertical className="w-3.5 h-3.5 text-amber-400" />
                     <span>Vertical Position (Up / Down)</span>
                   </span>
-                  <div className="flex items-center gap-1 font-mono text-cyan-300 font-bold">
+                  <div className="flex items-center gap-1 font-mono text-amber-400 font-bold">
                     <button
+                      type="button"
                       onClick={() => setNameYPos((prev) => Math.max(0.2, Number((prev - 0.005).toFixed(3))))}
-                      className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded-md text-xs"
+                      className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-md text-xs cursor-pointer"
                       title="Move Up"
                     >
                       -
                     </button>
                     <span>{(nameYPos * 100).toFixed(1)}%</span>
                     <button
+                      type="button"
                       onClick={() => setNameYPos((prev) => Math.min(0.8, Number((prev + 0.005).toFixed(3))))}
-                      className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded-md text-xs"
+                      className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-md text-xs cursor-pointer"
                       title="Move Down"
                     >
                       +
@@ -975,7 +919,7 @@ export default function CleanAdminCertificatesStudio() {
                   step="0.5"
                   value={nameYPos * 100}
                   onChange={(e) => setNameYPos(parseFloat(e.target.value) / 100)}
-                  className="w-full accent-cyan-400 cursor-pointer"
+                  className="w-full accent-amber-400 cursor-pointer"
                 />
               </div>
 
@@ -983,20 +927,22 @@ export default function CleanAdminCertificatesStudio() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-300 flex items-center gap-1.5">
-                    <Type className="w-3.5 h-3.5 text-cyan-400" />
+                    <Type className="w-3.5 h-3.5 text-amber-400" />
                     <span>Font Size</span>
                   </span>
-                  <div className="flex items-center gap-1 font-mono text-cyan-300 font-bold">
+                  <div className="flex items-center gap-1 font-mono text-amber-400 font-bold">
                     <button
+                      type="button"
                       onClick={() => setFontSize((prev) => Math.max(40, prev - 2))}
-                      className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded-md text-xs"
+                      className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-md text-xs cursor-pointer"
                     >
                       -
                     </button>
                     <span>{fontSize}px</span>
                     <button
+                      type="button"
                       onClick={() => setFontSize((prev) => Math.min(120, prev + 2))}
-                      className="px-2 py-0.5 bg-white/10 hover:bg-white/20 rounded-md text-xs"
+                      className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-md text-xs cursor-pointer"
                     >
                       +
                     </button>
@@ -1010,7 +956,7 @@ export default function CleanAdminCertificatesStudio() {
                   step="2"
                   value={fontSize}
                   onChange={(e) => setFontSize(parseInt(e.target.value))}
-                  className="w-full accent-cyan-400 cursor-pointer"
+                  className="w-full accent-amber-400 cursor-pointer"
                 />
               </div>
 
@@ -1027,7 +973,7 @@ export default function CleanAdminCertificatesStudio() {
                       onClick={() => setFontColor(c.hex)}
                       className={`w-7 h-7 rounded-full ${c.bg} transition-all relative flex items-center justify-center border ${
                         fontColor.toLowerCase() === c.hex.toLowerCase()
-                          ? "ring-2 ring-cyan-400 scale-110 border-white"
+                          ? "ring-2 ring-amber-400 scale-110 border-white"
                           : "border-white/20 hover:scale-105"
                       }`}
                       title={c.name}
@@ -1045,10 +991,10 @@ export default function CleanAdminCertificatesStudio() {
                 type="button"
                 onClick={handleSaveDesign}
                 disabled={isSaving}
-                className={`w-full py-3 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all active:scale-98 ${
+                className={`w-full py-3.5 rounded-2xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-all active:scale-98 cursor-pointer ${
                   saveSuccess
                     ? "bg-emerald-500 text-black shadow-emerald-500/20"
-                    : "bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-black shadow-cyan-500/25"
+                    : "bg-amber-400 hover:bg-amber-300 text-black shadow-amber-400/25"
                 }`}
               >
                 {isSaving ? (
@@ -1067,30 +1013,28 @@ export default function CleanAdminCertificatesStudio() {
               </button>
             </div>
 
-            {/* ----------------------------------------------------------------------- */}
-            {/* STEP 4: Attendees Registry (Excel) for this Event                       */}
-            {/* ----------------------------------------------------------------------- */}
-            <div className="bg-[#0b101c] border border-white/10 rounded-3xl p-5 space-y-3.5 shadow-xl">
+            {/* STEP 4: Attendees Registry (Excel) for this Event */}
+            <div className="bg-[#080808] border border-white/[0.08] rounded-3xl p-5 space-y-3.5 shadow-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-6 h-6 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold flex items-center justify-center font-mono">
+                  <span className="w-6 h-6 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-400 text-xs font-bold flex items-center justify-center font-mono">
                     4
                   </span>
-                  <h3 className="text-sm font-bold text-white">Event Attendees (Excel)</h3>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">Event Attendees (Excel)</h3>
                 </div>
 
-                <span className="text-[11px] font-mono text-slate-300 bg-white/[0.05] border border-white/10 px-2.5 py-0.5 rounded-full">
+                <span className="text-[11px] font-mono text-amber-300 bg-amber-400/10 border border-amber-400/30 px-2.5 py-0.5 rounded-full font-bold">
                   {attendees.length} Students
                 </span>
               </div>
 
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <p className="text-xs text-slate-400 leading-relaxed font-light">
                 Upload attendees sheet for <strong>{templateDisplayName}</strong> (.xlsx or .csv):
               </p>
 
-              <label className="flex items-center justify-center gap-2 p-3.5 rounded-2xl border border-dashed border-emerald-500/30 hover:border-emerald-400 bg-emerald-500/[0.02] hover:bg-emerald-500/[0.05] cursor-pointer transition-all text-center group">
-                <FileSpreadsheet className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
-                <span className="text-xs font-bold text-white">
+              <label className="flex items-center justify-center gap-2 p-3.5 rounded-2xl border border-dashed border-amber-400/30 hover:border-amber-400 bg-amber-400/[0.02] hover:bg-amber-400/[0.05] cursor-pointer transition-all text-center group">
+                <FileSpreadsheet className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
+                <span className="text-xs font-bold text-white uppercase tracking-wider">
                   {isUploadingExcel ? "Uploading Excel..." : "Upload Attendees Excel (.xlsx)"}
                 </span>
                 <input
@@ -1108,7 +1052,7 @@ export default function CleanAdminCertificatesStudio() {
                   <button
                     type="button"
                     onClick={() => setShowAttendeesList(!showAttendeesList)}
-                    className="w-full flex items-center justify-between text-xs text-slate-400 hover:text-white transition-colors py-1"
+                    className="w-full flex items-center justify-between text-xs text-slate-400 hover:text-white transition-colors py-1 cursor-pointer font-mono"
                   >
                     <span>View {attendees.length} Attendees List</span>
                     {showAttendeesList ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -1120,9 +1064,9 @@ export default function CleanAdminCertificatesStudio() {
                         <div
                           key={idx}
                           onClick={() => setPreviewIndex(idx)}
-                          className={`p-2 rounded-xl text-xs flex items-center justify-between cursor-pointer transition-colors ${
+                          className={`p-2.5 rounded-xl text-xs flex items-center justify-between cursor-pointer transition-colors ${
                             previewIndex === idx
-                              ? "bg-cyan-500/15 border border-cyan-500/40 text-cyan-300"
+                              ? "bg-amber-400/15 border border-amber-400/40 text-amber-300 font-bold"
                               : "bg-white/[0.02] hover:bg-white/[0.05] text-slate-300"
                           }`}
                         >
@@ -1139,26 +1083,24 @@ export default function CleanAdminCertificatesStudio() {
         </div>
       </main>
 
-      {/* ========================================================================= */}
-      {/* MODAL: Create New Event Template Profile                                  */}
-      {/* ========================================================================= */}
+      {/* MODAL: Create New Event Template Profile */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
           <div
-            className="w-full max-w-md bg-[#090e1a] border border-cyan-500/30 rounded-3xl p-6 shadow-2xl text-white space-y-4"
+            className="w-full max-w-md bg-[#080808] border border-white/[0.12] rounded-3xl p-6 shadow-2xl text-white space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                <div className="w-7 h-7 rounded-lg bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400">
                   <Plus className="w-4 h-4" />
                 </div>
-                <h3 className="text-base font-bold text-white">Create New Event Template</h3>
+                <h3 className="text-base font-bold text-white uppercase tracking-tight">Create New Event Template</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="text-slate-400 hover:text-white"
+                className="text-slate-400 hover:text-white p-1 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1166,7 +1108,7 @@ export default function CleanAdminCertificatesStudio() {
 
             <form onSubmit={handleCreateNewTemplate} className="space-y-4">
               <div>
-                <label className="text-xs font-mono uppercase tracking-wider text-slate-300 block mb-1.5">
+                <label className="text-xs font-mono uppercase tracking-wider text-slate-300 block mb-1.5 font-bold">
                   Template Name (Admin Reference)
                 </label>
                 <input
@@ -1175,12 +1117,12 @@ export default function CleanAdminCertificatesStudio() {
                   placeholder="e.g. Web3 Security Workshop 2026"
                   value={newTemplateName}
                   onChange={(e) => setNewTemplateName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 text-white text-xs font-medium focus:border-cyan-400 focus:outline-none transition-all placeholder-slate-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 text-white text-xs font-medium focus:border-amber-400 focus:outline-none transition-all placeholder-slate-500"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-mono uppercase tracking-wider text-slate-300 block mb-1.5">
+                <label className="text-xs font-mono uppercase tracking-wider text-slate-300 block mb-1.5 font-bold">
                   Event Name (Printed on Verification)
                 </label>
                 <input
@@ -1188,34 +1130,34 @@ export default function CleanAdminCertificatesStudio() {
                   placeholder="e.g. National Cyber Security Bootcamp 2026"
                   value={newEventName}
                   onChange={(e) => setNewEventName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 text-white text-xs font-medium focus:border-cyan-400 focus:outline-none transition-all placeholder-slate-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 text-white text-xs font-medium focus:border-amber-400 focus:outline-none transition-all placeholder-slate-500"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-mono uppercase tracking-wider text-slate-300 block mb-1.5">
+                <label className="text-xs font-mono uppercase tracking-wider text-slate-300 block mb-1.5 font-bold">
                   Issuance Date
                 </label>
                 <input
                   type="date"
                   value={newIssueDate}
                   onChange={(e) => setNewIssueDate(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/[0.05] border border-white/15 text-white text-xs font-medium focus:border-cyan-400 focus:outline-none transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-black/60 border border-white/15 text-white text-xs font-medium focus:border-amber-400 focus:outline-none transition-all"
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/[0.08]">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs font-mono text-slate-300 transition-colors"
+                  className="px-4 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs font-mono text-slate-300 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isCreatingTemplate || !newTemplateName.trim()}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-bold text-xs transition-all disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer shadow-md"
                 >
                   {isCreatingTemplate ? "Creating..." : "Create & Start Designing"}
                 </button>

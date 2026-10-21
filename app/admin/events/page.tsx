@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { CyberEvent } from "@/data/events";
+import AdminNav from "@/components/admin/AdminNav";
 import {
   Calendar,
   Clock,
@@ -474,9 +475,9 @@ export default function AdminEventsPage() {
 
   if (authenticated === null) {
     return (
-      <div className="min-h-screen bg-[#06080d] flex items-center justify-center">
+      <div className="min-h-screen bg-[#030303] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
           <span className="text-xs font-mono text-slate-400">Verifying Admin Credentials...</span>
         </div>
       </div>
@@ -486,93 +487,57 @@ export default function AdminEventsPage() {
   const imagesList = formData.images || [];
 
   return (
-    <div className="min-h-screen bg-[#06080d] text-white flex flex-col font-sans selection:bg-cyan-500/20 selection:text-cyan-300">
-      {/* Top Header */}
-      <header className="border-b border-white/[0.08] bg-[#090d16]/90 backdrop-blur sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/admin"
-              className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-300 hover:text-white transition-colors"
-              title="Back to Admin Dashboard"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
-
-            <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
-              <Calendar className="w-5 h-5" />
-            </div>
-
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-sm tracking-wider text-white">
-                  EVENT MANAGEMENT
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/15 border border-cyan-500/30 text-cyan-300">
-                  {events.length} {events.length === 1 ? "Event" : "Events"}
-                </span>
-              </div>
-              <span className="text-[10px] text-slate-400 font-mono block">
-                Official Cyber Cell Schedule &bull; SATI Vidisha
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link
-              href="/events"
-              target="_blank"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 text-xs text-slate-300 hover:text-white transition-colors"
-            >
-              <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-              <span>View Public Schedule (/events)</span>
-            </Link>
-
-            <button
-              onClick={handleOpenNew}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs sm:text-sm tracking-wide shadow-lg shadow-cyan-500/20 active:scale-95 transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add New Event</span>
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-[#030303] text-white flex flex-col font-sans selection:bg-amber-400/25 selection:text-white">
+      
+      {/* Top Header via Unified AdminNav */}
+      <AdminNav
+        currentTab="events"
+        extraActions={
+          <button
+            onClick={handleOpenNew}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs uppercase tracking-wider shadow-md shadow-amber-400/20 active:scale-95 transition-all cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">Add Event</span>
+          </button>
+        }
+      />
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 w-full flex-1 space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full flex-1 space-y-6 sm:space-y-8">
+        
         {/* Banner with Metrics */}
-        <div className="relative rounded-3xl bg-gradient-to-r from-[#0d1627] via-[#09101d] to-[#0d1627] border border-white/10 p-6 sm:p-8 shadow-2xl overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative rounded-3xl bg-[#080808] border border-white/[0.08] p-6 sm:p-8 shadow-2xl overflow-hidden">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-amber-400/5 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2 max-w-xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono uppercase tracking-widest">
-                <Sparkles className="w-3.5 h-3.5" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-mono uppercase tracking-widest font-semibold">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                 <span>Multi-Image Gallery & Per-Event Pages</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Manage Campus & Virtual Events
+              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase">
+                Events Manager & Poster Studio
               </h1>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                Add up to 10 photos per event, publish workshops, CTF competitions, seminars, and bootcamps with individual event pages, registration forms, and full agendas.
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-light">
+                Add up to 10 photos per event, publish workshops, CTF wargames, seminars, and bootcamps with individual event pages, registration forms, and full agendas.
               </p>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 shrink-0">
-              <div className="p-3.5 rounded-2xl bg-[#0b101c] border border-white/10 text-center">
-                <span className="text-xs font-mono text-slate-400 uppercase block">Total</span>
-                <span className="text-2xl font-black text-white">{events.length}</span>
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-3 shrink-0">
+              <div className="p-3 sm:p-3.5 rounded-2xl bg-[#0c0c0c] border border-white/[0.08] text-center">
+                <span className="text-[11px] font-mono text-slate-400 uppercase block font-medium">Total</span>
+                <span className="text-xl sm:text-2xl font-black text-white">{events.length}</span>
               </div>
-              <div className="p-3.5 rounded-2xl bg-[#0b101c] border border-cyan-500/20 text-center">
-                <span className="text-xs font-mono text-cyan-400 uppercase block">Upcoming</span>
-                <span className="text-2xl font-black text-cyan-300">
+              <div className="p-3 sm:p-3.5 rounded-2xl bg-[#0c0c0c] border border-amber-400/30 text-center">
+                <span className="text-[11px] font-mono text-amber-400 uppercase block font-medium">Active</span>
+                <span className="text-xl sm:text-2xl font-black text-amber-400">
                   {events.filter((e) => e.status === "Upcoming" || e.status === "Live").length}
                 </span>
               </div>
-              <div className="p-3.5 rounded-2xl bg-[#0b101c] border border-white/10 text-center">
-                <span className="text-xs font-mono text-slate-500 uppercase block">Completed</span>
-                <span className="text-2xl font-black text-slate-400">
+              <div className="p-3 sm:p-3.5 rounded-2xl bg-[#0c0c0c] border border-white/[0.08] text-center">
+                <span className="text-[11px] font-mono text-slate-400 uppercase block font-medium">Past</span>
+                <span className="text-xl sm:text-2xl font-black text-slate-400">
                   {events.filter((e) => e.status === "Completed").length}
                 </span>
               </div>
@@ -580,24 +545,24 @@ export default function AdminEventsPage() {
           </div>
         </div>
 
-        {/* Filter Toolbar */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 rounded-2xl bg-[#090d16] border border-white/10">
+        {/* Filter Toolbar (Mobile Responsive) */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-[#080808] border border-white/[0.08]">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               placeholder="Search by event title, venue, or keywords..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-black/40 border border-white/10 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/50 transition-colors"
+              className="w-full pl-10 pr-4 py-2 rounded-xl bg-black/50 border border-white/[0.08] text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60 transition-colors font-mono"
             />
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center gap-2">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs font-mono text-slate-300 focus:outline-none focus:border-cyan-400/50"
+              className="flex-1 sm:flex-none px-3 py-2 rounded-xl bg-black/50 border border-white/[0.08] text-xs font-mono text-slate-300 focus:outline-none focus:border-amber-400/60 cursor-pointer"
             >
               <option value="All">All Categories</option>
               {CATEGORIES.map((c) => (
@@ -610,7 +575,7 @@ export default function AdminEventsPage() {
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs font-mono text-slate-300 focus:outline-none focus:border-cyan-400/50"
+              className="flex-1 sm:flex-none px-3 py-2 rounded-xl bg-black/50 border border-white/[0.08] text-xs font-mono text-slate-300 focus:outline-none focus:border-amber-400/60 cursor-pointer"
             >
               <option value="All">All Statuses</option>
               {STATUSES.map((s) => (
@@ -625,11 +590,11 @@ export default function AdminEventsPage() {
         {/* Events Grid */}
         {loading ? (
           <div className="p-16 text-center space-y-3">
-            <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto" />
+            <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto" />
             <p className="text-xs font-mono text-slate-400">Loading events...</p>
           </div>
         ) : filteredEvents.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
             {filteredEvents.map((evt) => {
               const evtImages = Array.isArray(evt.images) && evt.images.length > 0
                 ? evt.images
@@ -641,11 +606,11 @@ export default function AdminEventsPage() {
               return (
                 <div
                   key={evt.id}
-                  className="group rounded-3xl bg-[#0a0f1d] border border-white/10 hover:border-cyan-500/40 shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
+                  className="group rounded-3xl bg-[#090909] border border-white/[0.08] hover:border-amber-400/40 shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
                 >
                   <div>
                     {/* Event Banner */}
-                    <div className="relative w-full h-44 bg-slate-900 overflow-hidden border-b border-white/[0.08]">
+                    <div className="relative w-full h-44 bg-[#050505] overflow-hidden border-b border-white/[0.08]">
                       {coverImg ? (
                         <Image
                           src={coverImg}
@@ -655,8 +620,8 @@ export default function AdminEventsPage() {
                           sizes="(max-width: 768px) 100vw, 400px"
                         />
                       ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-[#070c18] text-slate-600 font-mono text-xs">
-                          <Calendar className="w-10 h-10 text-cyan-400/30 mb-1" />
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#0c0c0c] to-[#050505] text-slate-600 font-mono text-xs">
+                          <Calendar className="w-10 h-10 text-amber-400/30 mb-1" />
                           <span>No Poster Image</span>
                         </div>
                       )}
@@ -665,18 +630,18 @@ export default function AdminEventsPage() {
 
                       {/* Top Badges */}
                       <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold bg-black/70 backdrop-blur-md border border-white/15 text-cyan-300 shadow">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-mono tracking-wider uppercase font-bold bg-black/80 backdrop-blur-md border border-white/15 text-amber-300 shadow">
                           {evt.category}
                         </span>
 
                         <span
                           className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-wider uppercase font-bold shadow ${
                             evt.status === "Live"
-                              ? "bg-red-500/20 text-red-300 border border-red-500/40 animate-pulse"
+                              ? "bg-amber-400 text-black font-black animate-pulse"
                               : evt.status === "Upcoming"
-                              ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
+                              ? "bg-amber-400/20 text-amber-300 border border-amber-400/40"
                               : evt.status === "Completed"
-                              ? "bg-slate-700/40 text-slate-400 border border-slate-600/30"
+                              ? "bg-white/[0.06] text-slate-400 border border-white/10"
                               : "bg-amber-500/20 text-amber-300 border border-amber-500/40"
                           }`}
                         >
@@ -686,12 +651,12 @@ export default function AdminEventsPage() {
 
                       {/* Mode & Image Count */}
                       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[10px] font-mono">
-                        <span className="px-2 py-0.5 rounded-md bg-black/60 backdrop-blur border border-white/15 text-slate-300">
+                        <span className="px-2 py-0.5 rounded-md bg-black/70 backdrop-blur border border-white/15 text-slate-300">
                           {evt.mode}
                         </span>
 
                         {evtImages.length > 0 && (
-                          <span className="px-2 py-0.5 rounded-md bg-black/70 backdrop-blur border border-white/20 text-cyan-300">
+                          <span className="px-2 py-0.5 rounded-md bg-black/70 backdrop-blur border border-amber-400/30 text-amber-300 font-bold">
                             📷 {evtImages.length} {evtImages.length === 1 ? "photo" : "photos"}
                           </span>
                         )}
@@ -700,28 +665,28 @@ export default function AdminEventsPage() {
 
                     {/* Body Content */}
                     <div className="p-5 space-y-3">
-                      <h3 className="text-base sm:text-lg font-black text-white leading-snug tracking-tight group-hover:text-cyan-300 transition-colors">
+                      <h3 className="text-base sm:text-lg font-black text-white leading-snug tracking-tight group-hover:text-amber-400 transition-colors line-clamp-2">
                         {evt.title}
                       </h3>
 
-                      <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed font-light">
                         {evt.description || "No description provided."}
                       </p>
 
                       <div className="space-y-1.5 pt-2 text-xs font-mono text-slate-300 border-t border-white/[0.06]">
                         <div className="flex items-center gap-2">
-                          <Calendar className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                          <Calendar className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                           <span>{evt.date}</span>
                           {evt.time && (
                             <>
                               <span className="text-slate-600">&bull;</span>
-                              <span className="text-slate-400">{evt.time}</span>
+                              <span className="text-slate-400 truncate">{evt.time}</span>
                             </>
                           )}
                         </div>
 
                         <div className="flex items-center gap-2 text-slate-400">
-                          <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                          <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                           <span className="truncate">{evt.venue}</span>
                         </div>
                       </div>
@@ -729,13 +694,13 @@ export default function AdminEventsPage() {
                   </div>
 
                   {/* Footer Controls */}
-                  <div className="p-4 bg-black/40 border-t border-white/[0.06] flex items-center justify-between gap-2">
+                  <div className="p-4 bg-black/50 border-t border-white/[0.06] flex items-center justify-between gap-2">
                     <select
                       value={evt.status}
                       onChange={(e) =>
                         handleStatusToggle(evt, e.target.value as CyberEvent["status"])
                       }
-                      className="px-2 py-1 rounded-lg bg-white/[0.04] border border-white/10 text-[11px] font-mono text-slate-300 focus:outline-none focus:border-cyan-400/50"
+                      className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/10 text-[11px] font-mono text-slate-300 focus:outline-none focus:border-amber-400/50 cursor-pointer"
                     >
                       {STATUSES.map((s) => (
                         <option key={s} value={s}>
@@ -749,25 +714,27 @@ export default function AdminEventsPage() {
                       <Link
                         href={`/events/${evt.id}`}
                         target="_blank"
-                        className="p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 hover:text-white border border-white/10 transition-colors"
+                        className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/10 transition-colors"
                         title="View Live Event Page"
                       >
-                        <Eye className="w-3.5 h-3.5" />
+                        <Eye className="w-3.5 h-3.5 text-slate-400 hover:text-white" />
                       </Link>
 
                       {/* Edit Button */}
                       <button
+                        type="button"
                         onClick={() => handleOpenEdit(evt)}
-                        className="p-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 transition-colors"
+                        className="p-2 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 text-amber-300 border border-amber-400/30 transition-colors cursor-pointer"
                         title="Edit Event"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                       </button>
 
-                      {/* Delete Button */}
+                      {/* Delete Button (Minimalist, Slate/Amber, Zero Red) */}
                       <button
+                        type="button"
                         onClick={() => handleDeleteEvent(evt.id, evt.title)}
-                        className="p-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 transition-colors"
+                        className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.1] text-slate-400 hover:text-amber-300 border border-white/10 transition-colors cursor-pointer"
                         title="Delete Event"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -780,19 +747,20 @@ export default function AdminEventsPage() {
           </div>
         ) : (
           /* Empty State */
-          <div className="p-16 rounded-3xl bg-[#090d16] border border-white/10 text-center max-w-lg mx-auto space-y-4">
-            <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mx-auto shadow-inner">
+          <div className="p-12 sm:p-16 rounded-3xl bg-[#080808] border border-white/[0.08] text-center max-w-lg mx-auto space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400 mx-auto shadow-inner">
               <Calendar className="w-7 h-7" />
             </div>
-            <h3 className="text-lg font-bold text-white">No Events Found</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h3 className="text-lg font-bold text-white uppercase tracking-wider">No Events Found</h3>
+            <p className="text-xs text-slate-400 leading-relaxed font-light">
               {searchQuery || selectedCategory !== "All" || selectedStatus !== "All"
                 ? "No events match the selected filters. Try clearing your search query or reset filters."
-                : "No events have been added yet. Click 'Add New Event' above to publish your first cybersecurity workshop or CTF schedule!"}
+                : "No events have been added yet. Click 'Add New Event' to publish your first cybersecurity workshop or CTF schedule!"}
             </p>
             <button
+              type="button"
               onClick={handleOpenNew}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs font-mono transition-colors shadow-md shadow-cyan-500/20"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs uppercase tracking-wider font-mono transition-colors shadow-md shadow-amber-400/20 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Create First Event</span>
@@ -807,20 +775,20 @@ export default function AdminEventsPage() {
       {isModalOpen && (
         <div
           onClick={() => setIsModalOpen(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/90 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-3xl bg-[#0c1220] border border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl text-white my-8 max-h-[90vh] overflow-y-auto"
+            className="relative w-full max-w-3xl bg-[#080808] border border-white/[0.12] rounded-3xl p-5 sm:p-8 shadow-2xl text-white my-6 max-h-[92vh] overflow-y-auto"
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6 sticky top-0 bg-[#0c1220] z-20">
+            <div className="flex items-center justify-between pb-4 border-b border-white/[0.08] mb-6 sticky top-0 bg-[#080808]/95 backdrop-blur z-20">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                <div className="w-9 h-9 rounded-xl bg-amber-400/10 border border-amber-400/30 flex items-center justify-center text-amber-400">
                   <Calendar className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg sm:text-xl font-black text-white">
+                  <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-tight">
                     {editingEvent ? "Edit Event & Photos" : "Create New Event & Photos"}
                   </h2>
                   <span className="text-[11px] font-mono text-slate-400 block">
@@ -830,8 +798,9 @@ export default function AdminEventsPage() {
               </div>
 
               <button
+                type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-slate-300 hover:text-white transition-colors"
+                className="p-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -839,15 +808,15 @@ export default function AdminEventsPage() {
 
             {/* Error or Success Alerts */}
             {errorMsg && (
-              <div className="p-3.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs font-mono mb-6 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
+              <div className="p-3.5 rounded-xl bg-amber-400/10 border border-amber-400/30 text-amber-200 text-xs font-mono mb-6 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
                 <span>{errorMsg}</span>
               </div>
             )}
 
             {successMsg && (
               <div className="p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-mono mb-6 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
                 <span>{successMsg}</span>
               </div>
             )}
@@ -855,16 +824,14 @@ export default function AdminEventsPage() {
             {/* Event Form */}
             <form onSubmit={handleSaveEvent} className="space-y-6">
               
-              {/* ========================================================================= */}
-              {/* 1. UP TO 10 IMAGES GALLERY UPLOADER (DRAG & DROP REORDERING)               */}
-              {/* ========================================================================= */}
-              <div className="space-y-3 p-4 rounded-2xl bg-black/50 border border-amber-400/25">
+              {/* 1. UP TO 10 IMAGES GALLERY UPLOADER (DRAG & DROP REORDERING) */}
+              <div className="space-y-3 p-4 rounded-2xl bg-black/60 border border-amber-400/30">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <label className="text-xs font-mono text-amber-400 uppercase tracking-wider font-bold">
                       Event Photos &amp; Posters Gallery
                     </label>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-amber-400/15 border border-amber-400/30 text-amber-300">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-amber-400/15 border border-amber-400/30 text-amber-300 font-bold">
                       {imagesList.length} / 10 Images
                     </span>
                   </div>
@@ -874,7 +841,7 @@ export default function AdminEventsPage() {
                       type="button"
                       disabled={isUploading}
                       onClick={() => fileInputRef.current?.click()}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs font-mono transition-colors disabled:opacity-50 cursor-pointer shadow-md"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs font-mono transition-colors disabled:opacity-50 cursor-pointer shadow-md"
                     >
                       <Upload className="w-3.5 h-3.5" />
                       <span>{isUploading ? "Uploading..." : "Upload Photos"}</span>
@@ -898,7 +865,7 @@ export default function AdminEventsPage() {
                     <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 px-1">
                       <span className="flex items-center gap-1.5 text-amber-300 font-medium">
                         <Move className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Photos ko drag &amp; drop karke ya arrows se arrange karein (Position #1 main cover banegi)</span>
+                        <span>Photos drag karke ya arrows se arrange karein (Position #1 main cover banegi)</span>
                       </span>
                     </div>
 
@@ -916,7 +883,7 @@ export default function AdminEventsPage() {
                             onDragOver={(e) => handleDragOver(e, idx)}
                             onDrop={(e) => handleDrop(e, idx)}
                             onDragEnd={handleDragEnd}
-                            className={`relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-900 border transition-all duration-200 group select-none cursor-grab active:cursor-grabbing ${
+                            className={`relative aspect-[4/3] rounded-2xl overflow-hidden bg-black border transition-all duration-200 group select-none cursor-grab active:cursor-grabbing ${
                               isDragging
                                 ? "opacity-30 scale-95 border-amber-400 border-dashed"
                                 : isDragOver
@@ -948,8 +915,8 @@ export default function AdminEventsPage() {
                             </div>
 
                             {/* Hover Overlay Controls */}
-                            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-between p-2 z-20">
-                              {/* Top Bar: Delete button */}
+                            <div className="absolute inset-0 bg-black/75 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-between p-2 z-20">
+                              {/* Top Bar: Delete button (Discreet amber/slate styling) */}
                               <div className="w-full flex justify-end">
                                 <button
                                   type="button"
@@ -957,7 +924,7 @@ export default function AdminEventsPage() {
                                     e.stopPropagation();
                                     handleRemoveImage(idx);
                                   }}
-                                  className="p-1.5 rounded-lg bg-red-500/80 hover:bg-red-500 text-white transition-colors cursor-pointer"
+                                  className="p-1.5 rounded-lg bg-black/80 hover:bg-amber-400/20 text-slate-300 hover:text-amber-300 border border-white/10 transition-colors cursor-pointer"
                                   title="Delete Image"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
@@ -1054,12 +1021,12 @@ export default function AdminEventsPage() {
                       placeholder="Or paste external image URL (https://...)"
                       value={urlInput}
                       onChange={(e) => setUrlInput(e.target.value)}
-                      className="flex-1 px-3 py-1.5 rounded-xl bg-[#060910] border border-white/10 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-400/50"
+                      className="flex-1 px-3 py-2 rounded-xl bg-black/60 border border-white/10 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-400/50 font-mono"
                     />
                     <button
                       type="button"
                       onClick={handleAddImageUrl}
-                      className="px-3 py-1.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] border border-white/15 text-xs font-mono text-slate-200 transition-colors cursor-pointer"
+                      className="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 text-xs font-mono text-slate-200 transition-colors cursor-pointer"
                     >
                       Add URL
                     </button>
@@ -1071,7 +1038,7 @@ export default function AdminEventsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2 space-y-1.5">
                   <label className="text-xs font-mono text-slate-300 block font-semibold">
-                    Event Title <span className="text-red-400">*</span>
+                    Event Title <span className="text-amber-400">*</span>
                   </label>
                   <input
                     type="text"
@@ -1079,7 +1046,7 @@ export default function AdminEventsPage() {
                     placeholder="e.g. Offensive Cyber Defense Bootcamp 2026"
                     value={formData.title || ""}
                     onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/50"
+                    className="w-full px-4 py-2.5 rounded-xl bg-black/50 border border-white/10 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60 transition-colors"
                   />
                 </div>
 
@@ -1095,7 +1062,7 @@ export default function AdminEventsPage() {
                         category: e.target.value as CyberEvent["category"],
                       }))
                     }
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-cyan-400/50"
+                    className="w-full px-4 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-amber-400/60 cursor-pointer"
                   >
                     {CATEGORIES.map((c) => (
                       <option key={c} value={c}>
@@ -1117,7 +1084,7 @@ export default function AdminEventsPage() {
                         status: e.target.value as CyberEvent["status"],
                       }))
                     }
-                    className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-cyan-400/50"
+                    className="w-full px-4 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-amber-400/60 cursor-pointer"
                   >
                     {STATUSES.map((s) => (
                       <option key={s} value={s}>
@@ -1139,7 +1106,7 @@ export default function AdminEventsPage() {
                     required
                     value={formData.date || ""}
                     onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
-                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-cyan-400/50"
+                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-amber-400/60"
                   />
                 </div>
 
@@ -1152,7 +1119,7 @@ export default function AdminEventsPage() {
                     placeholder="e.g. 10:00 AM - 04:00 PM"
                     value={formData.time || ""}
                     onChange={(e) => setFormData((prev) => ({ ...prev, time: e.target.value }))}
-                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-cyan-400/50"
+                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-white/10 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60"
                   />
                 </div>
 
@@ -1168,7 +1135,7 @@ export default function AdminEventsPage() {
                         mode: e.target.value as CyberEvent["mode"],
                       }))
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-cyan-400/50"
+                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-white/10 text-xs font-mono text-white focus:outline-none focus:border-amber-400/60 cursor-pointer"
                   >
                     {MODES.map((m) => (
                       <option key={m} value={m}>
@@ -1190,7 +1157,7 @@ export default function AdminEventsPage() {
                     placeholder="e.g. Central Computer Center (CCC), SATI Campus"
                     value={formData.venue || ""}
                     onChange={(e) => setFormData((prev) => ({ ...prev, venue: e.target.value }))}
-                    className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/50"
+                    className="w-full px-3 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60"
                   />
                 </div>
 
@@ -1205,7 +1172,7 @@ export default function AdminEventsPage() {
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, registrationLink: e.target.value }))
                     }
-                    className="w-full px-3 py-2.5 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/50"
+                    className="w-full px-3 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60 font-mono"
                   />
                 </div>
               </div>
@@ -1222,14 +1189,14 @@ export default function AdminEventsPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, description: e.target.value }))
                   }
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/50 leading-relaxed"
+                  className="w-full px-4 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60 leading-relaxed"
                 />
               </div>
 
               {/* 6. Detailed Information / Agenda */}
               <div className="space-y-1.5">
                 <label className="text-xs font-mono text-slate-300 block font-semibold">
-                  Detailed Information & Session Agenda (Shown on Per-Event Page)
+                  Detailed Information &amp; Session Agenda (Shown on Per-Event Page)
                 </label>
                 <textarea
                   rows={4}
@@ -1238,7 +1205,7 @@ export default function AdminEventsPage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, longDescription: e.target.value }))
                   }
-                  className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/10 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/50 leading-relaxed"
+                  className="w-full px-4 py-2.5 rounded-xl bg-black/50 border border-white/10 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60 leading-relaxed font-mono"
                 />
               </div>
 
@@ -1255,13 +1222,13 @@ export default function AdminEventsPage() {
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, prerequisites: e.target.value }))
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/50 leading-relaxed"
+                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60 leading-relaxed"
                   />
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-mono text-slate-300 block font-semibold">
-                    Tools & Software Required (Optional)
+                    Tools &amp; Software Required (Optional)
                   </label>
                   <textarea
                     rows={2}
@@ -1270,7 +1237,7 @@ export default function AdminEventsPage() {
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, toolsRequired: e.target.value }))
                     }
-                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/50 leading-relaxed"
+                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60 leading-relaxed"
                   />
                 </div>
               </div>
@@ -1286,7 +1253,7 @@ export default function AdminEventsPage() {
                     placeholder="e.g. Web Security, CTF, Kali Linux, Hands-on"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/50"
+                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-white/10 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60"
                   />
                 </div>
 
@@ -1299,17 +1266,17 @@ export default function AdminEventsPage() {
                     placeholder="e.g. 60 Seats or Open to all branches"
                     value={formData.capacity || ""}
                     onChange={(e) => setFormData((prev) => ({ ...prev, capacity: e.target.value }))}
-                    className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/50"
+                    className="w-full px-3 py-2 rounded-xl bg-black/50 border border-white/10 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/60"
                   />
                 </div>
               </div>
 
               {/* Submit Buttons */}
-              <div className="pt-4 border-t border-white/10 flex items-center justify-end gap-3">
+              <div className="pt-4 border-t border-white/[0.08] flex items-center justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-5 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs font-mono text-slate-300 transition-colors"
+                  className="px-5 py-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-xs font-mono text-slate-300 transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -1317,11 +1284,11 @@ export default function AdminEventsPage() {
                 <button
                   type="submit"
                   disabled={isSaving || isUploading}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs sm:text-sm font-mono tracking-wide shadow-lg shadow-cyan-500/25 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs sm:text-sm font-mono uppercase tracking-wider shadow-lg shadow-amber-400/20 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-50 cursor-pointer"
                 >
                   {isSaving || isUploading ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
                       <span>{isUploading ? "Uploading Photos..." : "Saving Event..."}</span>
                     </>
                   ) : (
