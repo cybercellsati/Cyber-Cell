@@ -16,8 +16,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "https://cyber-cell.vercel.app");
+
+const OG_IMAGE_URL =
+  "https://res.cloudinary.com/qtfezfsf/image/upload/v1792570182/cybercell/seo/og-image.png";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://cybercell.satiengg.in"),
+  metadataBase: new URL(siteUrl),
   title: "Cyber Cell | Official Cybersecurity Club | SATI Vidisha",
   description:
     "Official student cybersecurity body and ethical hacking community of Samrat Ashok Technological Institute (SATI), Vidisha.",
@@ -33,9 +44,17 @@ export const metadata: Metadata = {
     title: "Cyber Cell | Official Cybersecurity Club | SATI Vidisha",
     description:
       "Official student cybersecurity body and ethical hacking community of Samrat Ashok Technological Institute (SATI), Vidisha.",
-    url: "https://cybercell.satiengg.in",
+    url: siteUrl,
     siteName: "Cyber Cell SATI",
     images: [
+      {
+        url: OG_IMAGE_URL,
+        secureUrl: OG_IMAGE_URL,
+        width: 1200,
+        height: 630,
+        alt: "Cyber Cell, SATI Vidisha Official Logo",
+        type: "image/png",
+      },
       {
         url: "/og-image.png",
         width: 1200,
@@ -52,7 +71,7 @@ export const metadata: Metadata = {
     title: "Cyber Cell | Official Cybersecurity Club | SATI Vidisha",
     description:
       "Official student cybersecurity body and ethical hacking community of Samrat Ashok Technological Institute (SATI), Vidisha.",
-    images: ["/og-image.png"],
+    images: [OG_IMAGE_URL],
   },
 };
 
@@ -73,6 +92,15 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cinzel:wght@500;600;700;800;900&family=Cinzel+Decorative:wght@700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Great+Vibes&family=Montserrat:wght@600;700;800&family=Pinyon+Script&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
         />
+        {/* Explicit OpenGraph & WhatsApp preview tags with permanent global CDN */}
+        <meta property="og:image" content={OG_IMAGE_URL} />
+        <meta property="og:image:secure_url" content={OG_IMAGE_URL} />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Cyber Cell, SATI Vidisha Official Logo" />
+        <meta name="twitter:image" content={OG_IMAGE_URL} />
+        <link rel="image_src" href={OG_IMAGE_URL} />
       </head>
       <body className="min-h-full flex flex-col bg-[#06080d] text-white">
         <AuthProvider>

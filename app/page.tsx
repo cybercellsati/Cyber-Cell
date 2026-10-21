@@ -9,6 +9,17 @@ import ResourceVault from "@/components/ResourceVault";
 import TerminalDemo from "@/components/TerminalDemo";
 import Footer from "@/components/Footer";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "https://cyber-cell.vercel.app");
+
+const OG_IMAGE_URL =
+  "https://res.cloudinary.com/qtfezfsf/image/upload/v1792570182/cybercell/seo/og-image.png";
+
 export const metadata = {
   title: "Cyber Cell — Cybersecurity Club | SATI Vidisha",
   description:
@@ -17,9 +28,17 @@ export const metadata = {
     title: "Cyber Cell — Cybersecurity Club | SATI Vidisha",
     description:
       "Official Cybersecurity Club at Samrat Ashok Technological Institute (SATI), Vidisha. Hands-on labs, ethical hacking, CTFs, network defense, and practical security education.",
-    url: "https://cybercell.satiengg.in",
+    url: siteUrl,
     siteName: "Cyber Cell SATI",
     images: [
+      {
+        url: OG_IMAGE_URL,
+        secureUrl: OG_IMAGE_URL,
+        width: 1200,
+        height: 630,
+        alt: "Cyber Cell, SATI Vidisha Official Logo",
+        type: "image/png",
+      },
       {
         url: "/og-image.png",
         width: 1200,
@@ -36,7 +55,7 @@ export const metadata = {
     title: "Cyber Cell — Cybersecurity Club | SATI Vidisha",
     description:
       "Official Cybersecurity Club at Samrat Ashok Technological Institute (SATI), Vidisha. Hands-on labs, ethical hacking, CTFs, network defense, and practical security education.",
-    images: ["/og-image.png"],
+    images: [OG_IMAGE_URL],
   },
 };
 
