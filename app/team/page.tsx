@@ -521,9 +521,9 @@ export default function TeamPage() {
                         <h3
                           className={`font-black uppercase tracking-tight leading-[1.08] drop-shadow-md ${
                             isKushwaha
-                              ? "text-[13px] sm:text-[14px] lg:text-[15px]"
+                              ? "text-[16px] sm:text-[17px] lg:text-[18px]"
                               : isLongName
-                              ? "text-[14px] sm:text-[15px] lg:text-[16px]"
+                              ? "text-[15px] sm:text-[16px] lg:text-[17px]"
                               : "text-base sm:text-lg lg:text-xl"
                           }`}
                         >
@@ -531,9 +531,9 @@ export default function TeamPage() {
                           <span
                             className={`block truncate ${
                               isKushwaha
-                                ? "text-[10px] sm:text-[11px] lg:text-[12px] text-slate-300 font-extrabold tracking-wider mt-0.5"
+                                ? "text-[15px] sm:text-[16px] lg:text-[17px] text-slate-200 font-black tracking-tight mt-0.5"
                                 : isLongLastName
-                                ? "text-[11.5px] sm:text-[12.5px] lg:text-[13.5px] text-slate-200 tracking-normal"
+                                ? "text-[13px] sm:text-[14px] lg:text-[15px] text-slate-200 tracking-normal"
                                 : "text-slate-200"
                             }`}
                           >
