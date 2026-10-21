@@ -106,7 +106,7 @@ export const domainHeads: TeamMember[] = [
 export const facultyAdvisor: TeamMember = {
   id: "faculty-advisor",
   name: "Prof. Shivangi Jain",
-  role: "Faculty Advisor & Mentor",
+  role: "Faculty Club Coordinator",
   category: "Faculty Advisor",
   department: "Department of Computer Science & Engineering, SATI Vidisha",
   bio: "Guiding institutional compliance, academic ethics, technical research, and student mentorship at SATI Vidisha.",

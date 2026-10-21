@@ -760,7 +760,7 @@ export default function TeamPage() {
         </section>
 
         {/* ========================================================
-            4. FACULTY ADVISOR & MENTOR SECTION
+            4. FACULTY CLUB COORDINATOR SECTION
            ======================================================== */}
         <section className="w-full max-w-6xl mx-auto px-4 pt-8 pb-16 border-t border-white/[0.08]">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -768,11 +768,11 @@ export default function TeamPage() {
             <div className="lg:col-span-5 space-y-3">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-400 text-xs font-mono uppercase tracking-wider font-semibold">
                 <Award className="w-3.5 h-3.5" />
-                <span>INSTITUTIONAL MENTORSHIP</span>
+                <span>INSTITUTIONAL COORDINATION</span>
               </div>
 
               <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-                Faculty Advisor &amp; Mentor
+                Faculty Club Coordinator
               </h2>
 
               <p className="text-xs sm:text-sm text-slate-400 font-light leading-relaxed max-w-md">
@@ -794,7 +794,7 @@ export default function TeamPage() {
                 {/* Info */}
                 <div className="flex-1 text-center sm:text-left space-y-2">
                   <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold bg-amber-400/10 text-amber-400 border border-amber-400/20">
-                    FACULTY ADVISOR &amp; MENTOR
+                    FACULTY CLUB COORDINATOR
                   </span>
 
                   <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
@@ -822,7 +822,7 @@ export default function TeamPage() {
                 <a
                   href="mailto:shivangijain@satiengg.in"
                   className="w-8 h-8 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center text-slate-400 group-hover:text-amber-400 group-hover:border-amber-400/40 transition-colors shrink-0 self-start sm:self-center"
-                  title="Contact Faculty Advisor"
+                  title="Contact Faculty Club Coordinator"
                 >
                   <ArrowUpRight className="w-4 h-4" />
                 </a>
