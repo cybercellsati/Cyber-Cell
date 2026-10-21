@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import {
@@ -12,18 +11,19 @@ import {
   GraduationCap,
   ArrowUpRight,
   Shield,
-  Briefcase,
   Award,
   Sparkles,
   Play,
   Pause,
+  Layers,
+  ArrowDown,
 } from "lucide-react";
 
 // Social SVG Icons
 function LinkedInIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
     <svg className={`${className} fill-current`} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45c-.91 0-1.64.73-1.64 1.64s.73 1.64 1.64 1.64 1.64-.73 1.64-1.64-.73-1.64-1.64-1.64Z" />
+      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.45c-.91 0-1.64.73-1.64 1.64s.73 1.64 1.64 1.64 1.64-.73 1.64-1.64Z" />
     </svg>
   );
 }
@@ -57,7 +57,7 @@ const teamMembers: TeamMember[] = [
   {
     id: "yash",
     name: "Yash Harfode",
-    role: "Convenor & Founder",
+    role: "Founder & Convenor",
     categoryBadge: "CONVENOR",
     department: "CSE, SATI Vidisha",
     email: "yash@cybercell.in",
@@ -191,377 +191,429 @@ const teamMembers: TeamMember[] = [
 
 export default function TeamPage() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Auto-rotation states
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // References for timing & gestures
   const isInitialRef = useRef(true);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Drag interaction state
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStartX, setDragStartX] = useState(0);
-
-  // Center card 3D tilt tracking
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const elapsedRef = useRef(0);
+  const lastTimeRef = useRef<number | null>(null);
+  const touchStartXRef = useRef<number | null>(null);
 
   const N = teamMembers.length;
   const activeMember = teamMembers[activeIndex];
 
-  // Track window size for responsive curved spacing
+  // Split name for giant editorial display (e.g. YASH / HARFODE)
+  const nameParts = activeMember.name.split(" ");
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(" ") || "";
+
+  // Responsive step calculation
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 640);
+      setIsMobile(window.innerWidth < 1024);
     };
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const nextCard = useCallback(() => {
-    setActiveIndex((prev) => (prev + 1) % N);
-    setTilt({ x: 0, y: 0 });
-  }, [N]);
+  // Helper to change member and reset timer
+  const selectMember = useCallback((index: number, pause: boolean = true) => {
+    if (pause) setIsPlaying(false);
+    isInitialRef.current = false;
+    elapsedRef.current = 0;
+    setProgress(0);
+    lastTimeRef.current = null;
+    setActiveIndex(index);
+  }, []);
 
-  const prevCard = useCallback(() => {
-    setActiveIndex((prev) => (prev - 1 + N) % N);
-    setTilt({ x: 0, y: 0 });
-  }, [N]);
+  const nextMember = useCallback(() => {
+    selectMember((activeIndex + 1) % N, true);
+  }, [activeIndex, N, selectMember]);
 
-  // Auto-advance logic: 10 seconds for initial Convenor card, 5 seconds for subsequent cards
-  useEffect(() => {
-    if (!isPlaying || isHovered) {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      return;
-    }
+  const prevMember = useCallback(() => {
+    selectMember((activeIndex - 1 + N) % N, true);
+  }, [activeIndex, N, selectMember]);
 
-    // 10s for initial card, 5s for subsequent cards
-    const duration = isInitialRef.current ? 10000 : 5000;
+  const togglePlay = () => {
+    setIsPlaying((prev) => {
+      const nextState = !prev;
+      if (nextState) {
+        lastTimeRef.current = null;
+      }
+      return nextState;
+    });
+  };
 
-    timerRef.current = setTimeout(() => {
-      isInitialRef.current = false;
-      nextCard();
-    }, duration);
+  const scrollToDossier = (e: React.MouseEvent) => {
+    e.preventDefault();
+    document.getElementById("dossier")?.scrollIntoView({ behavior: "smooth" });
+  };
 
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [activeIndex, isPlaying, isHovered, nextCard]);
+  // Touch Swipe Gesture Handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartXRef.current = e.touches[0].clientX;
+  };
 
-  // Handle card click: pause auto-play & center if side card
-  const handleCardClick = (i: number) => {
-    setIsPlaying(false); // Pause auto-rotation when user clicks any card
-    if (i !== activeIndex) {
-      setActiveIndex(i);
-      setTilt({ x: 0, y: 0 });
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartXRef.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
+    touchStartXRef.current = null;
+    if (Math.abs(deltaX) > 40) {
+      if (deltaX < 0) {
+        nextMember();
+      } else {
+        prevMember();
+      }
     }
   };
 
-  // Keyboard navigation
+  // Auto-advance loop with requestAnimationFrame
+  // 10,000ms (10s) for initial Convenor view, 5,000ms (5s) for all subsequent cards
+  useEffect(() => {
+    let animId: number;
+
+    if (!isPlaying) {
+      lastTimeRef.current = null;
+      return;
+    }
+
+    const currentDuration = isInitialRef.current && activeIndex === 0 ? 10000 : 5000;
+
+    const step = (now: number) => {
+      if (lastTimeRef.current === null) {
+        lastTimeRef.current = now;
+      }
+      const delta = now - lastTimeRef.current;
+      lastTimeRef.current = now;
+
+      elapsedRef.current += delta;
+      const pct = Math.min(100, (elapsedRef.current / currentDuration) * 100);
+      setProgress(pct);
+
+      if (elapsedRef.current >= currentDuration) {
+        isInitialRef.current = false;
+        elapsedRef.current = 0;
+        lastTimeRef.current = null;
+        setProgress(0);
+        setActiveIndex((prev) => (prev + 1) % N);
+      } else {
+        animId = requestAnimationFrame(step);
+      }
+    };
+
+    animId = requestAnimationFrame(step);
+    return () => {
+      cancelAnimationFrame(animId);
+    };
+  }, [isPlaying, activeIndex, N]);
+
+  // Keyboard arrow navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") {
-        prevCard();
-        setIsPlaying(false);
+        prevMember();
       } else if (e.key === "ArrowRight") {
-        nextCard();
-        setIsPlaying(false);
+        nextMember();
+      } else if (e.key === " ") {
+        e.preventDefault();
+        togglePlay();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [nextCard, prevCard]);
+  }, [nextMember, prevMember]);
 
-  // Pointer drag gestures
-  const handlePointerDown = (e: React.PointerEvent) => {
-    setIsDragging(true);
-    setDragStartX(e.clientX);
-    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-  };
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
-
-    const deltaX = e.clientX - dragStartX;
-    if (Math.abs(deltaX) > 40) {
-      setIsPlaying(false); // User gesture pauses auto-play
-      if (deltaX < 0) nextCard();
-      else prevCard();
-    }
-  };
-
-  // Center card mouse parallax tilt
-  const handleCenterMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isMobile) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    setTilt({
-      x: (-y / (rect.height / 2)) * 6,
-      y: (x / (rect.width / 2)) * 6,
-    });
-  };
-
-  const handleCenterMouseLeave = () => {
-    setTilt({ x: 0, y: 0 });
-  };
+  // Card slide translation step
+  const cardStep = isMobile ? 230 : 280;
 
   return (
     <div className="min-h-screen bg-[#030303] text-white flex flex-col font-sans selection:bg-amber-400/20 selection:text-amber-300 overflow-x-hidden">
       {/* Sticky Glass Navbar */}
       <Navbar />
 
-      <main className="flex-1 flex flex-col items-center pt-24 sm:pt-28 pb-16 px-3 sm:px-6 w-full select-none relative">
-        
-        {/* Subtle Ambient Radial Glow */}
-        <div className="absolute top-12 inset-x-0 h-[480px] bg-[radial-gradient(ellipse_60%_45%_at_50%_15%,rgba(245,158,11,0.05),transparent)] pointer-events-none" />
-
+      <main className="flex-1 flex flex-col w-full select-none relative pt-16 sm:pt-20">
         {/* ========================================================
-            1. HEADER WITH CONTROLS (MATCHING REFERENCE MOCKUP)
+            1. CINEMATIC SPLIT HERO SLIDER (AWWWARDS / EDITORIAL)
+            Matching media_1792557984653_89df2771.png
            ======================================================== */}
-        <div className="relative w-full max-w-5xl mx-auto flex items-center justify-between mt-2 mb-6 sm:mb-8 px-2 z-20">
-          
-          {/* Left Arrow Button */}
-          <button
-            onClick={() => {
-              prevCard();
-              setIsPlaying(false);
-            }}
-            aria-label="Previous member"
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/10 hover:border-amber-400/40 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-md backdrop-blur-md"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
+        <section
+          className="relative w-full min-h-[740px] sm:min-h-[780px] lg:h-[88vh] lg:min-h-[640px] lg:max-h-[950px] overflow-hidden flex flex-col justify-between"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Background Cross-Fade Portals */}
+          <div className="absolute inset-0 z-0 overflow-hidden">
+            {teamMembers.map((member, idx) => (
+              <div
+                key={member.id}
+                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                  idx === activeIndex
+                    ? "opacity-100 scale-100"
+                    : "opacity-0 scale-105 pointer-events-none"
+                } transition-transform duration-1000`}
+              >
+                <Image
+                  src={member.image}
+                  alt={member.name}
+                  fill
+                  priority={idx === 0}
+                  sizes="100vw"
+                  className="object-cover object-top lg:object-center filter brightness-[0.32] contrast-[1.12] blur-[1px]"
+                />
+              </div>
+            ))}
 
-          {/* Centered Editorial Title with Play/Pause Pill Button */}
-          <div className="text-center flex flex-col items-center">
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white uppercase">
-              Core Leadership
-            </h1>
+            {/* Cinematic Gradient Scrims for Text Legibility */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 lg:via-black/70 to-black/30 pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#030303] via-[#030303]/80 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/80 to-transparent pointer-events-none" />
+            <div className="absolute -top-24 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-[140px] pointer-events-none" />
+          </div>
 
-            <div className="flex items-center gap-2 sm:gap-2.5 mt-1.5">
-              <p className="text-[11px] sm:text-xs font-mono tracking-[0.2em] text-amber-400 uppercase font-semibold">
-                Cyber Cell &bull; SATI Vidisha
-              </p>
+          {/* Main Two-Column Split Content Area */}
+          <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-10 lg:px-14 flex-1 flex flex-col lg:flex-row items-center justify-center lg:justify-between pt-6 pb-24 sm:pb-20">
+            
+            {/* ========================================================
+                LEFT COLUMN: Active Member Hero Story
+               ======================================================== */}
+            <div className="w-full lg:w-[48%] flex flex-col justify-center text-left py-4 z-20">
               
-              <span className="text-slate-600 hidden xs:inline">&bull;</span>
+              {/* Eyebrow with horizontal line: e.g. — FOUNDER & CONVENOR */}
+              <div className="flex items-center gap-3 mb-3 sm:mb-4">
+                <span className="w-8 sm:w-12 h-[2px] bg-amber-400" />
+                <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-amber-400 font-bold">
+                  {activeMember.role}
+                </span>
+              </div>
+
+              {/* Giant Condensed Editorial Typography */}
+              <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-8xl xl:text-9xl font-black uppercase tracking-tight text-white leading-[0.88] drop-shadow-2xl">
+                <span className="block text-white tracking-tight">{firstName}</span>
+                <span className="block text-slate-200 tracking-tight">{lastName}</span>
+              </h1>
+
+              {/* Concise Narrative Bio Snippet */}
+              <p className="text-xs sm:text-sm lg:text-base text-slate-300 font-light leading-relaxed max-w-md mt-4 sm:mt-5 drop-shadow-md line-clamp-3 sm:line-clamp-none">
+                {activeMember.bio}
+              </p>
+
+              {/* Action Buttons Row */}
+              <div className="flex items-center gap-3 sm:gap-4 mt-6 sm:mt-8">
+                {/* Shield / Bookmark pill */}
+                <a
+                  href={activeMember.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 hover:border-amber-400/80 backdrop-blur-md flex items-center justify-center text-white hover:text-amber-400 transition-all active:scale-95 shadow-lg group cursor-pointer"
+                  title="View LinkedIn Profile"
+                >
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 group-hover:scale-110 transition-transform" />
+                </a>
+
+                {/* Primary Explore Dossier Button */}
+                <button
+                  type="button"
+                  onClick={scrollToDossier}
+                  className="inline-flex items-center gap-2.5 sm:gap-3 px-5 sm:px-7 py-3 sm:py-3.5 rounded-full bg-white text-black hover:bg-amber-400 hover:text-black font-mono font-bold text-[11px] sm:text-xs uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.15)] group cursor-pointer"
+                >
+                  <span>Explore Dossier</span>
+                  <ArrowDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-y-0.5 transition-transform" />
+                </button>
+
+                {/* Mobile Hint Pill */}
+                <div className="lg:hidden ml-auto">
+                  <span className="text-[10px] font-mono text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/20">
+                    {activeMember.categoryBadge}
+                  </span>
+                </div>
+              </div>
+
+            </div>
+
+            {/* ========================================================
+                RIGHT COLUMN: Floating Cards Strip
+                Matching reference mockup: Rounded cards with thumb, category, name
+               ======================================================== */}
+            <div className="w-full lg:w-[52%] h-full flex items-center mt-6 lg:mt-0 relative overflow-hidden pl-0 lg:pl-6">
+              
+              {/* Horizontal Slider Track with smooth offset */}
+              <div
+                className="flex items-center gap-4 sm:gap-5 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] py-4"
+                style={{
+                  transform: `translateX(-${activeIndex * cardStep}px)`,
+                }}
+              >
+                {teamMembers.map((member, i) => {
+                  const isCurrent = i === activeIndex;
+                  return (
+                    <div
+                      key={member.id}
+                      onClick={() => selectMember(i, true)}
+                      className={`relative w-[210px] sm:w-[260px] h-[310px] sm:h-[390px] rounded-[24px] sm:rounded-[28px] overflow-hidden shrink-0 cursor-pointer transition-all duration-500 group select-none ${
+                        isCurrent
+                          ? "ring-2 ring-amber-400 border-transparent shadow-[0_20px_50px_rgba(245,158,11,0.25)] scale-[1.02]"
+                          : "border border-white/10 hover:border-white/35 opacity-70 hover:opacity-100 hover:scale-[1.01] bg-[#080808]"
+                      }`}
+                    >
+                      {/* Member Portrait */}
+                      <Image
+                        src={member.image}
+                        alt={member.name}
+                        fill
+                        sizes="(max-width: 640px) 210px, 260px"
+                        className="object-cover object-top transition-transform duration-700 group-hover:scale-105 pointer-events-none"
+                      />
+
+                      {/* Scrim Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
+
+                      {/* Top Right Index Badge: e.g. 01 / 07 */}
+                      <div className="absolute top-3 right-3 z-10">
+                        <div className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-mono font-bold tracking-wider text-white shadow-sm flex items-center gap-1">
+                          <span className={isCurrent ? "text-amber-400" : "text-white"}>
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
+                          <span className="text-slate-500">/</span>
+                          <span className="text-slate-400">{String(N).padStart(2, "0")}</span>
+                        </div>
+                      </div>
+
+                      {/* Active Status Badge */}
+                      {isCurrent && (
+                        <div className="absolute top-3 left-3 z-10">
+                          <span className="px-2 py-0.5 rounded-full bg-amber-400 text-black font-mono font-bold text-[9px] tracking-wider uppercase flex items-center gap-1 shadow-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-black animate-ping" />
+                            Active
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Bottom Info: Category Bar & Bold Name */}
+                      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 z-10 flex flex-col justify-end text-left pointer-events-none">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="w-3.5 h-[1.5px] bg-amber-400" />
+                          <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-400 font-bold">
+                            {member.categoryBadge}
+                          </span>
+                        </div>
+
+                        <h3 className="text-lg sm:text-xl font-black text-white tracking-tight uppercase leading-snug drop-shadow-md">
+                          {member.name}
+                        </h3>
+
+                        <p className="text-[11px] text-slate-300 font-mono mt-0.5 drop-shadow-sm truncate">
+                          {member.role}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* ========================================================
+              BOTTOM CONTROLS & LINEAR PROGRESS DOCK
+              Matching reference mockup: < > buttons, progress bar, counter
+             ======================================================== */}
+          <div className="absolute bottom-4 sm:bottom-6 inset-x-0 px-4 sm:px-10 lg:px-14 z-30 flex items-center justify-between">
+            
+            {/* Left Controls: Prev, Next & Pause/Play */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Prev Button */}
+              <button
+                type="button"
+                onClick={prevMember}
+                aria-label="Previous member"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 hover:border-amber-400 text-white hover:text-amber-400 flex items-center justify-center backdrop-blur-md transition-all active:scale-95 shadow-lg cursor-pointer"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {/* Next Button */}
+              <button
+                type="button"
+                onClick={nextMember}
+                aria-label="Next member"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 hover:border-amber-400 text-white hover:text-amber-400 flex items-center justify-center backdrop-blur-md transition-all active:scale-95 shadow-lg cursor-pointer"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
 
               {/* Play / Pause Toggle Button */}
               <button
                 type="button"
-                onClick={() => setIsPlaying((p) => !p)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 hover:border-amber-400/40 text-[10.5px] font-mono text-slate-300 hover:text-white transition-all shadow-sm active:scale-95 cursor-pointer"
+                onClick={togglePlay}
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 hover:border-amber-400 backdrop-blur-md text-[11px] sm:text-xs font-mono text-slate-300 hover:text-white transition-all active:scale-95 shadow-lg cursor-pointer"
                 title={isPlaying ? "Click to pause auto-scroll" : "Click to resume auto-scroll"}
               >
                 {isPlaying ? (
                   <>
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                    <Pause className="w-3 h-3 text-amber-400" />
-                    <span>Auto: {isInitialRef.current ? "10s" : "5s"}</span>
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                    <Pause className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="hidden sm:inline">
+                      Auto: {isInitialRef.current && activeIndex === 0 ? "10s" : "5s"}
+                    </span>
                   </>
                 ) : (
                   <>
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
-                    <Play className="w-3 h-3 text-amber-400 fill-current ml-0.5" />
-                    <span className="text-amber-300 font-medium">Paused</span>
+                    <span className="w-2 h-2 rounded-full bg-slate-500" />
+                    <Play className="w-3.5 h-3.5 text-amber-400 fill-current ml-0.5" />
+                    <span className="text-amber-300 font-semibold">Paused</span>
                   </>
                 )}
               </button>
             </div>
-          </div>
 
-          {/* Right Arrow Button */}
-          <button
-            onClick={() => {
-              nextCard();
-              setIsPlaying(false);
-            }}
-            aria-label="Next member"
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/10 hover:border-amber-400/40 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-md backdrop-blur-md"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-
-        </div>
-
-        {/* ========================================================
-            2. APPLE VISIONOS SPATIAL CURVED FAN DECK
-            Exact 1:1 Match to the User's Reference Screenshot
-           ======================================================== */}
-        <div
-          ref={containerRef}
-          onPointerDown={handlePointerDown}
-          onPointerUp={handlePointerUp}
-          className="relative w-full max-w-6xl h-[390px] sm:h-[480px] lg:h-[520px] flex items-center justify-center cursor-grab active:cursor-grabbing perspective-[1200px] overflow-visible my-auto"
-        >
-          <div className="relative w-full h-full flex items-center justify-center">
-            {teamMembers.map((member, i) => {
-              // Calculate parametric offset from center (-3 to +3)
-              const diff = ((i - activeIndex) % N + N) % N;
-              const offset = diff > N / 2 ? diff - N : diff;
-              const isCenter = offset === 0;
-
-              // Spatial curve parameters
-              let x = 0;
-              let z = 0;
-              let rotateY = 0;
-              let scale = 1;
-              let opacity = 1;
-              let zIndex = 50;
-
-              if (isCenter) {
-                x = 0;
-                z = isMobile ? 30 : 60;
-                rotateY = 0;
-                scale = isMobile ? 1.0 : 1.06;
-                opacity = 1;
-                zIndex = 50;
-              } else if (Math.abs(offset) === 1) {
-                x = offset * (isMobile ? 120 : 230);
-                z = isMobile ? -35 : -70;
-                rotateY = offset * -18;
-                scale = isMobile ? 0.85 : 0.88;
-                opacity = 0.95;
-                zIndex = 40;
-              } else if (Math.abs(offset) === 2) {
-                x = offset * (isMobile ? 200 : 410);
-                z = isMobile ? -90 : -160;
-                rotateY = offset * -32;
-                scale = isMobile ? 0.72 : 0.76;
-                opacity = isMobile ? 0.4 : 0.85;
-                zIndex = 30;
-              } else {
-                x = offset * (isMobile ? 260 : 530);
-                z = -260;
-                rotateY = offset * -45;
-                scale = 0.62;
-                opacity = 0;
-                zIndex = 10;
-              }
-
-              // Card dimensions
-              const cardWidth = isMobile ? 220 : 280;
-              const cardHeight = isMobile ? 330 : 420;
-
-              return (
+            {/* Center: Linear Progress Bar Indicator */}
+            <div className="flex-1 max-w-[100px] sm:max-w-xs md:max-w-md mx-3 sm:mx-8">
+              <div className="relative w-full h-[2px] sm:h-[3px] bg-white/20 rounded-full overflow-hidden">
                 <div
-                  key={member.id}
-                  onClick={() => handleCardClick(i)}
-                  onMouseEnter={() => {
-                    if (isCenter) setIsHovered(true);
-                  }}
-                  onMouseLeave={() => {
-                    if (isCenter) {
-                      setIsHovered(false);
-                      handleCenterMouseLeave();
-                    }
-                  }}
-                  onMouseMove={isCenter ? handleCenterMouseMove : undefined}
-                  style={{
-                    width: `${cardWidth}px`,
-                    height: `${cardHeight}px`,
-                    transform: isCenter
-                      ? `translate3d(${x}px, 0, ${z}px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${scale})`
-                      : `translate3d(${x}px, 0, ${z}px) rotateY(${rotateY}deg) scale(${scale})`,
-                    zIndex,
-                    opacity,
-                    transition: isDragging
-                      ? "none"
-                      : "transform 500ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms ease",
-                    pointerEvents: opacity < 0.3 ? "none" : "auto",
-                  }}
-                  className={`absolute rounded-[28px] overflow-hidden select-none border transition-shadow duration-300 ${
-                    isCenter
-                      ? "border-amber-400/60 shadow-[0_20px_60px_rgba(0,0,0,0.9),_0_0_40px_rgba(245,158,11,0.22)] ring-1 ring-amber-400/40 cursor-default bg-[#0a0a0a]"
-                      : "border-white/10 hover:border-white/30 shadow-2xl cursor-pointer bg-[#070707] brightness-90 hover:brightness-100"
-                  }`}
-                >
-                  {/* Photo Container */}
-                  <div className="relative w-full h-full bg-[#06080d]">
-                    <Image
-                      src={member.image}
-                      alt={member.name}
-                      fill
-                      sizes="340px"
-                      className="object-cover object-top select-none pointer-events-none"
-                      priority={i < 3}
-                    />
+                  className="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.9)] transition-none"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
 
-                    {/* Gradient Overlay for Typography Contrast (Matching Reference) */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/35 to-black/10 pointer-events-none" />
+            {/* Right: Counter e.g. 01 / 07 */}
+            <div className="flex items-baseline font-mono text-white">
+              <span className="text-xl sm:text-2xl lg:text-3xl font-black tracking-wider text-amber-400">
+                {String(activeIndex + 1).padStart(2, "0")}
+              </span>
+              <span className="text-xs sm:text-sm font-semibold text-slate-400 ml-1.5">
+                / {String(N).padStart(2, "0")}
+              </span>
+            </div>
 
-                    {/* Top-Right Index Notch Tab (Matching Reference e.g. 1 / 20) */}
-                    <div className="absolute top-0 right-0 z-10">
-                      <div className="px-3.5 py-1.5 rounded-bl-2xl bg-black/65 backdrop-blur-md border-b border-l border-white/10 text-[11px] font-mono font-bold tracking-wider text-white shadow-sm flex items-center gap-1">
-                        <span className="text-amber-400">{i + 1}</span>
-                        <span className="text-slate-400">/</span>
-                        <span className="text-slate-400">{N}</span>
-                      </div>
-                    </div>
-
-                    {/* Bottom Member Identity Info (Matching Reference e.g. Rosa Khutor) */}
-                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6 z-10 flex flex-col justify-end text-left pointer-events-none">
-                      <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-400 font-bold mb-1">
-                        {member.categoryBadge}
-                      </span>
-                      <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight drop-shadow-md">
-                        {member.name}
-                      </h3>
-                      <p className="text-xs text-slate-300 font-mono mt-0.5 drop-shadow-sm">
-                        {member.role}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
           </div>
-        </div>
+
+        </section>
 
         {/* ========================================================
-            3. PILL HUD DOCK (MATCHING REFERENCE MOCKUP BELOW TABLE)
-            e.g. [ 115km ] [ 2347m ] [ -10 ] [ 113cm ]
+            2. QUICK HUD PILLS DOCK
+            Showing key quick attributes for the active leader
            ======================================================== */}
-        <div className="relative w-full max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 mt-4 sm:mt-6 mb-12 px-3 z-20">
+        <section className="relative w-full max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 -mt-4 mb-16 px-4 z-20">
           
-          {/* Pause / Resume Button in HUD Dock */}
-          <button
-            type="button"
-            onClick={() => setIsPlaying((p) => !p)}
-            className="px-3.5 py-1.5 rounded-full bg-black/70 border border-white/15 hover:border-amber-400/50 backdrop-blur-xl text-[11px] font-mono text-slate-200 hover:text-white flex items-center gap-2 shadow-lg transition-colors cursor-pointer"
-            title={isPlaying ? "Click to pause auto-advance" : "Click to resume auto-advance"}
-          >
-            {isPlaying ? (
-              <>
-                <Pause className="w-3.5 h-3.5 text-amber-400" />
-                <span>Pause Auto-Play</span>
-              </>
-            ) : (
-              <>
-                <Play className="w-3.5 h-3.5 text-amber-400 fill-current ml-0.5" />
-                <span className="text-amber-300 font-semibold">Resume Auto-Play</span>
-              </>
-            )}
-          </button>
-
           {/* Badge 1: Role */}
-          <div className="px-3.5 py-1.5 rounded-full bg-black/70 border border-white/15 backdrop-blur-xl text-[11px] font-mono text-slate-200 flex items-center gap-2 shadow-lg">
+          <div className="px-3.5 py-1.5 rounded-full bg-black/80 border border-white/15 backdrop-blur-xl text-[11px] font-mono text-slate-200 flex items-center gap-2 shadow-lg">
             <Shield className="w-3.5 h-3.5 text-amber-400 shrink-0" />
             <span className="font-semibold text-white">{activeMember.categoryBadge}</span>
           </div>
 
           {/* Badge 2: Department */}
-          <div className="px-3.5 py-1.5 rounded-full bg-black/70 border border-white/15 backdrop-blur-xl text-[11px] font-mono text-slate-200 flex items-center gap-2 shadow-lg">
+          <div className="px-3.5 py-1.5 rounded-full bg-black/80 border border-white/15 backdrop-blur-xl text-[11px] font-mono text-slate-200 flex items-center gap-2 shadow-lg">
             <GraduationCap className="w-3.5 h-3.5 text-amber-400 shrink-0" />
             <span>{activeMember.department}</span>
           </div>
 
           {/* Badge 3: Quick Focus */}
-          <div className="hidden sm:flex px-3.5 py-1.5 rounded-full bg-black/70 border border-white/15 backdrop-blur-xl text-[11px] font-mono text-slate-200 items-center gap-2 shadow-lg">
+          <div className="hidden sm:flex px-3.5 py-1.5 rounded-full bg-black/80 border border-white/15 backdrop-blur-xl text-[11px] font-mono text-slate-200 items-center gap-2 shadow-lg">
             <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
             <span>{activeMember.quickStats[2].value}</span>
           </div>
@@ -569,18 +621,28 @@ export default function TeamPage() {
           {/* Badge 4: Email */}
           <a
             href={`mailto:${activeMember.email}`}
-            className="px-3.5 py-1.5 rounded-full bg-black/70 border border-white/15 hover:border-amber-400/40 backdrop-blur-xl text-[11px] font-mono text-slate-300 hover:text-white flex items-center gap-2 shadow-lg transition-colors"
+            className="px-3.5 py-1.5 rounded-full bg-black/80 border border-white/15 hover:border-amber-400/40 backdrop-blur-xl text-[11px] font-mono text-slate-300 hover:text-white flex items-center gap-2 shadow-lg transition-colors"
           >
             <Mail className="w-3.5 h-3.5 text-amber-400 shrink-0" />
             <span className="truncate max-w-[140px] sm:max-w-none">{activeMember.email}</span>
           </a>
 
-        </div>
+        </section>
 
         {/* ========================================================
-            4. ACTIVE MEMBER DEEP-DIVE DETAIL PANEL
+            3. ACTIVE MEMBER DEEP-DIVE DOSSIER PANEL
+            Smooth scroll target from hero CTA button
            ======================================================== */}
-        <div className="w-full max-w-6xl mx-auto px-4 mb-16">
+        <section id="dossier" className="w-full max-w-6xl mx-auto px-4 mb-20 scroll-mt-24">
+          
+          {/* Header Title */}
+          <div className="flex items-center gap-2 mb-6">
+            <Layers className="w-4 h-4 text-amber-400" />
+            <span className="text-xs font-mono uppercase tracking-[0.25em] text-amber-400 font-bold">
+              Leadership Dossier &bull; Full Profile
+            </span>
+          </div>
+
           <div className="relative rounded-3xl border border-white/10 bg-[#070707]/90 backdrop-blur-md p-6 sm:p-8 lg:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden transition-all duration-500">
             {/* Top Subtle Amber Ambient Glow */}
             <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
@@ -668,12 +730,12 @@ export default function TeamPage() {
 
             </div>
           </div>
-        </div>
+        </section>
 
         {/* ========================================================
-            5. FACULTY ADVISOR & MENTOR SECTION
+            4. FACULTY ADVISOR & MENTOR SECTION
            ======================================================== */}
-        <section className="w-full max-w-6xl mx-auto px-4 pt-8 pb-12 border-t border-white/[0.08]">
+        <section className="w-full max-w-6xl mx-auto px-4 pt-8 pb-16 border-t border-white/[0.08]">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             {/* Left Column: Heading & Mission */}
