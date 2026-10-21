@@ -719,7 +719,7 @@ export default function EventsPage() {
                           <div className="flex items-center gap-2 text-xs font-mono text-slate-300">
                             <div className="px-3 py-1.5 rounded-xl bg-amber-400/10 border border-amber-400/25 text-amber-300 flex items-center gap-1.5 font-bold">
                               <Users className="w-3.5 h-3.5 text-amber-400" />
-                              <span>{evt.capacity || "160"} First-Years Attended</span>
+                              <span>100+ First-Years Attended</span>
                             </div>
                           </div>
 

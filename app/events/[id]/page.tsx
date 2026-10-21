@@ -446,10 +446,10 @@ export default function EventDetailPage({ params }: { params: Promise<{ id: stri
                     PARTICIPANTS
                   </span>
                   <span className="text-xs sm:text-sm font-bold text-white block mt-0.5">
-                    {event.capacity || "50 – 80"}
+                    {event.status === "Completed" ? "100+ Attended" : event.capacity || "100+ Students"}
                   </span>
                   <span className="text-[11px] font-mono text-slate-400 truncate max-w-[140px] block">
-                    Open for all students
+                    First-year students
                   </span>
                 </div>
               </div>

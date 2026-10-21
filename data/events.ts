@@ -102,7 +102,7 @@ export const pastEvents: CyberEvent[] = [
       "ON CAMPUS",
       "HANDS-ON"
     ],
-    capacity: "50 - 80 (Open for all first-year students)",
+    capacity: "100+ First-Year Students",
     prerequisites: "None (Just curiosity & passion for tech)",
     toolsRequired: "Laptop (Windows / Linux / macOS)",
     agenda: "10:30 AM: Keynote & Core Concepts | 11:30 AM: Live Cyber Range Attack/Defend Demo | 12:30 PM: Interactive CTF Mini-Wargame",
