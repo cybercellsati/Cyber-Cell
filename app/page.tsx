@@ -7,6 +7,7 @@ import LearningRoadmap from "@/components/LearningRoadmap";
 import FocusAreas from "@/components/FocusAreas";
 import TerminalDemo from "@/components/TerminalDemo";
 import Footer from "@/components/Footer";
+import ScrollToTop from "@/components/ScrollToTop";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
@@ -84,6 +85,9 @@ export default function Home() {
 
       {/* 9. Comprehensive Official Footer */}
       <Footer />
+
+      {/* 10. Scroll to Top Floating Action Button */}
+      <ScrollToTop />
     </main>
   );
 }

@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import CinematicTelemetry from "@/components/CinematicTelemetry";
+import DefenseArchitecture from "@/components/DefenseArchitecture";
 
 export default function AboutSection() {
   // 3 Operational Pillars (Left Column of Matrix)
@@ -85,65 +86,14 @@ export default function AboutSection() {
       <CinematicTelemetry />
 
       {/* =========================================================================
-          SECTION 2: SLASHED ANGLED MISSION BANNER (Inspire by Section 3 "О НАШЕМ ПРОЕКТЕ")
+          SECTION 2: 3D PARTICLE SPACECRAFT DEFENSE ARCHITECTURE (1:1 with Reference)
           Features:
-          - Slashed diagonal geometric cut
-          - High-contrast titanium/golden horizon edge
-          - Minimalist punchy manifesto with tight tracking
-          - SATI Vidisha campus coordinates badge
+          - Authentic golden amber & electric blue particle spacecraft
+          - Animated thruster exhaust jet bubbles, zero-G plasma orbs & orbital beacons
+          - 3D levitation & mouse parallax tilt physics
+          - Institutional charter typography & glowing solid white pill CTA
          ========================================================================= */}
-      <div className="relative py-16 sm:py-20 bg-gradient-to-r from-[#0a0805] via-[#050402] to-[#0a0805] border-y border-amber-500/25">
-        
-        {/* Glowing Horizon Accent Line */}
-        <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_12px_#f59e0b]" />
-        <div className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col lg:flex-row lg:items-center justify-between gap-8"
-          >
-            {/* Left: Punchy Manifesto */}
-            <div className="space-y-3 max-w-3xl">
-              <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-widest text-black bg-amber-400 uppercase">
-                  INSTITUTIONAL CHARTER
-                </span>
-                <span className="text-xs font-mono text-slate-400">EST. 2026 &bull; SATI VIDISHA</span>
-              </div>
-
-              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-white leading-tight">
-                DEFENSE IS NOT AN AFTERTHOUGHT. <br />
-                <span className="text-amber-400">IT IS ARCHITECTURE.</span>
-              </h2>
-
-              <p className="text-xs sm:text-sm text-slate-300 font-light leading-relaxed max-w-2xl">
-                Cyber Cell is the official cybersecurity community and technical defense body at{" "}
-                <strong className="text-white font-medium">Samrat Ashok Technological Institute</strong>. 
-                We engineer student researchers through live adversary wargames, low-level binary exploitation, 
-                and hardened defensive systems.
-              </p>
-            </div>
-
-            {/* Right: Direct CTA to Full Charter */}
-            <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end gap-3 self-start lg:self-center">
-              <Link
-                href="/about"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white hover:bg-slate-200 text-black font-mono font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-lg shadow-white/10 active:scale-95 group"
-              >
-                <span>Read Full Charter &amp; Leadership</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <span className="text-[11px] font-mono text-slate-500">
-                Department of Computer Science &amp; Engineering
-              </span>
-            </div>
-          </motion.div>
-        </div>
-      </div>
+      <DefenseArchitecture />
 
       {/* =========================================================================
           SECTION 3: THE 3-COLUMN PILLAR MATRIX (Inspire by Thanos Section 4 in Ref)

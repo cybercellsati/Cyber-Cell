@@ -1,6 +1,9 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { ArrowUp } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -253,14 +256,26 @@ export default function Footer() {
             &copy; 2026 Cyber Cell. All rights reserved.
           </div>
 
-          {/* Recruitment Closed Status Pill (Mobile & Desktop) */}
-          <Link
-            href="/join"
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-amber-400/40 text-slate-300 hover:text-white text-[11px] font-mono transition-all"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.9)]" />
-            <span>Recruitment Closed</span>
-          </Link>
+          {/* Center Strip: Recruitment Closed + Scroll to Top Button */}
+          <div className="flex items-center gap-3">
+            <Link
+              href="/join"
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-amber-400/40 text-slate-300 hover:text-white text-[11px] font-mono transition-all"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.9)]" />
+              <span>Recruitment Closed</span>
+            </Link>
+
+            {/* Scroll to Top Icon Button */}
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              aria-label="Scroll to top of page"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] hover:bg-amber-400/10 border border-white/10 hover:border-amber-400/50 text-slate-300 hover:text-amber-400 text-[11px] font-mono transition-all group cursor-pointer shadow-sm active:scale-95"
+            >
+              <span className="font-semibold uppercase tracking-wider">TOP</span>
+              <ArrowUp className="w-3.5 h-3.5 text-amber-400 group-hover:-translate-y-0.5 transition-transform" />
+            </button>
+          </div>
 
           {/* Slogan with Amber Separator Dots */}
           <div className="flex items-center gap-2 sm:gap-2.5 tracking-[0.2em] uppercase text-slate-400">
