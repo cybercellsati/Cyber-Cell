@@ -13,6 +13,31 @@ export const metadata = {
   title: "Cyber Cell — Cybersecurity Club | SATI Vidisha",
   description:
     "Official Cybersecurity Club at Samrat Ashok Technological Institute (SATI), Vidisha. Hands-on labs, ethical hacking, CTFs, network defense, and practical security education.",
+  openGraph: {
+    title: "Cyber Cell — Cybersecurity Club | SATI Vidisha",
+    description:
+      "Official Cybersecurity Club at Samrat Ashok Technological Institute (SATI), Vidisha. Hands-on labs, ethical hacking, CTFs, network defense, and practical security education.",
+    url: "https://cybercell.satiengg.in",
+    siteName: "Cyber Cell SATI",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Cyber Cell, SATI Vidisha Official Logo",
+        type: "image/png",
+      },
+    ],
+    type: "website",
+    locale: "en_IN",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Cyber Cell — Cybersecurity Club | SATI Vidisha",
+    description:
+      "Official Cybersecurity Club at Samrat Ashok Technological Institute (SATI), Vidisha. Hands-on labs, ethical hacking, CTFs, network defense, and practical security education.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function Home() {

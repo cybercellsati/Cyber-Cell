@@ -17,6 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://cybercell.satiengg.in"),
   title: "Cyber Cell | Official Cybersecurity Club | SATI Vidisha",
   description:
     "Official student cybersecurity body and ethical hacking community of Samrat Ashok Technological Institute (SATI), Vidisha.",
@@ -27,6 +28,31 @@ export const metadata: Metadata = {
     ],
     shortcut: "/favicon.ico",
     apple: "/apple-icon.png",
+  },
+  openGraph: {
+    title: "Cyber Cell | Official Cybersecurity Club | SATI Vidisha",
+    description:
+      "Official student cybersecurity body and ethical hacking community of Samrat Ashok Technological Institute (SATI), Vidisha.",
+    url: "https://cybercell.satiengg.in",
+    siteName: "Cyber Cell SATI",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Cyber Cell, SATI Vidisha Official Logo",
+        type: "image/png",
+      },
+    ],
+    type: "website",
+    locale: "en_IN",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Cyber Cell | Official Cybersecurity Club | SATI Vidisha",
+    description:
+      "Official student cybersecurity body and ethical hacking community of Samrat Ashok Technological Institute (SATI), Vidisha.",
+    images: ["/og-image.png"],
   },
 };
 
