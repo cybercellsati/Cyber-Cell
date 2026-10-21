@@ -4,7 +4,6 @@ import Hero from "@/components/Hero";
 import AboutSection from "@/components/AboutSection";
 import FocusAreas from "@/components/FocusAreas";
 import LearningRoadmap from "@/components/LearningRoadmap";
-import UpcomingEvents from "@/components/UpcomingEvents";
 import ProjectsSection from "@/components/ProjectsSection";
 import ResourceVault from "@/components/ResourceVault";
 import TerminalDemo from "@/components/TerminalDemo";
@@ -34,10 +33,7 @@ export default function Home() {
       {/* 5. Cybersecurity Learning Roadmap */}
       <LearningRoadmap />
 
-      {/* 6. Upcoming Events */}
-      <UpcomingEvents />
-
-      {/* 7. Engineering & Projects */}
+      {/* 6. Engineering & Projects */}
       <ProjectsSection />
 
       {/* 8. Curated Resource Vault */}
