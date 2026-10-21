@@ -229,6 +229,16 @@ export default function TeamPage() {
     document.getElementById("dossier")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // When on Arya Mishra (last card, index 6), automatically return to Convenor (index 0) after 5 seconds
+  useEffect(() => {
+    if (activeIndex === N - 1) {
+      const timer = setTimeout(() => {
+        setActiveIndex(0);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeIndex, N]);
+
   // ========================================================
   // WHEEL INTERCEPTOR:
   // Scrolling down flips cards WITHOUT scrolling the page down!
@@ -556,8 +566,17 @@ export default function TeamPage() {
 
               {/* Scroll Tip Indicator */}
               <div className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 border border-white/20 backdrop-blur-md text-[11px] font-mono text-slate-300 shadow-lg">
-                <MousePointer className="w-3.5 h-3.5 text-amber-400" />
-                <span>Scroll wheel to flip cards</span>
+                {activeIndex === N - 1 ? (
+                  <>
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+                    <span className="text-amber-300 font-medium">Returning to Convenor in 5s...</span>
+                  </>
+                ) : (
+                  <>
+                    <MousePointer className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Scroll wheel to flip cards</span>
+                  </>
+                )}
               </div>
             </div>
 
