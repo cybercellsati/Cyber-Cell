@@ -398,8 +398,8 @@ export default function TeamPage() {
                 </span>
                 <span
                   className={`block tracking-tight text-slate-200 ${
-                    lastName.length > 8
-                      ? "text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-7xl mt-1"
+                    lastName.length >= 8
+                      ? "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mt-1"
                       : "text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl"
                   }`}
                 >
@@ -461,7 +461,8 @@ export default function TeamPage() {
                   const parts = member.name.split(" ");
                   const cardFirstName = parts[0] || "";
                   const cardLastName = parts.slice(1).join(" ") || "";
-                  const isLongLastName = cardLastName.length >= 8;
+                  const isKushwaha = member.id === "ansh" || cardLastName.toLowerCase().includes("kushwaha");
+                  const isLongLastName = cardLastName.length >= 8 || isKushwaha;
                   const isLongName = member.name.length >= 12 || isLongLastName;
 
                   return (
@@ -519,7 +520,9 @@ export default function TeamPage() {
                         {/* 2-line clean editorial name layout with safe scaling for long surnames like Kushwaha & Vishwkarma */}
                         <h3
                           className={`font-black uppercase tracking-tight leading-[1.08] drop-shadow-md ${
-                            isLongName
+                            isKushwaha
+                              ? "text-[13px] sm:text-[14px] lg:text-[15px]"
+                              : isLongName
                               ? "text-[14px] sm:text-[15px] lg:text-[16px]"
                               : "text-base sm:text-lg lg:text-xl"
                           }`}
@@ -527,8 +530,10 @@ export default function TeamPage() {
                           <span className="block text-white truncate">{cardFirstName}</span>
                           <span
                             className={`block truncate ${
-                              isLongLastName
-                                ? "text-[12.5px] sm:text-[13.5px] lg:text-[14.5px] text-slate-200 tracking-normal"
+                              isKushwaha
+                                ? "text-[10px] sm:text-[11px] lg:text-[12px] text-slate-300 font-extrabold tracking-wider mt-0.5"
+                                : isLongLastName
+                                ? "text-[11.5px] sm:text-[12.5px] lg:text-[13.5px] text-slate-200 tracking-normal"
                                 : "text-slate-200"
                             }`}
                           >
