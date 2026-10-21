@@ -312,7 +312,7 @@ export default function TeamPage() {
   }, [handleNext, handlePrev]);
 
   // Card slide translation step
-  const cardStep = isMobile ? 230 : 280;
+  const cardStep = isMobile ? 241 : 290;
 
   return (
     <div className="min-h-screen bg-[#030303] text-white flex flex-col font-sans selection:bg-amber-400/20 selection:text-amber-300 overflow-x-hidden">
@@ -375,10 +375,20 @@ export default function TeamPage() {
                   </span>
                 </div>
 
-                {/* Giant Condensed Editorial Typography */}
-                <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-8xl xl:text-9xl font-black uppercase tracking-tight text-white leading-[0.88] drop-shadow-2xl">
-                  <span className="block text-white tracking-tight">{firstName}</span>
-                  <span className="block text-slate-200 tracking-tight">{lastName}</span>
+                {/* Giant Condensed Editorial Typography (Adaptive sizing for long names like Vishwkarma) */}
+                <h1 className="font-black uppercase tracking-tight text-white leading-[0.88] drop-shadow-2xl">
+                  <span className="block text-white tracking-tight text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl">
+                    {firstName}
+                  </span>
+                  <span
+                    className={`block tracking-tight text-slate-200 ${
+                      lastName.length > 8
+                        ? "text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-7xl mt-1"
+                        : "text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl"
+                    }`}
+                  >
+                    {lastName}
+                  </span>
                 </h1>
 
                 {/* Concise Narrative Bio Snippet */}
@@ -432,11 +442,16 @@ export default function TeamPage() {
                 >
                   {teamMembers.map((member, i) => {
                     const isCurrent = i === activeIndex;
+                    const parts = member.name.split(" ");
+                    const cardFirstName = parts[0] || "";
+                    const cardLastName = parts.slice(1).join(" ") || "";
+                    const isLongName = member.name.length > 13;
+
                     return (
                       <div
                         key={member.id}
                         onClick={() => scrollToMember(i)}
-                        className={`relative w-[210px] sm:w-[260px] h-[310px] sm:h-[390px] rounded-[24px] sm:rounded-[28px] overflow-hidden shrink-0 cursor-pointer transition-all duration-500 group select-none ${
+                        className={`relative w-[225px] sm:w-[270px] h-[325px] sm:h-[400px] rounded-[24px] sm:rounded-[28px] overflow-hidden shrink-0 cursor-pointer transition-all duration-500 group select-none ${
                           isCurrent
                             ? "ring-2 ring-amber-400 border-transparent shadow-[0_20px_50px_rgba(245,158,11,0.25)] scale-[1.02]"
                             : "border border-white/10 hover:border-white/35 opacity-70 hover:opacity-100 hover:scale-[1.01] bg-[#080808]"
@@ -447,12 +462,12 @@ export default function TeamPage() {
                           src={member.image}
                           alt={member.name}
                           fill
-                          sizes="(max-width: 640px) 210px, 260px"
+                          sizes="(max-width: 640px) 225px, 270px"
                           className="object-cover object-top transition-transform duration-700 group-hover:scale-105 pointer-events-none"
                         />
 
-                        {/* Scrim Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
+                        {/* Scrim Overlay with deep contrast */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none" />
 
                         {/* Top Right Index Badge: e.g. 01 / 07 */}
                         <div className="absolute top-3 right-3 z-10">
@@ -475,20 +490,28 @@ export default function TeamPage() {
                           </div>
                         )}
 
-                        {/* Bottom Info: Category Bar & Bold Name */}
+                        {/* Bottom Info: Category Bar & Clean 2-Line Name */}
                         <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 z-10 flex flex-col justify-end text-left pointer-events-none">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <span className="w-3.5 h-[1.5px] bg-amber-400" />
-                            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-400 font-bold">
+                          <div className="flex items-center gap-1.5 mb-1.5">
+                            <span className="w-3.5 h-[1.5px] bg-amber-400 shrink-0" />
+                            <span className="text-[9.5px] sm:text-[10px] font-mono uppercase tracking-[0.18em] text-amber-400 font-bold truncate">
                               {member.categoryBadge}
                             </span>
                           </div>
 
-                          <h3 className="text-lg sm:text-xl font-black text-white tracking-tight uppercase leading-snug drop-shadow-md">
-                            {member.name}
+                          {/* 2-line clean editorial name layout so long names (Anubhav, Kushwaha) never clip */}
+                          <h3
+                            className={`font-black uppercase tracking-tight leading-[1.08] drop-shadow-md ${
+                              isLongName
+                                ? "text-[15px] sm:text-base lg:text-[17px]"
+                                : "text-base sm:text-lg lg:text-xl"
+                            }`}
+                          >
+                            <span className="block text-white truncate">{cardFirstName}</span>
+                            <span className="block text-slate-200 truncate">{cardLastName}</span>
                           </h3>
 
-                          <p className="text-[11px] text-slate-300 font-mono mt-0.5 drop-shadow-sm truncate">
+                          <p className="text-[10.5px] sm:text-[11px] text-slate-400 font-mono mt-1 drop-shadow-sm truncate">
                             {member.role}
                           </p>
                         </div>
