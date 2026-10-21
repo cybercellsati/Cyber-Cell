@@ -217,6 +217,15 @@ export default function Footer() {
 
             </div>
 
+            {/* Recruitment Closed Status Button */}
+            <Link
+              href="/join"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-mono font-medium text-slate-300 hover:text-white rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-amber-400/40 transition-all duration-200 shadow-sm w-fit"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
+              <span>Recruitment Closed</span>
+            </Link>
+
             {/* Amber Accent Line */}
             <div className="w-6 h-[2px] bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
 
@@ -243,6 +252,15 @@ export default function Footer() {
           <div>
             &copy; 2026 Cyber Cell. All rights reserved.
           </div>
+
+          {/* Recruitment Closed Status Pill (Mobile & Desktop) */}
+          <Link
+            href="/join"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-amber-400/40 text-slate-300 hover:text-white text-[11px] font-mono transition-all"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.9)]" />
+            <span>Recruitment Closed</span>
+          </Link>
 
           {/* Slogan with Amber Separator Dots */}
           <div className="flex items-center gap-2 sm:gap-2.5 tracking-[0.2em] uppercase text-slate-400">

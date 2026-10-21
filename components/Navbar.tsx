@@ -163,14 +163,6 @@ export default function Navbar() {
               Sign In
             </button>
           )}
-
-          <Link
-            href="/join"
-            className="group relative inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-[13px] font-medium text-slate-300 hover:text-white rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 transition-all duration-200 shadow-sm active:scale-[0.98]"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-            <span>Recruitment Closed</span>
-          </Link>
         </div>
 
         {/* Animated Hamburger Button for Mobile */}
@@ -266,15 +258,6 @@ export default function Navbar() {
                 Sign In
               </button>
             )}
-
-            <Link
-              href="/join"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-center gap-2 w-full py-2.5 text-center text-xs font-semibold text-slate-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] rounded-lg border border-white/10 transition-colors"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-              <span>Recruitment Closed</span>
-            </Link>
           </div>
         </div>
       )}
