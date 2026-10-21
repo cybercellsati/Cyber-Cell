@@ -190,11 +190,11 @@ const teamMembers: TeamMember[] = [
 
 export default function TeamPage() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Reference for sticky scroll track container
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  // References
+  const heroRef = useRef<HTMLElement>(null);
+  const isScrollingRef = useRef(false);
   const touchStartXRef = useRef<number | null>(null);
   const touchStartYRef = useRef<number | null>(null);
 
@@ -216,66 +216,74 @@ export default function TeamPage() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Smoothly scroll window to target member's scroll section
-  const scrollToMember = useCallback(
-    (idx: number) => {
-      if (!scrollContainerRef.current) {
-        setActiveIndex(idx);
-        return;
-      }
-      const container = scrollContainerRef.current;
-      const rect = container.getBoundingClientRect();
-      const currentScrollY = window.scrollY;
-      const containerTop = currentScrollY + rect.top;
-      const scrollableDistance = container.offsetHeight - window.innerHeight;
-      if (scrollableDistance <= 0) {
-        setActiveIndex(idx);
-        return;
-      }
-      const targetProgress = (idx + 0.35) / N;
-      const targetY = containerTop + targetProgress * scrollableDistance;
-      window.scrollTo({ top: targetY, behavior: "smooth" });
-    },
-    [N]
-  );
-
   const handleNext = useCallback(() => {
-    scrollToMember(Math.min(N - 1, activeIndex + 1));
-  }, [activeIndex, N, scrollToMember]);
+    setActiveIndex((prev) => (prev + 1) % N);
+  }, [N]);
 
   const handlePrev = useCallback(() => {
-    scrollToMember(Math.max(0, activeIndex - 1));
-  }, [activeIndex, scrollToMember]);
+    setActiveIndex((prev) => (prev - 1 + N) % N);
+  }, [N]);
 
   const scrollToDossier = (e: React.MouseEvent) => {
     e.preventDefault();
     document.getElementById("dossier")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Scroll listener: Drives active card and progress directly via native scroll position
+  // ========================================================
+  // WHEEL INTERCEPTOR:
+  // Scrolling down flips cards WITHOUT scrolling the page down!
+  // Only after cycling to the last leader (Arya) does scroll
+  // naturally continue into the dossier section.
+  // ========================================================
   useEffect(() => {
-    const handleScroll = () => {
-      if (!scrollContainerRef.current) return;
-      const rect = scrollContainerRef.current.getBoundingClientRect();
-      const scrollableDistance = scrollContainerRef.current.offsetHeight - window.innerHeight;
-      if (scrollableDistance <= 0) return;
+    const heroEl = heroRef.current;
+    if (!heroEl) return;
 
-      // Fraction of scroll inside pinned track (0 to 1)
-      const rawProgress = -rect.top / scrollableDistance;
-      const progress = Math.min(Math.max(rawProgress, 0), 1);
-      setScrollProgress(progress);
+    const onWheel = (e: WheelEvent) => {
+      // If user has already scrolled down into the page body, let normal scroll occur
+      if (window.scrollY > 40) return;
 
-      // Map progress to active member index (0 to N-1)
-      const targetIndex = Math.min(Math.floor(progress * N), N - 1);
-      setActiveIndex(targetIndex);
+      // Filter out micro accidental movements
+      if (Math.abs(e.deltaY) < 18) return;
+
+      if (e.deltaY > 0) {
+        // User scrolls wheel DOWN:
+        // While not on the last member, intercept wheel and advance card!
+        // The page does NOT scroll down!
+        if (activeIndex < N - 1) {
+          e.preventDefault();
+          if (!isScrollingRef.current) {
+            isScrollingRef.current = true;
+            setActiveIndex((prev) => Math.min(N - 1, prev + 1));
+            setTimeout(() => {
+              isScrollingRef.current = false;
+            }, 450);
+          }
+        }
+        // When activeIndex === N - 1, wheel is not prevented, allowing smooth scroll to dossier
+      } else if (e.deltaY < 0) {
+        // User scrolls wheel UP:
+        // If near page top, intercept wheel and return to previous card
+        if (activeIndex > 0 && window.scrollY < 20) {
+          e.preventDefault();
+          if (!isScrollingRef.current) {
+            isScrollingRef.current = true;
+            setActiveIndex((prev) => Math.max(0, prev - 1));
+            setTimeout(() => {
+              isScrollingRef.current = false;
+            }, 450);
+          }
+        }
+      }
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [N]);
+    heroEl.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      heroEl.removeEventListener("wheel", onWheel);
+    };
+  }, [activeIndex, N]);
 
-  // Touch Swipe Gesture Handlers for mobile horizontal flick
+  // Touch Swipe Gesture Handlers for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartXRef.current = e.touches[0].clientX;
     touchStartYRef.current = e.touches[0].clientY;
@@ -288,8 +296,8 @@ export default function TeamPage() {
     touchStartXRef.current = null;
     touchStartYRef.current = null;
 
-    // Only trigger horizontal step if horizontal motion exceeds vertical
-    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY) * 1.4) {
+    // Horizontal swipe triggers card navigation cleanly
+    if (Math.abs(deltaX) > 35 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
       if (deltaX < 0) {
         handleNext();
       } else {
@@ -319,266 +327,261 @@ export default function TeamPage() {
       {/* Sticky Glass Navbar */}
       <Navbar />
 
-      <main className="flex-1 flex flex-col w-full select-none relative">
+      <main className="flex-1 flex flex-col w-full select-none relative pt-16 sm:pt-20">
         {/* ========================================================
-            1. PINNED SCROLL HERO TRACK (SCROLL-DRIVEN CARDS)
-            Auto-change removed; scrolling drives the cards seamlessly!
+            1. CINEMATIC SPLIT HERO SLIDER
+            Wheel scroll flips cards while keeping the page locked in place!
            ======================================================== */}
-        <div ref={scrollContainerRef} className="relative h-[340vh]">
-          {/* Pinned Viewport Container */}
-          <div className="sticky top-0 h-[100dvh] w-full overflow-hidden flex flex-col justify-between pt-16 sm:pt-20">
-            
-            {/* Background Cross-Fade Portals */}
-            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-              {teamMembers.map((member, idx) => (
-                <div
-                  key={member.id}
-                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                    idx === activeIndex
-                      ? "opacity-100 scale-100"
-                      : "opacity-0 scale-105 pointer-events-none"
-                  } transition-transform duration-700`}
-                >
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    fill
-                    priority={idx === 0}
-                    sizes="100vw"
-                    className="object-cover object-top lg:object-center filter brightness-[0.32] contrast-[1.12] blur-[1px]"
-                  />
-                </div>
-              ))}
+        <section
+          ref={heroRef}
+          className="relative w-full h-[88vh] min-h-[640px] max-h-[950px] overflow-hidden flex flex-col justify-between"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Background Cross-Fade Portals */}
+          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+            {teamMembers.map((member, idx) => (
+              <div
+                key={member.id}
+                className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                  idx === activeIndex
+                    ? "opacity-100 scale-100"
+                    : "opacity-0 scale-105 pointer-events-none"
+                } transition-transform duration-700`}
+              >
+                <Image
+                  src={member.image}
+                  alt={member.name}
+                  fill
+                  priority={idx === 0}
+                  sizes="100vw"
+                  className="object-cover object-top lg:object-center filter brightness-[0.32] contrast-[1.12] blur-[1px]"
+                />
+              </div>
+            ))}
 
-              {/* Cinematic Gradient Scrims for Text Legibility */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 lg:via-black/70 to-black/30 pointer-events-none" />
-              <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#030303] via-[#030303]/80 to-transparent pointer-events-none" />
-              <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/80 to-transparent pointer-events-none" />
-              <div className="absolute -top-24 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-[140px] pointer-events-none" />
-            </div>
+            {/* Cinematic Gradient Scrims for Text Legibility */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 lg:via-black/70 to-black/30 pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-[#030303] via-[#030303]/80 to-transparent pointer-events-none" />
+            <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/80 to-transparent pointer-events-none" />
+            <div className="absolute -top-24 left-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-[140px] pointer-events-none" />
+          </div>
 
-            {/* Main Two-Column Split Content Area */}
-            <div
-              className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-10 lg:px-14 flex-1 flex flex-col lg:flex-row items-center justify-center lg:justify-between pt-4 pb-20 sm:pb-24"
-              onTouchStart={handleTouchStart}
-              onTouchEnd={handleTouchEnd}
-            >
-              {/* ========================================================
-                  LEFT COLUMN: Active Member Hero Story
-                 ======================================================== */}
-              <div className="w-full lg:w-[48%] flex flex-col justify-center text-left py-4 z-20">
-                {/* Eyebrow with horizontal line: e.g. — FOUNDER & CONVENOR */}
-                <div className="flex items-center gap-3 mb-3 sm:mb-4">
-                  <span className="w-8 sm:w-12 h-[2px] bg-amber-400" />
-                  <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-amber-400 font-bold">
-                    {activeMember.role}
-                  </span>
-                </div>
-
-                {/* Giant Condensed Editorial Typography (Adaptive sizing for long names like Vishwkarma) */}
-                <h1 className="font-black uppercase tracking-tight text-white leading-[0.88] drop-shadow-2xl">
-                  <span className="block text-white tracking-tight text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl">
-                    {firstName}
-                  </span>
-                  <span
-                    className={`block tracking-tight text-slate-200 ${
-                      lastName.length > 8
-                        ? "text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-7xl mt-1"
-                        : "text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl"
-                    }`}
-                  >
-                    {lastName}
-                  </span>
-                </h1>
-
-                {/* Concise Narrative Bio Snippet */}
-                <p className="text-xs sm:text-sm lg:text-base text-slate-300 font-light leading-relaxed max-w-md mt-4 sm:mt-5 drop-shadow-md line-clamp-3 sm:line-clamp-none">
-                  {activeMember.bio}
-                </p>
-
-                {/* Action Buttons Row */}
-                <div className="flex items-center gap-3 sm:gap-4 mt-6 sm:mt-8">
-                  {/* Shield / Bookmark pill */}
-                  <a
-                    href={activeMember.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 hover:border-amber-400/80 backdrop-blur-md flex items-center justify-center text-white hover:text-amber-400 transition-all active:scale-95 shadow-lg group cursor-pointer"
-                    title="View LinkedIn Profile"
-                  >
-                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 group-hover:scale-110 transition-transform" />
-                  </a>
-
-                  {/* Primary Explore Dossier Button */}
-                  <button
-                    type="button"
-                    onClick={scrollToDossier}
-                    className="inline-flex items-center gap-2.5 sm:gap-3 px-5 sm:px-7 py-3 sm:py-3.5 rounded-full bg-white text-black hover:bg-amber-400 hover:text-black font-mono font-bold text-[11px] sm:text-xs uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.15)] group cursor-pointer"
-                  >
-                    <span>Explore Dossier</span>
-                    <ArrowDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-y-0.5 transition-transform" />
-                  </button>
-
-                  {/* Mobile Hint Pill */}
-                  <div className="lg:hidden ml-auto">
-                    <span className="text-[10px] font-mono text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/20">
-                      {activeMember.categoryBadge}
-                    </span>
-                  </div>
-                </div>
+          {/* Main Two-Column Split Content Area */}
+          <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-10 lg:px-14 flex-1 flex flex-col lg:flex-row items-center justify-center lg:justify-between pt-4 pb-20 sm:pb-24">
+            {/* ========================================================
+                LEFT COLUMN: Active Member Hero Story
+               ======================================================== */}
+            <div className="w-full lg:w-[48%] flex flex-col justify-center text-left py-4 z-20">
+              {/* Eyebrow with horizontal line: e.g. — FOUNDER & CONVENOR */}
+              <div className="flex items-center gap-3 mb-3 sm:mb-4">
+                <span className="w-8 sm:w-12 h-[2px] bg-amber-400" />
+                <span className="text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-amber-400 font-bold">
+                  {activeMember.role}
+                </span>
               </div>
 
-              {/* ========================================================
-                  RIGHT COLUMN: Floating Cards Strip
-                  Driven smoothly as user scrolls or clicks!
-                 ======================================================== */}
-              <div className="w-full lg:w-[52%] h-full flex items-center mt-6 lg:mt-0 relative overflow-hidden pl-0 lg:pl-6">
-                {/* Horizontal Slider Track with smooth offset */}
-                <div
-                  className="flex items-center gap-4 sm:gap-5 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] py-4"
-                  style={{
-                    transform: `translateX(-${activeIndex * cardStep}px)`,
-                  }}
+              {/* Giant Condensed Editorial Typography */}
+              <h1 className="font-black uppercase tracking-tight text-white leading-[0.88] drop-shadow-2xl">
+                <span className="block text-white tracking-tight text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl">
+                  {firstName}
+                </span>
+                <span
+                  className={`block tracking-tight text-slate-200 ${
+                    lastName.length > 8
+                      ? "text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-7xl mt-1"
+                      : "text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-8xl"
+                  }`}
                 >
-                  {teamMembers.map((member, i) => {
-                    const isCurrent = i === activeIndex;
-                    const parts = member.name.split(" ");
-                    const cardFirstName = parts[0] || "";
-                    const cardLastName = parts.slice(1).join(" ") || "";
-                    const isLongName = member.name.length > 13;
+                  {lastName}
+                </span>
+              </h1>
 
-                    return (
-                      <div
-                        key={member.id}
-                        onClick={() => scrollToMember(i)}
-                        className={`relative w-[225px] sm:w-[270px] h-[325px] sm:h-[400px] rounded-[24px] sm:rounded-[28px] overflow-hidden shrink-0 cursor-pointer transition-all duration-500 group select-none ${
-                          isCurrent
-                            ? "ring-2 ring-amber-400 border-transparent shadow-[0_20px_50px_rgba(245,158,11,0.25)] scale-[1.02]"
-                            : "border border-white/10 hover:border-white/35 opacity-70 hover:opacity-100 hover:scale-[1.01] bg-[#080808]"
-                        }`}
-                      >
-                        {/* Member Portrait */}
-                        <Image
-                          src={member.image}
-                          alt={member.name}
-                          fill
-                          sizes="(max-width: 640px) 225px, 270px"
-                          className="object-cover object-top transition-transform duration-700 group-hover:scale-105 pointer-events-none"
-                        />
+              {/* Concise Narrative Bio Snippet */}
+              <p className="text-xs sm:text-sm lg:text-base text-slate-300 font-light leading-relaxed max-w-md mt-4 sm:mt-5 drop-shadow-md line-clamp-3 sm:line-clamp-none">
+                {activeMember.bio}
+              </p>
 
-                        {/* Scrim Overlay with deep contrast */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none" />
+              {/* Action Buttons Row */}
+              <div className="flex items-center gap-3 sm:gap-4 mt-6 sm:mt-8">
+                {/* Shield / Bookmark pill */}
+                <a
+                  href={activeMember.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 hover:border-amber-400/80 backdrop-blur-md flex items-center justify-center text-white hover:text-amber-400 transition-all active:scale-95 shadow-lg group cursor-pointer"
+                  title="View LinkedIn Profile"
+                >
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 group-hover:scale-110 transition-transform" />
+                </a>
 
-                        {/* Top Right Index Badge: e.g. 01 / 07 */}
-                        <div className="absolute top-3 right-3 z-10">
-                          <div className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-mono font-bold tracking-wider text-white shadow-sm flex items-center gap-1">
-                            <span className={isCurrent ? "text-amber-400" : "text-white"}>
-                              {String(i + 1).padStart(2, "0")}
-                            </span>
-                            <span className="text-slate-500">/</span>
-                            <span className="text-slate-400">{String(N).padStart(2, "0")}</span>
-                          </div>
-                        </div>
+                {/* Primary Explore Dossier Button */}
+                <button
+                  type="button"
+                  onClick={scrollToDossier}
+                  className="inline-flex items-center gap-2.5 sm:gap-3 px-5 sm:px-7 py-3 sm:py-3.5 rounded-full bg-white text-black hover:bg-amber-400 hover:text-black font-mono font-bold text-[11px] sm:text-xs uppercase tracking-wider transition-all duration-200 active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.15)] group cursor-pointer"
+                >
+                  <span>Explore Dossier</span>
+                  <ArrowDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-y-0.5 transition-transform" />
+                </button>
 
-                        {/* Active Status Badge */}
-                        {isCurrent && (
-                          <div className="absolute top-3 left-3 z-10">
-                            <span className="px-2 py-0.5 rounded-full bg-amber-400 text-black font-mono font-bold text-[9px] tracking-wider uppercase flex items-center gap-1 shadow-sm">
-                              <span className="w-1.5 h-1.5 rounded-full bg-black animate-ping" />
-                              Active
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Bottom Info: Category Bar & Clean 2-Line Name */}
-                        <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 z-10 flex flex-col justify-end text-left pointer-events-none">
-                          <div className="flex items-center gap-1.5 mb-1.5">
-                            <span className="w-3.5 h-[1.5px] bg-amber-400 shrink-0" />
-                            <span className="text-[9.5px] sm:text-[10px] font-mono uppercase tracking-[0.18em] text-amber-400 font-bold truncate">
-                              {member.categoryBadge}
-                            </span>
-                          </div>
-
-                          {/* 2-line clean editorial name layout so long names (Anubhav, Kushwaha) never clip */}
-                          <h3
-                            className={`font-black uppercase tracking-tight leading-[1.08] drop-shadow-md ${
-                              isLongName
-                                ? "text-[15px] sm:text-base lg:text-[17px]"
-                                : "text-base sm:text-lg lg:text-xl"
-                            }`}
-                          >
-                            <span className="block text-white truncate">{cardFirstName}</span>
-                            <span className="block text-slate-200 truncate">{cardLastName}</span>
-                          </h3>
-
-                          <p className="text-[10.5px] sm:text-[11px] text-slate-400 font-mono mt-1 drop-shadow-sm truncate">
-                            {member.role}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
+                {/* Mobile Hint Pill */}
+                <div className="lg:hidden ml-auto">
+                  <span className="text-[10px] font-mono text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/20">
+                    {activeMember.categoryBadge}
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* ========================================================
-                BOTTOM CONTROLS & SCROLL PROGRESS DOCK
-                Auto-play removed; user scroll drives the indicator!
+                RIGHT COLUMN: Floating Cards Strip
+                Clicking or wheeling flips through cards smoothly!
                ======================================================== */}
-            <div className="absolute bottom-4 sm:bottom-6 inset-x-0 px-4 sm:px-10 lg:px-14 z-30 flex items-center justify-between">
-              {/* Left Controls: Prev, Next & Scroll Guide Badge */}
-              <div className="flex items-center gap-2 sm:gap-3">
-                {/* Prev Button */}
-                <button
-                  type="button"
-                  onClick={handlePrev}
-                  aria-label="Previous member"
-                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 hover:border-amber-400 text-white hover:text-amber-400 flex items-center justify-center backdrop-blur-md transition-all active:scale-95 shadow-lg cursor-pointer"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
+            <div className="w-full lg:w-[52%] h-full flex items-center mt-6 lg:mt-0 relative overflow-hidden pl-0 lg:pl-6">
+              {/* Horizontal Slider Track with smooth offset */}
+              <div
+                className="flex items-center gap-4 sm:gap-5 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] py-4"
+                style={{
+                  transform: `translateX(-${activeIndex * cardStep}px)`,
+                }}
+              >
+                {teamMembers.map((member, i) => {
+                  const isCurrent = i === activeIndex;
+                  const parts = member.name.split(" ");
+                  const cardFirstName = parts[0] || "";
+                  const cardLastName = parts.slice(1).join(" ") || "";
+                  const isLongName = member.name.length > 13;
 
-                {/* Next Button */}
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  aria-label="Next member"
-                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 hover:border-amber-400 text-white hover:text-amber-400 flex items-center justify-center backdrop-blur-md transition-all active:scale-95 shadow-lg cursor-pointer"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
+                  return (
+                    <div
+                      key={member.id}
+                      onClick={() => setActiveIndex(i)}
+                      className={`relative w-[225px] sm:w-[270px] h-[325px] sm:h-[400px] rounded-[24px] sm:rounded-[28px] overflow-hidden shrink-0 cursor-pointer transition-all duration-500 group select-none ${
+                        isCurrent
+                          ? "ring-2 ring-amber-400 border-transparent shadow-[0_20px_50px_rgba(245,158,11,0.25)] scale-[1.02]"
+                          : "border border-white/10 hover:border-white/35 opacity-70 hover:opacity-100 hover:scale-[1.01] bg-[#080808]"
+                      }`}
+                    >
+                      {/* Member Portrait */}
+                      <Image
+                        src={member.image}
+                        alt={member.name}
+                        fill
+                        sizes="(max-width: 640px) 225px, 270px"
+                        className="object-cover object-top transition-transform duration-700 group-hover:scale-105 pointer-events-none"
+                      />
 
-                {/* Scroll Guide Indicator */}
-                <div className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 border border-white/20 backdrop-blur-md text-[11px] font-mono text-slate-300 shadow-lg">
-                  <MousePointer className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Scroll down to navigate</span>
-                </div>
+                      {/* Scrim Overlay with deep contrast */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent pointer-events-none" />
+
+                      {/* Top Right Index Badge: e.g. 01 / 07 */}
+                      <div className="absolute top-3 right-3 z-10">
+                        <div className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-mono font-bold tracking-wider text-white shadow-sm flex items-center gap-1">
+                          <span className={isCurrent ? "text-amber-400" : "text-white"}>
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
+                          <span className="text-slate-500">/</span>
+                          <span className="text-slate-400">{String(N).padStart(2, "0")}</span>
+                        </div>
+                      </div>
+
+                      {/* Active Status Badge */}
+                      {isCurrent && (
+                        <div className="absolute top-3 left-3 z-10">
+                          <span className="px-2 py-0.5 rounded-full bg-amber-400 text-black font-mono font-bold text-[9px] tracking-wider uppercase flex items-center gap-1 shadow-sm">
+                            <span className="w-1.5 h-1.5 rounded-full bg-black animate-ping" />
+                            Active
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Bottom Info: Category Bar & Clean 2-Line Name */}
+                      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 z-10 flex flex-col justify-end text-left pointer-events-none">
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <span className="w-3.5 h-[1.5px] bg-amber-400 shrink-0" />
+                          <span className="text-[9.5px] sm:text-[10px] font-mono uppercase tracking-[0.18em] text-amber-400 font-bold truncate">
+                            {member.categoryBadge}
+                          </span>
+                        </div>
+
+                        {/* 2-line clean editorial name layout */}
+                        <h3
+                          className={`font-black uppercase tracking-tight leading-[1.08] drop-shadow-md ${
+                            isLongName
+                              ? "text-[15px] sm:text-base lg:text-[17px]"
+                              : "text-base sm:text-lg lg:text-xl"
+                          }`}
+                        >
+                          <span className="block text-white truncate">{cardFirstName}</span>
+                          <span className="block text-slate-200 truncate">{cardLastName}</span>
+                        </h3>
+
+                        <p className="text-[10.5px] sm:text-[11px] text-slate-400 font-mono mt-1 drop-shadow-sm truncate">
+                          {member.role}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
+            </div>
+          </div>
 
-              {/* Center: Linear Scroll Progress Bar Indicator */}
-              <div className="flex-1 max-w-[100px] sm:max-w-xs md:max-w-md mx-3 sm:mx-8">
-                <div className="relative w-full h-[2px] sm:h-[3px] bg-white/20 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.9)] transition-all duration-150 ease-out"
-                    style={{ width: `${Math.max(8, scrollProgress * 100)}%` }}
-                  />
-                </div>
-              </div>
+          {/* ========================================================
+              BOTTOM CONTROLS & LINEAR PROGRESS DOCK
+             ======================================================== */}
+          <div className="absolute bottom-4 sm:bottom-6 inset-x-0 px-4 sm:px-10 lg:px-14 z-30 flex items-center justify-between">
+            {/* Left Controls: Prev, Next & Scroll Tip */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Prev Button */}
+              <button
+                type="button"
+                onClick={handlePrev}
+                aria-label="Previous member"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 hover:border-amber-400 text-white hover:text-amber-400 flex items-center justify-center backdrop-blur-md transition-all active:scale-95 shadow-lg cursor-pointer"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
 
-              {/* Right: Counter e.g. 01 / 07 */}
-              <div className="flex items-baseline font-mono text-white">
-                <span className="text-xl sm:text-2xl lg:text-3xl font-black tracking-wider text-amber-400">
-                  {String(activeIndex + 1).padStart(2, "0")}
-                </span>
-                <span className="text-xs sm:text-sm font-semibold text-slate-400 ml-1.5">
-                  / {String(N).padStart(2, "0")}
-                </span>
+              {/* Next Button */}
+              <button
+                type="button"
+                onClick={handleNext}
+                aria-label="Next member"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/20 hover:border-amber-400 text-white hover:text-amber-400 flex items-center justify-center backdrop-blur-md transition-all active:scale-95 shadow-lg cursor-pointer"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+
+              {/* Scroll Tip Indicator */}
+              <div className="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-full bg-black/60 border border-white/20 backdrop-blur-md text-[11px] font-mono text-slate-300 shadow-lg">
+                <MousePointer className="w-3.5 h-3.5 text-amber-400" />
+                <span>Scroll wheel to flip cards</span>
               </div>
             </div>
 
+            {/* Center: Linear Progress Bar Indicator */}
+            <div className="flex-1 max-w-[100px] sm:max-w-xs md:max-w-md mx-3 sm:mx-8">
+              <div className="relative w-full h-[2px] sm:h-[3px] bg-white/20 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.9)] transition-all duration-500 ease-out"
+                  style={{ width: `${((activeIndex + 1) / N) * 100}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Right: Counter e.g. 01 / 07 */}
+            <div className="flex items-baseline font-mono text-white">
+              <span className="text-xl sm:text-2xl lg:text-3xl font-black tracking-wider text-amber-400">
+                {String(activeIndex + 1).padStart(2, "0")}
+              </span>
+              <span className="text-xs sm:text-sm font-semibold text-slate-400 ml-1.5">
+                / {String(N).padStart(2, "0")}
+              </span>
+            </div>
           </div>
-        </div>
+        </section>
 
         {/* ========================================================
             2. QUICK HUD PILLS DOCK
