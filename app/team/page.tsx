@@ -11,7 +11,10 @@ import {
   Mail,
   GraduationCap,
   ArrowUpRight,
-  Volume2,
+  Shield,
+  Briefcase,
+  Award,
+  Sparkles,
 } from "lucide-react";
 
 // Social SVG Icons
@@ -31,12 +34,11 @@ function GitHubIcon({ className = "w-4 h-4" }: { className?: string }) {
   );
 }
 
-interface TeamCarouselMember {
+interface TeamMember {
   id: string;
   name: string;
   role: string;
   categoryBadge: string;
-  isConvenor?: boolean;
   department: string;
   email: string;
   image: string;
@@ -45,42 +47,52 @@ interface TeamCarouselMember {
   quote: string;
   linkedin: string;
   github: string;
+  quickStats: { label: string; value: string }[];
 }
 
-// 7 Core Team Members: Yash -> Right: Ansh -> Right: Abhishek -> Right: Krishna -> Anubhav -> Divyansh -> Arya
-const teamCarouselMembers: TeamCarouselMember[] = [
+// 7 Core Team Members in order: Yash -> Ansh -> Abhishek -> Krishna -> Anubhav -> Divyansh -> Arya
+const teamMembers: TeamMember[] = [
   {
     id: "yash",
-    name: "YASH HARFODE",
+    name: "Yash Harfode",
     role: "Convenor & Founder",
     categoryBadge: "CONVENOR",
-    isConvenor: true,
     department: "CSE, SATI Vidisha",
     email: "yash@cybercell.in",
     image: "/images/team/yash-harfode.png",
-    bio: "Leading Cyber Cell with a vision to build a strong cybersecurity culture on campus through learning, collaboration and real-world impact.",
-    tags: ["Leadership", "Community", "Events", "Strategy"],
-    quote: "Building a community where curiosity meets opportunity.",
+    bio: "Leading Cyber Cell with a clear vision to build an ethical cybersecurity culture on campus through structured learning, hands-on labs, and real-world impact.",
+    tags: ["Leadership", "Community", "Strategy", "Workshops"],
+    quote: "Building an engineering community where curiosity meets practical opportunity.",
     linkedin: "https://linkedin.com/in/yashharfode",
     github: "https://github.com/yashharfode",
+    quickStats: [
+      { label: "Role", value: "Club Founder" },
+      { label: "Branch", value: "CSE SATI" },
+      { label: "Focus", value: "Leadership & Labs" },
+    ],
   },
   {
     id: "ansh",
-    name: "ANSH KUSHWAHA",
+    name: "Ansh Kushwaha",
     role: "Club Secretary",
-    categoryBadge: "CLUB SECRETARY",
+    categoryBadge: "SECRETARY",
     department: "CSE, SATI Vidisha",
     email: "ansh@cybercell.in",
     image: "/images/team/ansh-kushwaha.png",
-    bio: "Overseeing executive administration, member relations, official campus coordination, and cross-team workflows.",
+    bio: "Overseeing executive administration, member relations, official campus coordination, and inter-departmental communications.",
     tags: ["Operations", "Administration", "Planning", "Outreach"],
-    quote: "Great teams turn shared passion into lasting institutional impact.",
+    quote: "Disciplined execution and strong teams turn shared passion into lasting institutional impact.",
     linkedin: "https://linkedin.com",
     github: "https://github.com",
+    quickStats: [
+      { label: "Role", value: "Club Secretary" },
+      { label: "Branch", value: "CSE SATI" },
+      { label: "Focus", value: "Operations & Flow" },
+    ],
   },
   {
     id: "abhishek",
-    name: "ABHISHEK",
+    name: "Abhishek Mahore",
     role: "Co-Convenor",
     categoryBadge: "CO-CONVENOR",
     department: "CSE, SATI Vidisha",
@@ -88,13 +100,18 @@ const teamCarouselMembers: TeamCarouselMember[] = [
     image: "/images/team/abhishek-mahore.png",
     bio: "Assisting club leadership in strategic planning, event logistics, inter-college outreach, and multimedia production.",
     tags: ["Media Production", "Strategy", "Logistics", "Community"],
-    quote: "Documenting the journey inspires the next generation of defenders.",
+    quote: "Documenting our journey inspires the next generation of cybersecurity defenders.",
     linkedin: "https://linkedin.com",
     github: "https://github.com",
+    quickStats: [
+      { label: "Role", value: "Co-Convenor" },
+      { label: "Branch", value: "CSE SATI" },
+      { label: "Focus", value: "Logistics & Outreach" },
+    ],
   },
   {
     id: "krishna",
-    name: "KRISHNA",
+    name: "Krishna Mishra",
     role: "Co-Convenor",
     categoryBadge: "CO-CONVENOR",
     department: "CSE, SATI Vidisha",
@@ -102,13 +119,18 @@ const teamCarouselMembers: TeamCarouselMember[] = [
     image: "/images/team/krishna-mishra.png",
     bio: "Driving offensive security tracks, workshop hands-on architectures, and mentoring students in CTF wargames and red teaming.",
     tags: ["Penetration Testing", "Workshops", "CTFs", "Red Teaming"],
-    quote: "Security is not a feature; it is a fundamental mindset.",
+    quote: "Security is not an isolated feature; it is a fundamental institutional mindset.",
     linkedin: "https://linkedin.com",
     github: "https://github.com",
+    quickStats: [
+      { label: "Role", value: "Co-Convenor" },
+      { label: "Branch", value: "CSE SATI" },
+      { label: "Focus", value: "Red Team & CTFs" },
+    ],
   },
   {
     id: "anubhav",
-    name: "ANUBHAV",
+    name: "Anubhav Vishwkarma",
     role: "Technical Lead",
     categoryBadge: "TECHNICAL LEAD",
     department: "CSE, SATI Vidisha",
@@ -116,13 +138,18 @@ const teamCarouselMembers: TeamCarouselMember[] = [
     image: "/images/team/anubhav.png",
     bio: "Leading technical infrastructure, CTF challenge design, offensive security tracks, and developer projects.",
     tags: ["Reverse Engineering", "Linux Internals", "CTFs", "Tooling"],
-    quote: "Break it down to understand how to build it unbreakable.",
+    quote: "Break systems down rigorously to understand how to build them unbreakable.",
     linkedin: "https://linkedin.com",
     github: "https://github.com",
+    quickStats: [
+      { label: "Role", value: "Technical Lead" },
+      { label: "Branch", value: "CSE SATI" },
+      { label: "Focus", value: "Systems & Exploits" },
+    ],
   },
   {
     id: "divyansh",
-    name: "DIVYANSH CHAUREY",
+    name: "Divyansh Chaurey",
     role: "Management & Media Lead",
     categoryBadge: "MANAGEMENT & MEDIA",
     department: "CSE, SATI Vidisha",
@@ -130,13 +157,18 @@ const teamCarouselMembers: TeamCarouselMember[] = [
     image: "/images/team/divyansh-chaurey.png",
     bio: "Heading on-ground event management, media coverage, photography, video production, and publicity campaigns.",
     tags: ["Event Management", "Media Production", "Publicity", "Logistics"],
-    quote: "Connecting our club's energy with the wider campus through impactful storytelling.",
+    quote: "Connecting our club's energy with the wider campus through impactful visual storytelling.",
     linkedin: "https://linkedin.com",
     github: "https://github.com",
+    quickStats: [
+      { label: "Role", value: "Media Lead" },
+      { label: "Branch", value: "CSE SATI" },
+      { label: "Focus", value: "Media & Event Ops" },
+    ],
   },
   {
     id: "arya",
-    name: "ARYA MISHRA",
+    name: "Arya Mishra",
     role: "Graphic Design & Public Speaking",
     categoryBadge: "GRAPHIC DESIGN & SPEAKING",
     department: "CSE, SATI Vidisha",
@@ -147,258 +179,230 @@ const teamCarouselMembers: TeamCarouselMember[] = [
     quote: "Visual clarity and confident storytelling turn complex security concepts into accessible ideas.",
     linkedin: "https://linkedin.com",
     github: "https://github.com",
+    quickStats: [
+      { label: "Role", value: "Design Lead" },
+      { label: "Branch", value: "CSE SATI" },
+      { label: "Focus", value: "Brand & Stage" },
+    ],
   },
 ];
 
 export default function TeamPage() {
-  const members = teamCarouselMembers;
-  const N = members.length;
-  const step = 360 / N;
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Rotation angles for smooth lerp physics
-  const [currentAngle, setCurrentAngle] = useState(0);
-  const [targetAngle, setTargetAngle] = useState(0);
-
-  // Drag state
+  // Drag interaction state
   const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [dragStartAngle, setDragStartAngle] = useState(0);
+  const [dragStartX, setDragStartX] = useState(0);
 
-  // Responsive dimensions
-  const [radius, setRadius] = useState(420);
-  const [cardDim, setCardDim] = useState({ w: 290, h: 430 });
+  // Center card 3D tilt tracking
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
-  // Carousel ref
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const lastWheelTime = useRef(0);
+  const N = teamMembers.length;
+  const activeMember = teamMembers[activeIndex];
 
-  // Responsive resize
+  // Track window size for responsive curved spacing
   useEffect(() => {
     const handleResize = () => {
-      const w = window.innerWidth;
-      if (w < 640) {
-        setRadius(240);
-        setCardDim({ w: 210, h: 320 });
-      } else if (w < 1024) {
-        setRadius(340);
-        setCardDim({ w: 250, h: 380 });
-      } else {
-        setRadius(430);
-        setCardDim({ w: 290, h: 430 });
-      }
+      setIsMobile(window.innerWidth < 640);
     };
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Smooth lerp animation loop (spring damping)
+  const nextCard = useCallback(() => {
+    setActiveIndex((prev) => (prev + 1) % N);
+    setTilt({ x: 0, y: 0 });
+  }, [N]);
+
+  const prevCard = useCallback(() => {
+    setActiveIndex((prev) => (prev - 1 + N) % N);
+    setTilt({ x: 0, y: 0 });
+  }, [N]);
+
+  // Keyboard navigation
   useEffect(() => {
-    let animId: number;
-    const updateLoop = () => {
-      setCurrentAngle((prev) => {
-        const diff = targetAngle - prev;
-        if (Math.abs(diff) < 0.02) return targetAngle;
-        return prev + diff * 0.11; // smooth damping
-      });
-      animId = requestAnimationFrame(updateLoop);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") prevCard();
+      else if (e.key === "ArrowRight") nextCard();
     };
-    animId = requestAnimationFrame(updateLoop);
-    return () => cancelAnimationFrame(animId);
-  }, [targetAngle]);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [nextCard, prevCard]);
 
-  // Current active index in front
-  const activeIndex = ((Math.round(targetAngle / step) % N) + N) % N;
-  const activeMember = members[activeIndex] || members[0];
-
-  // Rotate smoothly to a specific index
-  const rotateToIndex = useCallback(
-    (targetIdx: number) => {
-      const currentIdx = ((Math.round(targetAngle / step) % N) + N) % N;
-      let diff = targetIdx - currentIdx;
-      if (diff > N / 2) diff -= N;
-      if (diff < -N / 2) diff += N;
-      setTargetAngle((prev) => prev + diff * step);
-    },
-    [targetAngle, step, N]
-  );
-
-  // Trackpad / Wheel listener
-  useEffect(() => {
-    const el = carouselRef.current;
-    if (!el) return;
-
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      const now = Date.now();
-      if (now - lastWheelTime.current < 120) return;
-
-      const delta = e.deltaX !== 0 ? e.deltaX : e.deltaY;
-      if (Math.abs(delta) > 8) {
-        lastWheelTime.current = now;
-        setTargetAngle((prev) => prev + (delta > 0 ? step : -step));
-      }
-    };
-
-    el.addEventListener("wheel", handleWheel, { passive: false });
-    return () => el.removeEventListener("wheel", handleWheel);
-  }, [step]);
-
-  // Drag / Touch gestures
+  // Pointer drag gestures
   const handlePointerDown = (e: React.PointerEvent) => {
     setIsDragging(true);
-    setStartX(e.clientX);
-    setDragStartAngle(targetAngle);
+    setDragStartX(e.clientX);
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging) return;
-    const deltaX = e.clientX - startX;
-    setTargetAngle(dragStartAngle - deltaX * 0.32);
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
     if (!isDragging) return;
     setIsDragging(false);
     (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
-    // Snap to nearest card
-    setTargetAngle((prev) => Math.round(prev / step) * step);
+
+    const deltaX = e.clientX - dragStartX;
+    if (Math.abs(deltaX) > 40) {
+      if (deltaX < 0) nextCard();
+      else prevCard();
+    }
   };
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") {
-        setTargetAngle((prev) => prev - step);
-      } else if (e.key === "ArrowRight") {
-        setTargetAngle((prev) => prev + step);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [step]);
+  // Center card mouse parallax tilt
+  const handleCenterMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isMobile) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    setTilt({
+      x: (-y / (rect.height / 2)) * 6,
+      y: (x / (rect.width / 2)) * 6,
+    });
+  };
+
+  const handleCenterMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+  };
 
   return (
-    <div className="min-h-screen bg-[#030509] text-white flex flex-col font-sans selection:bg-[#00e5ff]/25 selection:text-white overflow-x-hidden">
-      {/* Sticky / Fixed Navigation */}
+    <div className="min-h-screen bg-[#030303] text-white flex flex-col font-sans selection:bg-amber-400/20 selection:text-amber-300 overflow-x-hidden">
+      {/* Sticky Glass Navbar */}
       <Navbar />
 
-      <main className="flex-1 flex flex-col items-center pt-24 sm:pt-28 pb-16 px-4 w-full select-none relative">
-        {/* Background Subtle Ambient */}
-        <div className="absolute top-10 inset-x-0 h-96 bg-[radial-gradient(ellipse_60%_40%_at_50%_20%,rgba(0,229,255,0.05),transparent)] pointer-events-none" />
+      <main className="flex-1 flex flex-col items-center pt-24 sm:pt-28 pb-16 px-3 sm:px-6 w-full select-none relative">
+        
+        {/* Subtle Ambient Radial Glow */}
+        <div className="absolute top-12 inset-x-0 h-[480px] bg-[radial-gradient(ellipse_60%_45%_at_50%_15%,rgba(245,158,11,0.05),transparent)] pointer-events-none" />
 
-        {/* 1. HERO HEADER WITH 3D ROBOT HELMET & THE TEAM TITLE */}
-        <div className="relative w-full max-w-6xl mx-auto flex flex-col items-center text-center mb-8 sm:mb-12">
+        {/* ========================================================
+            1. HEADER WITH CONTROLS (MATCHING REFERENCE MOCKUP)
+           ======================================================== */}
+        <div className="relative w-full max-w-5xl mx-auto flex items-center justify-between mt-2 mb-6 sm:mb-8 px-2 z-20">
           
-          {/* Centered 3D Helmet Asset */}
-          <div className="relative w-36 sm:w-44 h-28 sm:h-36 -mb-6 sm:-mb-8 pointer-events-none z-0">
-            <Image
-              src="/images/hero-cyborg-avatar.jpg"
-              alt="Cyber Cell Sentinel"
-              fill
-              className="object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]"
-              priority
-            />
-            {/* Subtle mask to blend bottom */}
-            <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#030509] to-transparent" />
+          {/* Left Arrow Button */}
+          <button
+            onClick={prevCard}
+            aria-label="Previous member"
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/10 hover:border-amber-400/40 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-md backdrop-blur-md"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+
+          {/* Centered Editorial Title */}
+          <div className="text-center">
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white uppercase">
+              Core Leadership
+            </h1>
+            <p className="text-xs font-mono tracking-[0.2em] text-amber-400 uppercase mt-0.5 font-semibold">
+              Cyber Cell &bull; SATI Vidisha
+            </p>
           </div>
 
-          {/* HUD Tech Lines & Editorial Heading Row */}
-          <div className="relative w-full flex items-center justify-between px-4 sm:px-8 z-10">
-            {/* Left Tech HUD */}
-            <div className="hidden lg:flex flex-col text-[10px] font-mono tracking-[0.25em] text-slate-500 uppercase border-l-2 border-[#00e5ff]/40 pl-3.5 py-1 text-left space-y-1">
-              <span className="text-[#00e5ff] font-bold">CORE TEAM</span>
-              <span>PEOPLE</span>
-              <span>IDEAS</span>
-              <span>INITIATIVES</span>
-              <span>IMPACT</span>
-            </div>
+          {/* Right Arrow Button */}
+          <button
+            onClick={nextCard}
+            aria-label="Next member"
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/10 hover:border-amber-400/40 text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 active:scale-95 shadow-md backdrop-blur-md"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
 
-            {/* Giant Center Title: THE TEAM */}
-            <div className="flex-1 flex justify-center">
-              <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight text-white flex items-center justify-center gap-3 sm:gap-4 select-none">
-                <span
-                  className="font-extrabold"
-                  style={{
-                    WebkitTextStroke: "1.5px rgba(255,255,255,0.7)",
-                    color: "transparent",
-                  }}
-                >
-                  THE
-                </span>
-                <span className="text-[#00e5ff] text-3xl sm:text-4xl font-light opacity-80">
-                  ✦
-                </span>
-                <span className="text-white font-black tracking-tight">
-                  TEAM
-                </span>
-              </h1>
-            </div>
-
-            {/* Right Tech HUD */}
-            <div className="hidden lg:flex flex-col text-[10px] font-mono tracking-[0.25em] text-slate-500 uppercase border-r-2 border-[#00e5ff]/40 pr-3.5 py-1 text-right space-y-1">
-              <span className="text-[#00e5ff] font-bold">STUDENTS</span>
-              <span>BUILDING</span>
-              <span>A SECURE</span>
-              <span>TOMORROW</span>
-            </div>
-          </div>
-
-          {/* Subtitle */}
-          <p className="text-xs sm:text-sm text-slate-400 font-light max-w-xl mx-auto mt-4 px-4 leading-relaxed">
-            A team of passionate students driving Cyber Cell forward &mdash; through learning, collaboration and real impact.
-          </p>
         </div>
 
-        {/* 2. 3D CYLINDRICAL CAROUSEL VIEWPORT */}
+        {/* ========================================================
+            2. APPLE VISIONOS SPATIAL CURVED FAN DECK
+            Exact 1:1 Match to the User's Reference Screenshot
+           ======================================================== */}
         <div
-          ref={carouselRef}
+          ref={containerRef}
           onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-          className="relative w-full max-w-6xl h-[400px] sm:h-[480px] lg:h-[520px] flex items-center justify-center cursor-grab active:cursor-grabbing perspective-[1200px] overflow-hidden my-auto"
+          className="relative w-full max-w-6xl h-[390px] sm:h-[480px] lg:h-[520px] flex items-center justify-center cursor-grab active:cursor-grabbing perspective-[1200px] overflow-visible my-auto"
         >
-          {/* Center Cards 3D Space */}
           <div className="relative w-full h-full flex items-center justify-center">
-            {members.map((member, i) => {
-              const cardAngle = i * step;
-              const relAngle = (((cardAngle - currentAngle) % 360) + 540) % 360 - 180;
-              const rad = (relAngle * Math.PI) / 180;
+            {teamMembers.map((member, i) => {
+              // Calculate parametric offset from center (-3 to +3)
+              const diff = ((i - activeIndex) % N + N) % N;
+              const offset = diff > N / 2 ? diff - N : diff;
+              const isCenter = offset === 0;
 
-              // Parametric Cylindrical Transformation
-              const x = Math.sin(rad) * radius;
-              const z = (Math.cos(rad) - 1) * radius;
-              const rotateY = -relAngle * 0.72;
-              const scale = Math.max(0.72, 1 + (Math.cos(rad) - 1) * 0.28);
-              const opacity = Math.cos(rad) > -0.2 ? Math.max(0.25, (Math.cos(rad) + 0.3) / 1.3) : 0;
-              const zIndex = Math.round((Math.cos(rad) + 1) * 50);
+              // Spatial curve parameters
+              let x = 0;
+              let z = 0;
+              let rotateY = 0;
+              let scale = 1;
+              let opacity = 1;
+              let zIndex = 50;
 
-              const isFront = Math.abs(relAngle) < 22;
+              if (isCenter) {
+                x = 0;
+                z = isMobile ? 30 : 60;
+                rotateY = 0;
+                scale = isMobile ? 1.0 : 1.06;
+                opacity = 1;
+                zIndex = 50;
+              } else if (Math.abs(offset) === 1) {
+                x = offset * (isMobile ? 120 : 230);
+                z = isMobile ? -35 : -70;
+                rotateY = offset * -18;
+                scale = isMobile ? 0.85 : 0.88;
+                opacity = 0.95;
+                zIndex = 40;
+              } else if (Math.abs(offset) === 2) {
+                x = offset * (isMobile ? 200 : 410);
+                z = isMobile ? -90 : -160;
+                rotateY = offset * -32;
+                scale = isMobile ? 0.72 : 0.76;
+                opacity = isMobile ? 0.4 : 0.85;
+                zIndex = 30;
+              } else {
+                x = offset * (isMobile ? 260 : 530);
+                z = -260;
+                rotateY = offset * -45;
+                scale = 0.62;
+                opacity = 0;
+                zIndex = 10;
+              }
+
+              // Card dimensions
+              const cardWidth = isMobile ? 220 : 280;
+              const cardHeight = isMobile ? 330 : 420;
 
               return (
                 <div
                   key={member.id}
-                  onClick={() => rotateToIndex(i)}
+                  onClick={() => {
+                    if (!isCenter) {
+                      setActiveIndex(i);
+                      setTilt({ x: 0, y: 0 });
+                    }
+                  }}
+                  onMouseMove={isCenter ? handleCenterMouseMove : undefined}
+                  onMouseLeave={isCenter ? handleCenterMouseLeave : undefined}
                   style={{
-                    width: `${cardDim.w}px`,
-                    height: `${cardDim.h}px`,
-                    transform: `translate3d(${x}px, 0, ${z}px) rotateY(${rotateY}deg) scale(${scale})`,
+                    width: `${cardWidth}px`,
+                    height: `${cardHeight}px`,
+                    transform: isCenter
+                      ? `translate3d(${x}px, 0, ${z}px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${scale})`
+                      : `translate3d(${x}px, 0, ${z}px) rotateY(${rotateY}deg) scale(${scale})`,
                     zIndex,
                     opacity,
-                    pointerEvents: opacity < 0.2 ? "none" : "auto",
+                    transition: isDragging
+                      ? "none"
+                      : "transform 500ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms ease",
+                    pointerEvents: opacity < 0.3 ? "none" : "auto",
                   }}
-                  className={`absolute rounded-2xl sm:rounded-3xl overflow-hidden border transition-all duration-300 shadow-2xl ${
-                    isFront
-                      ? "border-[#00e5ff] shadow-[0_0_35px_rgba(0,229,255,0.3)] ring-1 ring-[#00e5ff]/50 bg-[#070b14] cursor-default"
-                      : "border-white/10 hover:border-white/25 bg-[#060910] cursor-pointer"
+                  className={`absolute rounded-[28px] overflow-hidden select-none border transition-shadow duration-300 ${
+                    isCenter
+                      ? "border-amber-400/60 shadow-[0_20px_60px_rgba(0,0,0,0.9),_0_0_40px_rgba(245,158,11,0.22)] ring-1 ring-amber-400/40 cursor-default bg-[#0a0a0a]"
+                      : "border-white/10 hover:border-white/30 shadow-2xl cursor-pointer bg-[#070707] brightness-90 hover:brightness-100"
                   }`}
                 >
                   {/* Photo Container */}
-                  <div className="relative w-full h-full bg-[#050810]">
+                  <div className="relative w-full h-full bg-[#06080d]">
                     <Image
                       src={member.image}
                       alt={member.name}
@@ -408,151 +412,100 @@ export default function TeamPage() {
                       priority={i < 3}
                     />
 
-                    {/* Gradient overlay for contrast */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/35 to-transparent pointer-events-none" />
+                    {/* Gradient Overlay for Typography Contrast (Matching Reference) */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/35 to-black/10 pointer-events-none" />
 
-                    {/* Card Top Pill Badge */}
-                    <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold backdrop-blur-md shadow-sm transition-all ${
-                          isFront
-                            ? "bg-[#00e5ff]/15 border border-[#00e5ff]/40 text-[#00e5ff]"
-                            : "bg-black/60 border border-white/15 text-slate-300"
-                        }`}
-                      >
-                        {member.categoryBadge}
-                      </span>
-
-                      {/* Yellow Star for Convenor */}
-                      {member.isConvenor && isFront && (
-                        <span className="text-amber-400 text-sm drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]">
-                          ★
-                        </span>
-                      )}
+                    {/* Top-Right Index Notch Tab (Matching Reference e.g. 1 / 20) */}
+                    <div className="absolute top-0 right-0 z-10">
+                      <div className="px-3.5 py-1.5 rounded-bl-2xl bg-black/65 backdrop-blur-md border-b border-l border-white/10 text-[11px] font-mono font-bold tracking-wider text-white shadow-sm flex items-center gap-1">
+                        <span className="text-amber-400">{i + 1}</span>
+                        <span className="text-slate-400">/</span>
+                        <span className="text-slate-400">{N}</span>
+                      </div>
                     </div>
 
-                    {/* Card Bottom: Member Name & Role */}
-                    <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between z-10">
-                      <div>
-                        <h3 className="text-lg sm:text-xl font-black text-white tracking-tight uppercase leading-tight">
-                          {member.name}
-                        </h3>
-                        <p className="text-xs font-mono text-slate-300 mt-0.5">
-                          {member.role}
-                        </p>
-                      </div>
-
-                      {/* Diagonal Arrow Icon on Active Card */}
-                      {isFront && (
-                        <div className="w-6 h-6 rounded-full bg-[#00e5ff]/15 border border-[#00e5ff]/30 flex items-center justify-center text-[#00e5ff] shrink-0 ml-2">
-                          <ArrowUpRight className="w-3.5 h-3.5" />
-                        </div>
-                      )}
+                    {/* Bottom Member Identity Info (Matching Reference e.g. Rosa Khutor) */}
+                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6 z-10 flex flex-col justify-end text-left pointer-events-none">
+                      <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-400 font-bold mb-1">
+                        {member.categoryBadge}
+                      </span>
+                      <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-tight drop-shadow-md">
+                        {member.name}
+                      </h3>
+                      <p className="text-xs text-slate-300 font-mono mt-0.5 drop-shadow-sm">
+                        {member.role}
+                      </p>
                     </div>
                   </div>
                 </div>
               );
             })}
           </div>
-
-          {/* Left Arrow Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setTargetAngle((prev) => prev - step);
-            }}
-            className="absolute left-2 sm:left-6 z-40 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/15 hover:border-[#00e5ff]/60 text-white backdrop-blur-md flex items-center justify-center transition-all active:scale-95 shadow-lg group"
-            aria-label="Previous Team Member"
-          >
-            <ChevronLeft className="w-5 h-5 group-hover:text-[#00e5ff] transition-colors" />
-          </button>
-
-          {/* Right Arrow Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setTargetAngle((prev) => prev + step);
-            }}
-            className="absolute right-2 sm:right-6 z-40 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/90 border border-white/15 hover:border-[#00e5ff]/60 text-white backdrop-blur-md flex items-center justify-center transition-all active:scale-95 shadow-lg group"
-            aria-label="Next Team Member"
-          >
-            <ChevronRight className="w-5 h-5 group-hover:text-[#00e5ff] transition-colors" />
-          </button>
         </div>
 
-        {/* 3. ARC TRACK WITH DOTS & INTERACTION HINT */}
-        <div className="relative w-full max-w-md mx-auto flex flex-col items-center mt-2 mb-10">
-          {/* Subtle Curved Arc SVG Track */}
-          <div className="relative w-72 h-10 flex items-center justify-center">
-            <svg
-              viewBox="0 0 280 40"
-              fill="none"
-              className="w-full h-full stroke-white/15"
-            >
-              <path
-                d="M 20 30 Q 140 2 260 30"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
-
-            {/* Dots along the track for all N members */}
-            <div className="absolute inset-x-8 top-3 flex items-center justify-between px-2">
-              {members.map((_, dotIdx) => {
-                const isCurrent = dotIdx === activeIndex;
-                return (
-                  <button
-                    key={dotIdx}
-                    onClick={() => rotateToIndex(dotIdx)}
-                    className={`rounded-full transition-all duration-300 focus:outline-none ${
-                      isCurrent
-                        ? "w-2.5 h-2.5 bg-[#00e5ff] shadow-[0_0_12px_#00e5ff] scale-125"
-                        : "w-1.5 h-1.5 bg-white/30 hover:bg-white/60"
-                    }`}
-                    aria-label={`Jump to member ${dotIdx + 1}`}
-                  />
-                );
-              })}
-            </div>
+        {/* ========================================================
+            3. PILL HUD DOCK (MATCHING REFERENCE MOCKUP BELOW TABLE)
+            e.g. [ 115km ] [ 2347m ] [ -10 ] [ 113cm ]
+           ======================================================== */}
+        <div className="relative w-full max-w-2xl mx-auto flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 mt-4 sm:mt-6 mb-12 px-3 z-20">
+          
+          {/* Badge 1: Role */}
+          <div className="px-3.5 py-1.5 rounded-full bg-black/70 border border-white/15 backdrop-blur-xl text-[11px] font-mono text-slate-200 flex items-center gap-2 shadow-lg">
+            <Shield className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="font-semibold text-white">{activeMember.categoryBadge}</span>
           </div>
 
-          {/* Monospace interaction hint */}
-          <span className="text-[10px] font-mono tracking-[0.25em] text-slate-500 uppercase mt-1">
-            DRAG &bull; SCROLL &bull; EXPLORE
-          </span>
+          {/* Badge 2: Department */}
+          <div className="px-3.5 py-1.5 rounded-full bg-black/70 border border-white/15 backdrop-blur-xl text-[11px] font-mono text-slate-200 flex items-center gap-2 shadow-lg">
+            <GraduationCap className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span>{activeMember.department}</span>
+          </div>
+
+          {/* Badge 3: Quick Focus */}
+          <div className="hidden sm:flex px-3.5 py-1.5 rounded-full bg-black/70 border border-white/15 backdrop-blur-xl text-[11px] font-mono text-slate-200 items-center gap-2 shadow-lg">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span>{activeMember.quickStats[2].value}</span>
+          </div>
+
+          {/* Badge 4: Email */}
+          <a
+            href={`mailto:${activeMember.email}`}
+            className="px-3.5 py-1.5 rounded-full bg-black/70 border border-white/15 hover:border-amber-400/40 backdrop-blur-xl text-[11px] font-mono text-slate-300 hover:text-white flex items-center gap-2 shadow-lg transition-colors"
+          >
+            <Mail className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="truncate max-w-[140px] sm:max-w-none">{activeMember.email}</span>
+          </a>
+
         </div>
 
-        {/* 4. ACTIVE MEMBER DEEP-DIVE DETAIL PANEL (MATCHING REFERENCE) */}
+        {/* ========================================================
+            4. ACTIVE MEMBER DEEP-DIVE DETAIL PANEL
+           ======================================================== */}
         <div className="w-full max-w-6xl mx-auto px-4 mb-16">
-          <div className="relative rounded-3xl border border-white/10 bg-[#060911]/85 backdrop-blur-md p-6 sm:p-8 lg:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden transition-all duration-500">
-            {/* Top Subtle Amber/Cyan Ambient Glow */}
-            <div className="absolute top-0 right-0 w-80 h-80 bg-[#00e5ff]/5 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative rounded-3xl border border-white/10 bg-[#070707]/90 backdrop-blur-md p-6 sm:p-8 lg:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-hidden transition-all duration-500">
+            {/* Top Subtle Amber Ambient Glow */}
+            <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
               
               {/* Left Column: Member Overview & Tags */}
               <div className="lg:col-span-5 space-y-4">
-                {/* Badge */}
-                <span className="inline-block px-3 py-1 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold bg-[#00e5ff]/15 text-[#00e5ff] border border-[#00e5ff]/30 shadow-sm">
+                <span className="inline-block px-3 py-1 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold bg-amber-400/10 text-amber-400 border border-amber-400/30 shadow-sm">
                   {activeMember.categoryBadge}
                 </span>
 
-                {/* Big Name */}
                 <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight uppercase leading-tight">
                   {activeMember.name}
                 </h2>
 
-                {/* Subtitle / Role Line */}
                 <p className="text-xs sm:text-sm font-mono text-slate-400">
                   {activeMember.role} &nbsp;|&nbsp; Cyber Cell, SATI Vidisha
                 </p>
 
-                {/* Bio */}
                 <p className="text-xs sm:text-sm text-slate-300 font-light leading-relaxed">
                   {activeMember.bio}
                 </p>
 
-                {/* Tags */}
                 <div className="flex flex-wrap gap-2 pt-2">
                   {activeMember.tags.map((tag) => (
                     <span
@@ -569,14 +522,14 @@ export default function TeamPage() {
               <div className="lg:col-span-3 space-y-3 lg:border-l lg:border-white/[0.08] lg:pl-8 py-2">
                 <a
                   href={`mailto:${activeMember.email}`}
-                  className="flex items-center gap-2.5 text-xs font-mono text-slate-300 hover:text-[#00e5ff] transition-colors"
+                  className="flex items-center gap-2.5 text-xs font-mono text-slate-300 hover:text-amber-400 transition-colors"
                 >
-                  <Mail className="w-4 h-4 text-[#00e5ff]" />
-                  <span>{activeMember.email}</span>
+                  <Mail className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span className="truncate">{activeMember.email}</span>
                 </a>
 
                 <div className="flex items-center gap-2.5 text-xs font-mono text-slate-300">
-                  <GraduationCap className="w-4 h-4 text-[#00e5ff]" />
+                  <GraduationCap className="w-4 h-4 text-amber-400 shrink-0" />
                   <span>{activeMember.department}</span>
                 </div>
 
@@ -584,48 +537,50 @@ export default function TeamPage() {
                   href={activeMember.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2.5 text-xs font-mono text-slate-300 hover:text-[#00e5ff] transition-colors"
+                  className="flex items-center gap-2.5 text-xs font-mono text-slate-300 hover:text-amber-400 transition-colors"
                 >
-                  <LinkedInIcon className="w-4 h-4 text-[#00e5ff]" />
-                  <span>LinkedIn</span>
+                  <LinkedInIcon className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>LinkedIn Profile</span>
                 </a>
 
                 <a
                   href={activeMember.github}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2.5 text-xs font-mono text-slate-300 hover:text-[#00e5ff] transition-colors"
+                  className="flex items-center gap-2.5 text-xs font-mono text-slate-300 hover:text-amber-400 transition-colors"
                 >
-                  <GitHubIcon className="w-4 h-4 text-[#00e5ff]" />
-                  <span>GitHub</span>
+                  <GitHubIcon className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>GitHub Profile</span>
                 </a>
               </div>
 
               {/* Right Column: Quote Block */}
               <div className="lg:col-span-4 p-6 sm:p-7 rounded-2xl bg-white/[0.02] border border-white/[0.06] flex flex-col justify-between min-h-[160px]">
                 <div>
-                  <span className="text-3xl font-serif text-[#00e5ff] leading-none block mb-2 opacity-90">
+                  <span className="text-3xl font-serif text-amber-400 leading-none block mb-2 opacity-90">
                     &ldquo;
                   </span>
                   <p className="text-sm sm:text-base text-slate-200 font-medium leading-relaxed italic">
                     {activeMember.quote}
                   </p>
                 </div>
-                <div className="w-10 h-[2px] bg-[#00e5ff]/50 mt-4" />
+                <div className="w-10 h-[2px] bg-amber-400/50 mt-4" />
               </div>
 
             </div>
           </div>
         </div>
 
-        {/* 5. FACULTY ADVISOR & MENTOR SECTION (EXACT REFERENCE LAYOUT) */}
+        {/* ========================================================
+            5. FACULTY ADVISOR & MENTOR SECTION
+           ======================================================== */}
         <section className="w-full max-w-6xl mx-auto px-4 pt-8 pb-12 border-t border-white/[0.08]">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             {/* Left Column: Heading & Mission */}
             <div className="lg:col-span-5 space-y-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00e5ff]/10 border border-[#00e5ff]/20 text-[#00e5ff] text-xs font-mono uppercase tracking-wider font-semibold">
-                <Volume2 className="w-3.5 h-3.5" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-400 text-xs font-mono uppercase tracking-wider font-semibold">
+                <Award className="w-3.5 h-3.5" />
                 <span>INSTITUTIONAL MENTORSHIP</span>
               </div>
 
@@ -640,11 +595,11 @@ export default function TeamPage() {
 
             {/* Right Column: Mentor Card */}
             <div className="lg:col-span-7">
-              <div className="relative rounded-2xl border border-white/10 bg-[#070b14]/90 backdrop-blur-md p-6 sm:p-7 shadow-2xl overflow-hidden flex flex-col sm:flex-row items-center sm:items-start gap-6 group">
+              <div className="relative rounded-2xl border border-white/10 bg-[#070707]/90 backdrop-blur-md p-6 sm:p-7 shadow-2xl overflow-hidden flex flex-col sm:flex-row items-center sm:items-start gap-6 group">
                 
                 {/* Academic Mentorship Emblem */}
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-b from-[#0c1424] to-[#060910] border border-[#00e5ff]/25 flex flex-col items-center justify-center shrink-0 shadow-xl text-[#00e5ff]">
-                  <GraduationCap className="w-9 h-9 mb-1 text-[#00e5ff]" />
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-b from-[#121008] to-[#06080d] border border-amber-400/25 flex flex-col items-center justify-center shrink-0 shadow-xl text-amber-400">
+                  <GraduationCap className="w-9 h-9 mb-1 text-amber-400" />
                   <span className="text-[9px] font-mono tracking-widest text-slate-400 uppercase font-semibold">
                     SATI CSE
                   </span>
@@ -652,7 +607,7 @@ export default function TeamPage() {
 
                 {/* Info */}
                 <div className="flex-1 text-center sm:text-left space-y-2">
-                  <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold bg-[#00e5ff]/10 text-[#00e5ff] border border-[#00e5ff]/20">
+                  <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-wider uppercase font-semibold bg-amber-400/10 text-amber-400 border border-amber-400/20">
                     FACULTY ADVISOR &amp; MENTOR
                   </span>
 
@@ -680,7 +635,7 @@ export default function TeamPage() {
                 {/* Arrow Button */}
                 <a
                   href="mailto:shivangijain@satiengg.in"
-                  className="w-8 h-8 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center text-slate-400 group-hover:text-[#00e5ff] group-hover:border-[#00e5ff]/40 transition-colors shrink-0 self-start sm:self-center"
+                  className="w-8 h-8 rounded-full bg-white/[0.04] border border-white/10 flex items-center justify-center text-slate-400 group-hover:text-amber-400 group-hover:border-amber-400/40 transition-colors shrink-0 self-start sm:self-center"
                   title="Contact Faculty Advisor"
                 >
                   <ArrowUpRight className="w-4 h-4" />
